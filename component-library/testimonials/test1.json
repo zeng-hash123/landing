@@ -1,0 +1,33 @@
+{
+  "html_template": "<section class=\"bg-[{{background_color}}] dark:bg-[{{dark_background_color}}]\">\n  <div class=\"container px-6 py-10 mx-auto\">\n    <div class=\"lg:-mx-6 lg:flex lg:items-center\">\n      <img\n        class=\"object-cover object-center lg:w-1/2 lg:mx-6 w-full h-96 rounded-lg lg:h-[36rem]\"\n        src=\"{{image_url}}\"\n        alt=\"\"\n      />\n\n      <div class=\"mt-8 lg:w-1/2 lg:px-6 lg:mt-0\">\n        <p class=\"text-5xl font-semibold text-[{{primary_color}}]\">“</p>\n\n        <h1 class=\"text-2xl font-semibold text-[{{heading_color}}] dark:text-[{{dark_heading_color}}] lg:text-3xl lg:w-96\">\n          {{headline}}\n        </h1>\n\n        <p class=\"max-w-lg mt-6 text-[{{body_color}}] dark:text-[{{dark_body_color}}]\">\n          {{quote_1}}\n        </p>\n\n        <h3 class=\"mt-6 text-lg font-medium text-[{{primary_color}}]\">\n          {{author_1}}\n        </h3>\n\n        <p class=\"text-[{{secondary_color}}] dark:text-[{{dark_secondary_color}}]\">\n          {{author_role_1}}\n        </p>\n\n        <div class=\"flex items-center justify-between mt-12 lg:justify-start\">\n          <button\n            title=\"left arrow\"\n            class=\"p-2 text-[{{heading_color}}] transition-colors duration-300 border rounded-full rtl:-scale-x-100 dark:border-[{{dark_border_color}}] dark:text-[{{dark_heading_color}}] dark:hover:bg-[{{dark_hover_bg}}] hover:bg-[{{hover_bg}}]\"\n          >\n            <svg\n              xmlns=\"http://www.w3.org/2000/svg\"\n              class=\"w-6 h-6\"\n              fill=\"none\"\n              viewBox=\"0 0 24 24\"\n              stroke=\"currentColor\"\n              stroke-width=\"2\"\n            >\n              <path\n                stroke-linecap=\"round\"\n                stroke-linejoin=\"round\"\n                d=\"M15 19l-7-7 7-7\"\n              />\n            </svg>\n          </button>\n\n          <button\n            title=\"right arrow\"\n            class=\"p-2 text-[{{heading_color}}] transition-colors duration-300 border rounded-full rtl:-scale-x-100 dark:border-[{{dark_border_color}}] dark:text-[{{dark_heading_color}}] dark:hover:bg-[{{dark_hover_bg}}] lg:mx-6 hover:bg-[{{hover_bg}}]\"\n          >\n            <svg\n              xmlns=\"http://www.w3.org/2000/svg\"\n              class=\"w-6 h-6\"\n              fill=\"none\"\n              viewBox=\"0 0 24 24\"\n              stroke=\"currentColor\"\n              stroke-width=\"2\"\n            >\n              <path\n                stroke-linecap=\"round\"\n                stroke-linejoin=\"round\"\n                d=\"M9 5l7 7-7 7\"\n              />\n            </svg>\n          </button>\n        </div>\n      </div>\n    </div>\n  </div>\n</section>",
+  "metadata": {
+    "section_type": "testimonial",
+    "structural_approach": "split-screen with image on the left and testimonial content on the right",
+    "vibe_tags": [
+      "minimal",
+      "corporate",
+      "warm"
+    ],
+    "js_dependency": "static",
+    "js_deps": [],
+    "tokens": [
+      "{{background_color}}",
+      "{{dark_background_color}}",
+      "{{image_url}}",
+      "{{headline}}",
+      "{{quote_1}}",
+      "{{author_1}}",
+      "{{author_role_1}}",
+      "{{primary_color}}",
+      "{{heading_color}}",
+      "{{dark_heading_color}}",
+      "{{body_color}}",
+      "{{dark_body_color}}",
+      "{{secondary_color}}",
+      "{{dark_secondary_color}}",
+      "{{dark_border_color}}",
+      "{{hover_bg}}",
+      "{{dark_hover_bg}}"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "html_template": "<section class=\"bg-[{{background_color}}] dark:bg-[{{dark_background_color}}]\">\n  <div class=\"max-w-6xl px-6 py-10 mx-auto\">\n    <p class=\"text-xl font-medium text-[{{primary_color}}]\">\n      {{subheadline}}\n    </p>\n\n    <h1 class=\"mt-2 text-2xl font-semibold text-[{{heading_color}}] capitalize lg:text-3xl dark:text-[{{dark_heading_color}}]\">\n      {{headline}}\n    </h1>\n\n    <main class=\"relative z-20 w-full mt-8 md:flex md:items-center xl:mt-12\">\n      <div class=\"absolute w-full bg-[{{primary_color}}] -z-10 md:h-96 rounded-2xl\"></div>\n\n      <div class=\"w-full p-6 bg-[{{primary_color}}] md:flex md:items-center rounded-2xl md:bg-transparent md:p-0 lg:px-12 md:justify-evenly\">\n        <img\n          class=\"h-24 w-24 md:mx-6 rounded-full object-cover shadow-md md:h-[32rem] md:w-80 lg:h-[36rem] lg:w-[26rem] md:rounded-2xl\"\n          src=\"{{image_url}}\"\n          alt=\"client photo\"\n        />\n\n        <div class=\"mt-2 md:mx-6\">\n          <div>\n            <p class=\"text-xl font-medium tracking-tight text-[{{text_on_primary}}]\">\n              {{author_1}}\n            </p>\n\n            <p class=\"text-[{{secondary_color}}]\">\n              {{author_role_1}}\n            </p>\n          </div>\n\n          <p class=\"mt-4 text-lg leading-relaxed text-[{{text_on_primary}}] md:text-xl\">\n            {{quote_1}}\n          </p>\n\n          <div class=\"flex items-center justify-between mt-6 md:justify-start\">\n            <button\n              title=\"left arrow\"\n              class=\"p-2 text-[{{text_on_primary}}] transition-colors duration-300 border rounded-full rtl:-scale-x-100 hover:bg-[{{primary_hover_color}}]\"\n            >\n              <svg\n                xmlns=\"http://www.w3.org/2000/svg\"\n                class=\"w-6 h-6\"\n                fill=\"none\"\n                viewBox=\"0 0 24 24\"\n                stroke=\"currentColor\"\n                stroke-width=\"2\"\n              >\n                <path\n                  stroke-linecap=\"round\"\n                  stroke-linejoin=\"round\"\n                  d=\"M15 19l-7-7 7-7\"\n                />\n              </svg>\n            </button>\n\n            <button\n              title=\"right arrow\"\n              class=\"p-2 text-[{{text_on_primary}}] transition-colors duration-300 border rounded-full rtl:-scale-x-100 md:mx-6 hover:bg-[{{primary_hover_color}}]\"\n            >\n              <svg\n                xmlns=\"http://www.w3.org/2000/svg\"\n                class=\"w-6 h-6\"\n                fill=\"none\"\n                viewBox=\"0 0 24 24\"\n                stroke=\"currentColor\"\n                stroke-width=\"2\"\n              >\n                <path\n                  stroke-linecap=\"round\"\n                  stroke-linejoin=\"round\"\n                  d=\"M9 5l7 7-7 7\"\n                />\n              </svg>\n            </button>\n          </div>\n        </div>\n      </div>\n    </main>\n  </div>\n</section>",
+  "metadata": {
+    "section_type": "testimonial",
+    "structural_approach": "featured testimonial with full-height portrait and colored background panel",
+    "vibe_tags": [
+      "corporate",
+      "minimal",
+      "warm"
+    ],
+    "js_dependency": "static",
+    "js_deps": [],
+    "tokens": [
+      "{{background_color}}",
+      "{{dark_background_color}}",
+      "{{headline}}",
+      "{{subheadline}}",
+      "{{image_url}}",
+      "{{quote_1}}",
+      "{{author_1}}",
+      "{{author_role_1}}",
+      "{{primary_color}}",
+      "{{primary_hover_color}}",
+      "{{heading_color}}",
+      "{{dark_heading_color}}",
+      "{{secondary_color}}",
+      "{{text_on_primary}}"
+    ]
+  }
+}

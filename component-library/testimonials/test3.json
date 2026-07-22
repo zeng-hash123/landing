@@ -1,0 +1,45 @@
+{
+  "html_template": "<section class=\"bg-[{{background_color}}] dark:bg-[{{dark_background_color}}]\">\n  <div class=\"container px-6 py-10 mx-auto\">\n    <div class=\"mt-6 md:flex md:items-center md:justify-between\">\n      <div>\n        <h1 class=\"text-2xl font-semibold text-[{{heading_color}}] capitalize lg:text-3xl dark:text-[{{dark_heading_color}}]\">\n          {{headline}}\n        </h1>\n\n        <div class=\"flex mx-auto mt-6\">\n          <span class=\"inline-block w-40 h-1 bg-[{{primary_color}}] rounded-full\"></span>\n          <span class=\"inline-block w-3 h-1 mx-1 bg-[{{primary_color}}] rounded-full\"></span>\n          <span class=\"inline-block w-1 h-1 bg-[{{primary_color}}] rounded-full\"></span>\n        </div>\n      </div>\n\n      <div class=\"flex justify-between mt-8 md:mt-0\">\n        <button\n          title=\"left arrow\"\n          class=\"p-2 mx-3 text-[{{heading_color}}] transition-colors duration-300 border rounded-full rtl:-scale-x-100 dark:text-[{{dark_heading_color}}] dark:hover:bg-[{{dark_hover_bg}}] dark:border-[{{dark_border_color}}] hover:bg-[{{hover_bg}}]\"\n        >\n          <svg xmlns=\"http://www.w3.org/2000/svg\" class=\"w-6 h-6\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" stroke-width=\"2\">\n            <path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15 19l-7-7 7-7\" />\n          </svg>\n        </button>\n\n        <button\n          title=\"right arrow\"\n          class=\"p-2 text-[{{heading_color}}] transition-colors duration-300 border rounded-full rtl:-scale-x-100 dark:text-[{{dark_heading_color}}] dark:hover:bg-[{{dark_hover_bg}}] dark:border-[{{dark_border_color}}] hover:bg-[{{hover_bg}}]\"\n        >\n          <svg xmlns=\"http://www.w3.org/2000/svg\" class=\"w-6 h-6\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" stroke-width=\"2\">\n            <path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M9 5l7 7-7 7\" />\n          </svg>\n        </button>\n      </div>\n    </div>\n\n    <section class=\"grid grid-cols-1 gap-8 mt-8 xl:mt-12 lg:grid-cols-2 xl:grid-cols-3\">\n      <div class=\"p-8 border rounded-lg dark:border-[{{dark_border_color}}]\">\n        <p class=\"leading-loose text-[{{body_color}}] dark:text-[{{dark_body_color}}]\">\n          {{quote_1}}\n        </p>\n\n        <div class=\"flex items-center mt-8 -mx-2\">\n          <img\n            class=\"object-cover mx-2 rounded-full w-14 shrink-0 h-14 ring-4 ring-[{{ring_color}}] dark:ring-[{{dark_ring_color}}]\"\n            src=\"{{image_url_1}}\"\n            alt=\"\"\n          />\n\n          <div class=\"mx-2\">\n            <h1 class=\"font-semibold text-[{{heading_color}}] dark:text-[{{dark_heading_color}}]\">{{author_1}}</h1>\n            <span class=\"text-sm text-[{{body_color}}] dark:text-[{{dark_body_color}}]\">{{author_role_1}}</span>\n          </div>\n        </div>\n      </div>\n\n      <div class=\"p-8 bg-[{{primary_color}}] border border-transparent rounded-lg dark:bg-[{{primary_color}}]\">\n        <p class=\"leading-loose text-[{{text_on_primary}}]\">\n          {{quote_2}}\n        </p>\n\n        <div class=\"flex items-center mt-8 -mx-2\">\n          <img\n            class=\"object-cover mx-2 rounded-full w-14 shrink-0 h-14 ring-4 ring-[{{primary_ring_color}}]\"\n            src=\"{{image_url_2}}\"\n            alt=\"\"\n          />\n\n          <div class=\"mx-2\">\n            <h1 class=\"font-semibold text-[{{text_on_primary}}]\">{{author_2}}</h1>\n            <span class=\"text-sm text-[{{secondary_color}}]\">{{author_role_2}}</span>\n          </div>\n        </div>\n      </div>\n\n      <div class=\"p-8 border rounded-lg dark:border-[{{dark_border_color}}]\">\n        <p class=\"leading-loose text-[{{body_color}}] dark:text-[{{dark_body_color}}]\">\n          {{quote_3}}\n        </p>\n\n        <div class=\"flex items-center mt-8 -mx-2\">\n          <img\n            class=\"object-cover mx-2 rounded-full w-14 shrink-0 h-14 ring-4 ring-[{{ring_color}}] dark:ring-[{{dark_ring_color}}]\"\n            src=\"{{image_url_3}}\"\n            alt=\"\"\n          />\n\n          <div class=\"mx-2\">\n            <h1 class=\"font-semibold text-[{{heading_color}}] dark:text-[{{dark_heading_color}}]\">{{author_3}}</h1>\n            <span class=\"text-sm text-[{{body_color}}] dark:text-[{{dark_body_color}}]\">{{author_role_3}}</span>\n          </div>\n        </div>\n      </div>\n    </section>\n  </div>\n</section>",
+  "metadata": {
+    "section_type": "testimonial",
+    "structural_approach": "section heading with navigation controls above a three-column testimonial grid featuring one highlighted card",
+    "vibe_tags": [
+      "corporate",
+      "minimal",
+      "warm",
+      "tech"
+    ],
+    "js_dependency": "static",
+    "js_deps": [],
+    "tokens": [
+      "{{background_color}}",
+      "{{dark_background_color}}",
+      "{{headline}}",
+      "{{primary_color}}",
+      "{{heading_color}}",
+      "{{dark_heading_color}}",
+      "{{body_color}}",
+      "{{dark_body_color}}",
+      "{{hover_bg}}",
+      "{{dark_hover_bg}}",
+      "{{dark_border_color}}",
+      "{{ring_color}}",
+      "{{dark_ring_color}}",
+      "{{primary_ring_color}}",
+      "{{secondary_color}}",
+      "{{text_on_primary}}",
+      "{{quote_1}}",
+      "{{quote_2}}",
+      "{{quote_3}}",
+      "{{image_url_1}}",
+      "{{image_url_2}}",
+      "{{image_url_3}}",
+      "{{author_1}}",
+      "{{author_2}}",
+      "{{author_3}}",
+      "{{author_role_1}}",
+      "{{author_role_2}}",
+      "{{author_role_3}}"
+    ]
+  }
+}

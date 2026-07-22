@@ -1,0 +1,32 @@
+{
+  "html_template": "<!-- Require css -->\n<style>\n    .pattern {\n        background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 304 304' width='304' height='304'%3E%3Cpath fill='%23a0aec0' fill-opacity='0.1' d='...'%3E%3C/path%3E%3C/svg%3E\");\n    }\n</style>\n\n<header class=\"bg-gray-900 pattern\">\n    <div class=\"container px-6 mx-auto\">\n        <nav class=\"flex flex-col py-6 sm:flex-row sm:justify-between sm:items-center\">\n            <a href=\"{{logo_url}}\">\n                <img class=\"w-auto h-6 sm:h-7\" src=\"{{logo_image_url}}\" alt=\"\">\n            </a>\n\n            <div class=\"flex items-center mt-2 -mx-2 sm:mt-0\">\n                <a href=\"{{signin_url}}\" class=\"px-3 py-1 text-sm font-semibold text-white transition-colors duration-300 transform border-2 rounded-md hover:bg-gray-700\">{{signin_text}}</a>\n                <a href=\"{{signup_url}}\" class=\"px-3 py-2 mx-2 text-sm font-semibold text-white transition-colors duration-300 transform bg-black rounded-md hover:bg-gray-800\">{{signup_text}}</a>\n            </div>\n        </nav>\n\n        <div class=\"flex flex-col items-center py-6 lg:h-[36rem] lg:flex-row\">\n            <div class=\"lg:w-1/2\">\n                <h2 class=\"text-3xl font-semibold text-gray-100 lg:text-4xl\">{{headline_brand}}</h2>\n\n                <h3 class=\"mt-2 text-2xl font-semibold text-gray-100\">\n                    {{headline_greeting}} <span class=\"text-[{{primary_color}}]\">{{headline_highlight}}</span>\n                </h3>\n\n                <p class=\"mt-4 text-gray-100\">{{subheadline}}</p>\n            </div>\n\n            <div class=\"flex mt-8 lg:w-1/2 lg:justify-end lg:mt-0\">\n                <div class=\"w-full max-w-md bg-white rounded-lg dark:bg-gray-800\">\n                    <div class=\"px-6 py-8 text-center\">\n                        <h2 class=\"text-2xl font-semibold text-gray-700 dark:text-white fo\">{{form_title}}</h2>\n\n                        <form action=\"{{form_action_url}}\">\n                            <div class=\"mt-4\">\n                                <input class=\"block w-full px-4 py-2 text-gray-700 placeholder-gray-400 bg-white border rounded-md dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-500 focus:border-[{{primary_color}}] dark:focus:border-[{{primary_color}}] focus:ring-opacity-40 focus:ring-[{{primary_color}}] focus:outline-none focus:ring\" type=\"email\" placeholder=\"Email address\" aria-label=\"Email address\">\n                                <input class=\"block w-full px-4 py-2 mt-4 text-gray-700 placeholder-gray-400 bg-white border rounded-md dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-500 focus:border-[{{primary_color}}] dark:focus:border-[{{primary_color}}] focus:ring-opacity-40 focus:ring-[{{primary_color}}] focus:outline-none focus:ring\" type=\"password\" placeholder=\"Password\" aria-label=\"Password\">\n                            </div>\n\n                            <div class=\"flex items-center justify-between mt-4\">\n                                <a href=\"{{forgot_password_url}}\" class=\"text-sm text-gray-600 dark:text-gray-200 hover:underline\">{{forgot_password_text}}</a>\n\n                                <button class=\"px-6 py-2 font-medium text-white transition-colors duration-300 transform bg-gray-900 rounded-md hover:bg-gray-800 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-800 dark:focus:bg-gray-700\">{{form_submit_text}}</button>\n                            </div>\n                        </form>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</header>",
+  "metadata": {
+    "section_type": "hero",
+    "structural_approach": "dark patterned header with nav, split hero: greeting text left, sign-in form card right",
+    "vibe_tags": [
+      "bold",
+      "tech",
+      "edgy"
+    ],
+    "js_dependency": "static",
+    "js_deps": [],
+    "tokens": [
+      "{{logo_url}}",
+      "{{logo_image_url}}",
+      "{{signin_url}}",
+      "{{signin_text}}",
+      "{{signup_url}}",
+      "{{signup_text}}",
+      "{{headline_brand}}",
+      "{{headline_greeting}}",
+      "{{primary_color}}",
+      "{{headline_highlight}}",
+      "{{subheadline}}",
+      "{{form_title}}",
+      "{{form_action_url}}",
+      "{{forgot_password_url}}",
+      "{{forgot_password_text}}",
+      "{{form_submit_text}}"
+    ]
+  }
+}

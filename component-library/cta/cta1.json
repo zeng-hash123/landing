@@ -1,0 +1,11 @@
+{
+  "html_template": "<section class=\"bg-white dark:bg-gray-900\">\n    <div class=\"container flex flex-col items-center px-4 py-12 mx-auto text-center\">\n        <h2 class=\"max-w-2xl mx-auto text-2xl font-semibold tracking-tight text-gray-800 xl:text-3xl dark:text-white\">\n            {{headline}} <span class=\"text-[{{primary_color}}]\">{{headline_highlight}}</span>\n        </h2>\n\n        <p class=\"max-w-4xl mt-6 text-center text-gray-500 dark:text-gray-300\">\n            {{subheadline}}\n        </p>\n\n        <div class=\"inline-flex w-full mt-6 sm:w-auto\">\n            <a href=\"{{cta_url}}\" class=\"inline-flex items-center justify-center w-full px-6 py-2 text-white duration-300 bg-[{{primary_color}}] rounded-lg hover:bg-[{{primary_color}}] focus:ring focus:ring-[{{primary_color}}] focus:ring-opacity-80\">\n                {{cta_text}}\n            </a>\n        </div>\n    </div>\n</section>",
+  "metadata": {
+    "section_type": "cta",
+    "structural_approach": "centered single-column stack — headline with accent-colored phrase, supporting paragraph, single full-width-on-mobile button",
+    "vibe_tags": ["minimal", "corporate", "tech"],
+    "js_dependency": "static",
+    "js_deps": [],
+    "tokens": ["headline", "headline_highlight", "subheadline", "cta_text", "cta_url", "primary_color"]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "html_template": "<section class=\"bg-gray-100 dark:bg-gray-800 lg:py-12 lg:flex lg:justify-center\">\n    <div\n        class=\"overflow-hidden bg-white dark:bg-gray-900 lg:mx-8 lg:flex lg:max-w-6xl lg:w-full lg:shadow-md lg:rounded-xl\">\n        <div class=\"lg:w-1/2\">\n            <div class=\"h-64 bg-cover lg:h-full\" style=\"background-image:url('{{image_url}}')\"></div>\n        </div>\n\n        <div class=\"max-w-xl px-6 py-12 lg:max-w-5xl lg:w-1/2\">\n            <h2 class=\"text-2xl font-semibold text-gray-800 dark:text-white md:text-3xl\">\n                {{headline}} <span class=\"text-[{{primary_color}}]\">{{headline_highlight}}</span>\n            </h2>\n\n            <p class=\"mt-4 text-gray-500 dark:text-gray-300\">\n                {{subheadline}}\n            </p>\n\n            <div class=\"inline-flex w-full mt-6 sm:w-auto\">\n                <a href=\"{{cta_url}}\" class=\"inline-flex items-center justify-center w-full px-6 py-2 text-sm text-white duration-300 bg-[{{secondary_color}}] rounded-lg hover:bg-[{{secondary_color}}] focus:ring focus:ring-[{{secondary_color}}] focus:ring-opacity-80\">\n                    {{cta_text}}\n                </a>\n            </div>\n        </div>\n    </div>\n</section>",
+  "metadata": {
+    "section_type": "cta",
+    "structural_approach": "split-screen, full-bleed image left, text and single button right, card floats on a muted page background",
+    "vibe_tags": ["minimal", "corporate", "warm"],
+    "js_dependency": "static",
+    "js_deps": [],
+    "tokens": ["image_url", "headline", "headline_highlight", "subheadline", "cta_text", "cta_url", "primary_color", "secondary_color"]
+  }
+}

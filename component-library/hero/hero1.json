@@ -1,0 +1,25 @@
+{
+  "html_template": "<section class=\"bg-white lg:grid lg:h-screen lg:place-content-center\">\n  <div class=\"mx-auto w-screen max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32\">\n    <div class=\"mx-auto max-w-prose text-center\">\n      <h1 class=\"text-4xl font-bold text-gray-900 sm:text-5xl\">\n        {{headline_line1}}\n        <strong class=\"text-[{{primary_color}}]\"> {{headline_highlight}} </strong>\n        {{headline_line2}}\n      </h1>\n\n      <p class=\"mt-4 text-base text-pretty text-gray-700 sm:text-lg/relaxed\">\n        {{subheadline}}\n      </p>\n\n      <div class=\"mt-4 flex justify-center gap-4 sm:mt-6\">\n        <a\n          class=\"inline-block rounded border border-[{{primary_color}}] bg-[{{primary_color}}] px-5 py-3 font-medium text-white shadow-sm transition-colors hover:bg-[{{primary_color}}]\"\n          href=\"{{cta_url}}\"\n        >\n          {{cta_text}}\n        </a>\n\n        <a\n          class=\"inline-block rounded border border-gray-200 px-5 py-3 font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 hover:text-gray-900\"\n          href=\"{{secondary_cta_url}}\"\n        >\n          {{secondary_cta_text}}\n        </a>\n      </div>\n    </div>\n  </div>\n</section>",
+  "metadata": {
+    "section_type": "hero",
+    "structural_approach": "centered single-column hero with headline, subheadline, and dual CTA buttons",
+    "vibe_tags": [
+      "minimal",
+      "corporate",
+      "tech"
+    ],
+    "js_dependency": "static",
+    "js_deps": [],
+    "tokens": [
+      "{{headline_line1}}",
+      "{{primary_color}}",
+      "{{headline_highlight}}",
+      "{{headline_line2}}",
+      "{{subheadline}}",
+      "{{cta_url}}",
+      "{{cta_text}}",
+      "{{secondary_cta_url}}",
+      "{{secondary_cta_text}}"
+    ]
+  }
+}

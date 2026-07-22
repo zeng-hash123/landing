@@ -1,0 +1,157 @@
+Build the frontend for an AI landing page generator targeting marketing agencies. 
+This is a chat-first interface (not drag-and-drop) that talks to an existing FastAPI 
+backend with these endpoints already built:
+
+- POST /generate — body: { prompt, ad_url?, campaign_goal, design_vibe, cta_focus, 
+  ab_test, brand_kit? } → returns { html, page_id, flags }
+- POST /edit — body: { page_id, edit_instruction, target_section? } → returns { html }
+- GET /page/{page_id} — returns { state, html }
+- GET /page/{page_id}/versions — returns list of version snapshots
+- POST /page/{page_id}/revert/{version_id} — returns { html }
+
+TECH STACK
+- Next.js 14+ (App Router), TypeScript
+- Tailwind CSS (for the APP's own UI chrome — separate from the Tailwind classes 
+  inside generated pages)
+- Use fetch for API calls, base URL from an environment variable 
+  NEXT_PUBLIC_API_BASE_URL
+- Mark any component using useState/useEffect/event handlers with "use client" — 
+  keep the root layout as a server component, but the main workspace UI will 
+  almost entirely be client components since it's interactive/stateful
+- Use Next's built-in font optimization (next/font) for the app's own UI font, 
+  separate from whatever fonts generated pages use internally
+
+PROJECT STRUCTURE
+- app/layout.tsx — root layout, minimal, wraps children
+- app/page.tsx — main workspace page, composes the components below
+- components/ChatPanel.tsx
+- components/PreviewPanel.tsx
+- components/DropdownControls.tsx
+- components/BrandKitModal.tsx
+- components/VersionHistory.tsx
+- components/ComplianceBanner.tsx
+- lib/api.ts — centralized fetch wrapper functions for all backend calls 
+  (generatePage, editPage, getPage, getVersions, revertVersion)
+- types/index.ts — shared TypeScript types (PageBrief, BrandKit, GenerateResponse, 
+  EditResponse, ChatLogEntry, etc.)
+
+LAYOUT
+Two-panel layout in app/page.tsx:
+- LEFT panel (~35% width): chat interface + controls
+- RIGHT panel (~65% width): live preview of the generated page, rendered in an 
+  <iframe srcDoc={html}> so the generated page's own Tailwind/Alpine scripts run 
+  in isolation from the app's own styles
+
+LEFT PANEL COMPONENTS (top to bottom):
+
+1. Input area (in ChatPanel.tsx)
+   - A textarea for the main prompt ("Describe your product or paste an ad URL")
+   - Detect if the input looks like a URL (simple regex check) — if so, send it as 
+     ad_url instead of prompt in the request body
+   - A small "Upload brand kit" button (opens BrandKitModal)
+
+2. Three dropdown selects (in DropdownControls.tsx):
+   - Campaign Goal: ["Lead generation", "Sales / purchase", "Free trial signup", 
+     "Webinar / event registration", "App download", "Demo / book a call", 
+     "Waitlist / pre-launch", "Newsletter / community signup"]
+   - Design Vibe: ["Bold & modern", "Minimal & clean", "Luxury & premium", 
+     "Playful & fun", "Corporate & trustworthy", "Tech & futuristic", 
+     "Warm & organic", "Edgy & high-contrast"]
+   - CTA Focus: ["Single strong CTA", "Urgency-driven", "Social proof-driven", 
+     "Risk-reversal", "Value-stack", "Multi-step"]
+   - A toggle switch labeled "Generate A/B variant"
+   - A primary "Generate" button — disabled until at least the prompt/ad_url and 
+     all 3 dropdowns are filled
+
+3. Brand kit modal (BrandKitModal.tsx)
+   - Color pickers for primary_color, secondary_color, text_color (with hex input too)
+   - Text inputs for font_heading, font_body
+   - A file input for logo (for now, just accept an image file, convert to a 
+     data URL client-side using FileReader and send as logo_url in the request — 
+     no real upload endpoint yet, stub it)
+   - "Save brand kit" button stores this in parent state (lifted up to app/page.tsx 
+     or a small context), included in every /generate and /edit call from then on
+   - Show a small "Brand kit active" badge near the input area once saved
+
+4. Chat history / edit log (in ChatPanel.tsx or a separate VersionHistory.tsx section)
+   - Below the input area, a scrollable list of past instructions and responses 
+     in this session (e.g. "Generated initial page" → "Made headline punchier" → 
+     "Changed CTA color to orange")
+   - Each generation or edit becomes a new entry in this log, most recent at bottom
+   - Clicking an older entry loads that version's html into the preview (calls 
+     GET /page/{page_id}/versions to get the version_id, displays that version's 
+     html without necessarily reverting) — add a small "Restore this version" 
+     button that calls the revert endpoint if they want to make it current
+
+5. After first generation, replace the "Generate" button flow with an ongoing 
+   edit flow:
+   - Input area becomes an edit instruction box ("e.g. Make the headline punchier")
+   - Submitting calls editPage() from lib/api.ts with the current page_id and 
+     instruction
+   - Show a loading state ("Applying edit...") while waiting
+   - Update the iframe preview with the new html on response
+   - Append to the chat history log
+
+6. If the /generate or /edit response includes non-empty flags (compliance 
+   warnings), show them via ComplianceBanner.tsx as a dismissible warning banner 
+   above the preview panel, not blocking the user from proceeding — just 
+   informational (e.g. "⚠ Possible ad policy risk: 'guaranteed results' in headline")
+
+RIGHT PANEL (PreviewPanel.tsx)
+
+- An iframe that renders the current html via srcDoc
+- A small toolbar above the iframe with:
+  - Viewport toggle: Desktop / Tablet / Mobile (changes iframe width, e.g. 
+    100% / 768px / 375px, centered)
+  - "Copy HTML" button (copies the raw html string to clipboard via 
+    navigator.clipboard.writeText)
+  - "Download HTML" button (client-side Blob download of the html as a .html file)
+  - If ab_test was true, show a toggle "Variant A / Variant B" that switches 
+    which html is shown in the iframe (stub this assuming the /generate response 
+    includes html_a and html_b when ab_test is true — confirm actual shape once 
+    backend is finalized)
+
+STATE MANAGEMENT
+- Keep it simple: React useState in app/page.tsx, passed down as props, or a 
+  single lightweight Context if prop-drilling gets messy (no Redux/Zustand needed 
+  at this scale)
+- Track: current page_id, current html (or html_a/html_b), brand_kit object, 
+  chat history array, loading states per action, compliance flags
+- Since this is Next.js, make sure any hook-using state lives in "use client" 
+  components — app/page.tsx itself should likely be a client component given 
+  how much interactive state it holds
+
+STYLING
+- Clean, modern SaaS look — sidebar/chat feel similar to how ChatGPT or Claude's 
+  own interface is laid out (message bubbles for the chat log, clear input area 
+  at the bottom of the left panel)
+- Use a neutral color scheme for the APP chrome itself (this is separate from 
+  whatever colors the generated pages use) — grays, one accent color for 
+  primary buttons
+- Set up tailwind.config.ts and globals.css following standard Next.js + Tailwind 
+  setup conventions
+
+ERROR HANDLING
+- Wrap all API calls in try/catch inside lib/api.ts, throw typed errors, catch 
+  them in components to show a simple toast/banner on failure 
+  ("Something went wrong generating your page. Try again.")
+- Handle loading and empty states clearly (e.g. right panel shows a placeholder 
+  message like "Your generated page will appear here" before first generation)
+
+ENVIRONMENT VARIABLES (generate a .env.local.example file):
+- NEXT_PUBLIC_API_BASE_URL
+
+DO NOT BUILD YET:
+- Visual click-to-edit (contenteditable) directly in the iframe — that's a 
+  separate future pass. For now, all edits go through the chat instruction box only.
+- User authentication / login screens
+- Multi-page or multi-project management UI (assume single active page per 
+  session for now)
+- Real logo file upload to storage — just stub with a client-side data URL
+- Server-side rendering of the generated page content itself — the generated 
+  html is always rendered client-side inside the iframe, never through Next's 
+  own SSR pipeline
+
+Use TypeScript throughout with proper typed props and API response types in 
+types/index.ts. Structure as a clean Next.js App Router project with clear 
+component separation, not one giant page.tsx file.

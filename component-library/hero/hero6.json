@@ -1,0 +1,23 @@
+{
+  "html_template": "<section class=\"overflow-hidden bg-gray-50 sm:grid sm:grid-cols-2 sm:items-center\">\n  <div class=\"p-8 md:p-12 lg:px-16 lg:py-24\">\n    <div class=\"mx-auto max-w-xl text-center ltr:sm:text-left rtl:sm:text-right\">\n      <h2 class=\"text-2xl font-bold text-gray-900 md:text-3xl\">\n        {{headline}}\n      </h2>\n\n      <p class=\"hidden text-gray-500 md:mt-4 md:block\">\n        {{subheadline}}\n      </p>\n\n      <div class=\"mt-4 md:mt-8\">\n        <a\n          href=\"{{cta_url}}\"\n          class=\"inline-block rounded-sm bg-[{{primary_color}}] px-12 py-3 text-sm font-medium text-white transition hover:bg-[{{primary_color}}] focus:ring-2 focus:ring-[{{secondary_color}}] focus:outline-hidden\"\n        >\n          {{cta_text}}\n        </a>\n      </div>\n    </div>\n  </div>\n\n  <img\n    alt=\"\"\n    src=\"{{image_url}}\"\n    class=\"h-full w-full object-cover sm:h-[calc(100%-2rem)] sm:self-end sm:rounded-ss-[30px] md:h-[calc(100%-4rem)] md:rounded-ss-[60px]\"\n  />\n</section>",
+  "metadata": {
+    "section_type": "hero",
+    "structural_approach": "split-screen, text left, image right with curved top-left corner cut",
+    "vibe_tags": [
+      "playful",
+      "warm",
+      "minimal"
+    ],
+    "js_dependency": "static",
+    "js_deps": [],
+    "tokens": [
+      "{{headline}}",
+      "{{subheadline}}",
+      "{{cta_url}}",
+      "{{primary_color}}",
+      "{{secondary_color}}",
+      "{{cta_text}}",
+      "{{image_url}}"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "html_template": "<section class=\"bg-gray-50\">\n  <div class=\"p-8 md:p-12 lg:px-16 lg:py-24\">\n    <div class=\"mx-auto max-w-lg text-center\">\n      <h2 class=\"text-2xl font-bold text-gray-900 md:text-3xl\">\n        {{headline}}\n      </h2>\n\n      <p class=\"hidden text-gray-500 sm:mt-4 sm:block\">\n        {{subheadline}}\n      </p>\n    </div>\n\n    <div class=\"mx-auto mt-8 max-w-xl\">\n      <form action=\"{{cta_url}}\" class=\"sm:flex sm:gap-4\">\n        <div class=\"sm:flex-1\">\n          <label for=\"email\" class=\"sr-only\">Email</label>\n\n          <input\n            type=\"email\"\n            placeholder=\"Email address\"\n            class=\"w-full rounded-md border-gray-200 bg-white p-3 text-gray-700 shadow-xs transition focus:border-white focus:ring-2 focus:ring-[{{secondary_color}}] focus:outline-hidden\"\n          />\n        </div>\n\n        <button\n          type=\"submit\"\n          class=\"group mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-[{{primary_color}}] px-5 py-3 text-white transition focus:ring-2 focus:ring-[{{secondary_color}}] focus:outline-hidden sm:mt-0 sm:w-auto\"\n        >\n          <span class=\"text-sm font-medium\"> {{cta_text}} </span>\n\n          <svg\n            aria-hidden=\"true\"\n            class=\"size-5 shadow-sm rtl:rotate-180\"\n            xmlns=\"http://www.w3.org/2000/svg\"\n            fill=\"none\"\n            viewBox=\"0 0 24 24\"\n            stroke=\"currentColor\"\n          >\n            <path\n              stroke-linecap=\"round\"\n              stroke-linejoin=\"round\"\n              stroke-width=\"2\"\n              d=\"M17 8l4 4m0 0l-4 4m4-4H3\"\n            />\n          </svg>\n        </button>\n      </form>\n    </div>\n  </div>\n</section>",
+  "metadata": {
+    "section_type": "hero",
+    "structural_approach": "centered headline/subheadline above an inline email-signup form",
+    "vibe_tags": [
+      "minimal",
+      "bold",
+      "playful"
+    ],
+    "js_dependency": "static",
+    "js_deps": [],
+    "tokens": [
+      "{{headline}}",
+      "{{subheadline}}",
+      "{{cta_url}}",
+      "{{secondary_color}}",
+      "{{primary_color}}",
+      "{{cta_text}}"
+    ]
+  }
+}
