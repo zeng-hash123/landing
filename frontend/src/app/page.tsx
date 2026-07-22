@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ChatPanel } from '@/components/ChatPanel';
-import { PreviewPanel } from '@/components/PreviewPanel';
-import { BrandKitModal } from '@/components/BrandKitModal';
-import { VersionHistory } from '@/components/VersionHistory';
-import { ComplianceBanner } from '@/components/ComplianceBanner';
-import { ChatLogEntry, BrandKit, VersionEntry, GenerateRequest, EditRequest } from '@/types';
-import { generatePage, editPage, getVersions, revertVersion, getPage } from '@/lib/api';
+import { ChatPanel } from '../components/ChatPanel';
+import { PreviewPanel } from '../components/PreviewPanel';
+import { BrandKitModal } from '../components/BrandKitModal';
+import { VersionHistory } from '../components/VersionHistory';
+import { ComplianceBanner } from '../components/ComplianceBanner';
+import { ChatLogEntry, BrandKit, VersionEntry, GenerateRequest, EditRequest } from '../types';
+import { generatePage, editPage, getVersions, revertVersion, getPage } from '../lib/api';
 
 export default function Home() {
   const [pageId, setPageId] = useState<string>('');
