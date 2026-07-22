@@ -1,0 +1,142 @@
+Build a marketing landing page for "Forge" — an AI landing page generator for 
+marketing agencies. Multi-agent AI (copywriter, designer, compliance) generates 
+high-converting landing pages from a prompt or ad URL, with brand kit support 
+and instant editing.
+
+TAGLINE: "Landing pages that convert visitors into customers"
+
+TECH STACK
+- Astro (latest version), for static site generation and strong SEO out of the box
+- Tailwind CSS integration (@astrojs/tailwind)
+- TypeScript for any component logic
+- Use Astro's built-in Image component for optimized images
+- Deploy target: static output (output: 'static' in astro.config.mjs) — no SSR 
+  needed for a marketing page
+
+SEO REQUIREMENTS (important, this is a core reason for choosing Astro)
+- Proper <title> and <meta name="description"> tags, set via a reusable 
+  BaseLayout.astro component with props for title/description per page
+- Open Graph tags (og:title, og:description, og:image, og:type) and Twitter 
+  Card tags in the layout head
+- Semantic HTML5 structure throughout (one <h1> per page, proper heading hierarchy, 
+  <section>, <nav>, <footer>)
+- Add a sitemap via @astrojs/sitemap integration
+- Add a robots.txt in public/
+- Use descriptive, keyword-relevant alt text on all images (target keywords: 
+  "AI landing page generator", "landing pages for agencies", "AI landing page builder")
+- Ensure fast Core Web Vitals: no render-blocking scripts, lazy-load below-fold 
+  images, minimal JS shipped (Astro's island architecture — only hydrate 
+  interactive components, keep everything else as static HTML)
+- Add JSON-LD structured data (SoftwareApplication schema) in the head
+
+PAGE STRUCTURE (single landing page, app/index.astro or src/pages/index.astro)
+
+1. Nav
+   - Logo/wordmark "Forge" left-aligned
+   - Links: Features, Pricing, Sign in (stub links, no real pages needed yet)
+   - Primary CTA button: "Try Forge Free" or similar, right-aligned
+   - Sticky on scroll
+
+2. Hero section
+   - H1: "Landing pages that convert visitors into customers" (use the tagline 
+     as the actual H1, not just a subhead — this is both the marketing hook 
+     and your primary SEO-targeted headline)
+   - Subheadline: one sentence explaining the mechanism — AI agents (copywriter, 
+     designer, compliance) generate on-brand, high-converting pages from a 
+     single prompt or ad URL, built specifically for agencies managing 
+     multiple clients
+   - Primary CTA button ("Start generating free" or similar) + secondary 
+     ghost-style CTA ("See how it works" — anchor link to the how-it-works section)
+   - Visual: a mockup/screenshot placeholder of the chat interface + generated 
+     page preview (use a placeholder image component for now, I'll swap in 
+     real screenshots later)
+   - Keep this section fast — no heavy JS, this is the most important section 
+     for both conversion and page speed score
+
+3. Social proof strip (below hero)
+   - Row of placeholder agency/client logos (grayscale, use placeholder image 
+     divs for now)
+   - Small text above: "Trusted by marketing agencies shipping client pages faster"
+
+4. "How it works" section (3-step visual)
+   - Step 1: "Describe your product or paste an ad" 
+   - Step 2: "Our AI agents write, design, and review your page"
+   - Step 3: "Publish, edit, and A/B test — all from chat"
+   - Use a simple numbered layout, icon + short text per step, no complex 
+     illustration needed for MVP
+
+5. Features grid (target: showcase multi-agent system + agency-specific features)
+   - Multi-agent generation (copywriter, designer, compliance agents)
+   - Brand kit support (upload logo, colors, fonts — every page stays on-brand)
+   - A/B testing built in
+   - Conversion pixel injection (Meta Pixel, Google Ads)
+   - Chat-based instant editing
+   - White-label ready for agencies
+   - Use a 3-column grid (responsive to 1-column on mobile), icon + heading + 
+     1-2 sentence description per feature
+
+6. "Built for agencies" section
+   - A section specifically addressing the agency buyer directly — speed, 
+     brand consistency across clients, volume, white-label
+   - Could be a 2-column layout: left = short copy block, right = a supporting 
+     visual/stat callout
+
+7. Testimonial/quote section
+   - Placeholder testimonial quotes with attribution (agency name + role) — 
+     use realistic-sounding placeholder content for now, to be replaced with 
+     real testimonials later
+
+8. Pricing teaser (optional simple version)
+   - Just a "Simple, agency-friendly pricing" teaser with a CTA to a future 
+     /pricing page — doesn't need real pricing tiers built out yet, just the 
+     section shell
+
+9. Final CTA section
+   - Repeat the tagline or a variation of it as a closing hook
+   - Large centered CTA button
+   - Keep this section short and punchy — last thing before the footer
+
+10. Footer
+    - Logo, short tagline repeat, nav links, social icons (placeholder links), 
+      copyright line
+
+COMPONENT STRUCTURE
+- src/layouts/BaseLayout.astro — head tags, SEO meta, OG tags, JSON-LD, 
+  wraps all pages
+- src/components/Nav.astro
+- src/components/Hero.astro
+- src/components/SocialProof.astro
+- src/components/HowItWorks.astro
+- src/components/FeaturesGrid.astro
+- src/components/BuiltForAgencies.astro
+- src/components/Testimonials.astro
+- src/components/PricingTeaser.astro
+- src/components/FinalCTA.astro
+- src/components/Footer.astro
+- src/pages/index.astro — imports and composes all the above in order
+
+DESIGN DIRECTION
+- Modern SaaS aesthetic — clean, confident, not overly playful (this is a tool 
+  being sold to professional agencies, not consumers)
+- Primary accent color: a strong, trustworthy blue or indigo (open to a bold 
+  alternative like a deep orange if you want more energy — pick one and use 
+  it consistently)
+- Generous whitespace, clear visual hierarchy, no more than 2 fonts 
+  (one for headings, one for body — use next/font-equivalent via Google 
+  Fonts import or self-hosted fonts for performance)
+- Avoid generic AI-SaaS clichés (purple-blue gradient blobs, floating 3D shapes) 
+  — aim for something that feels more grounded and professional, fitting an 
+  agency-facing tool rather than a consumer AI toy
+- Mobile-first responsive throughout
+
+PERFORMANCE
+- No unnecessary client-side JS — only hydrate components that truly need 
+  interactivity (e.g. a mobile nav toggle can use Astro's client:load or 
+  even plain CSS-only toggle via checkbox hack to avoid JS entirely)
+- Optimize all images via Astro's <Image /> component with proper width/height 
+  to avoid layout shift
+
+Set up the full Astro project structure, install necessary integrations 
+(@astrojs/tailwind, @astrojs/sitemap), and build out every section listed above 
+with realistic placeholder copy so the page is fully navigable and visually 
+complete, ready for me to swap in real screenshots/testimonials later.
