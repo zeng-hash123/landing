@@ -7,7 +7,7 @@ import {
   PageState,
 } from '../types';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 export async function generatePage(req: GenerateRequest): Promise<GenerateResponse> {
   const res = await fetch(`${BASE_URL}/generate`, {
