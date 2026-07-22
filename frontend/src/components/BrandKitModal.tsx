@@ -16,8 +16,8 @@ export function BrandKitModal({ onClose, onSave, initialKit }: BrandKitModalProp
     primary_color: '#7c3aed',
     secondary_color: '#d946ef',
     text_color: '#ffffff',
-    font_heading: 'Inter',
-    font_body: 'Inter',
+    font_heading: 'Epilogue',
+    font_body: 'Epilogue',
     logo_url: ''
   });
 
