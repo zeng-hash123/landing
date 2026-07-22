@@ -1,3 +1,9 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
 # Dependencies
 node_modules/
 .pnpm-store/
