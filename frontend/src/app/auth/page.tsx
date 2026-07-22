@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight, Lock, Mail, Github, Google } from 'lucide-react';
+import { Sparkles, ArrowRight, Lock, Mail, Github } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function AuthPage() {
