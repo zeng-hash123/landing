@@ -1,0 +1,100 @@
+Polish the visual design of my existing Next.js chat interface for an AI landing 
+page generator called Forge. The functional structure and components already 
+work — this pass is purely about visual design quality, spacing, and polish. 
+Do not change component logic, API calls, or state management.
+
+CURRENT STATE (for context)
+- Dark theme, two-panel layout: left chat/controls panel (~30%), right preview 
+  panel (~70%)
+- Purple/indigo/pink gradient accent on the icon and primary elements
+- Empty state shows a sparkle icon, heading, subtext, input box, dropdowns, 
+  and a Generate button
+- Right panel shows a monitor icon placeholder with "Your preview will appear here"
+
+FIX THIS BUG FIRST
+- There are currently TWO history-related buttons — one labeled "Version History" 
+  in the top toolbar, and another labeled "History" floating inside the preview 
+  panel itself. Consolidate to ONE history button, placed in the top toolbar only. 
+  Remove the redundant floating one inside the preview area entirely.
+
+DESIGN SYSTEM TO ESTABLISH
+
+Color palette (dark mode):
+- Background base: very dark navy/charcoal, e.g. #0a0a0f or #0d0d14 (not pure black — 
+  pure black feels harsh, a very dark navy feels more premium)
+- Panel/card surface: one shade lighter than base, e.g. #13131a, with a subtle 
+  1px border in a low-opacity white (border-white/5 or border-white/10) instead 
+  of no border — this gives panels definition without looking boxy
+- Primary accent: keep the purple-to-pink gradient (looks like violet-600 to 
+  fuchsia-500 currently) but use it SPARINGLY — only on the main icon badge and 
+  the primary CTA button. Don't gradient everything or it loses impact.
+- Secondary accent for interactive elements (dropdowns, toggle, secondary buttons): 
+  a flat indigo or violet at lower saturation, not the full gradient
+- Text hierarchy: pure white only for headings, gray-400/gray-500 for body/subtext 
+  (currently the subtext looks like it may be too close in weight/brightness to 
+  the heading — increase contrast between heading and supporting text)
+
+TYPOGRAPHY
+- Heading ("Describe your perfect landing page" / "Your preview will appear here"): 
+  larger, bolder weight (font-semibold or font-bold), tighter letter-spacing
+- Subtext: smaller, lighter weight, more muted color (gray-500), slightly more 
+  line-height for readability
+- Use Inter or a similar clean geometric sans-serif via next/font if not already set
+
+SPACING & LAYOUT FIXES
+- Increase vertical spacing in the empty state (icon → heading → subtext → 
+  input box) — currently feels slightly cramped; add more breathing room, 
+  center it more precisely in the available vertical space of the left panel
+- The input textarea should have a slightly more prominent border/glow on focus 
+  (focus:ring-2 focus:ring-violet-500/50) to make it feel more like the primary 
+  interactive element it is
+- The three dropdowns (Campaign Goal, Design Vibe, CTA Focus) currently look 
+  slightly inconsistent in width/padding — make them uniform width (equal flex-1 
+  or grid-cols-3), consistent padding, consistent border-radius matching the 
+  rest of the UI
+- Add a subtle hover state to dropdowns and buttons (slight brightness increase 
+  or border color shift) — nothing currently seems to have hover feedback
+- The "Generate Page" button is currently muted/disabled-looking even potentially 
+  when active — ensure it has a clear ACTIVE state (full gradient or solid 
+  accent color, white text, subtle shadow) vs DISABLED state (reduced opacity, 
+  gray, cursor-not-allowed) that are visually distinct from each other
+
+RIGHT PANEL / PREVIEW AREA POLISH
+- The empty state icon (monitor) should sit in a softly glowing or subtly 
+  bordered circular/rounded container, not just floating on the dark background 
+  — add a faint radial gradient glow behind it (e.g. a blurred violet-500/10 
+  circle behind the icon) for depth
+- "Your preview will appear here" heading and subtext: same typography hierarchy 
+  fix as the left panel
+- The viewport toggle icons (desktop/tablet/mobile) in the top-left of the 
+  preview toolbar should have a clearer active state — the currently active 
+  one (desktop) should have a filled/highlighted background, not just a 
+  different icon color
+- Add a subtle top border or shadow separating the toolbar from the preview 
+  area below it, so it doesn't feel like it's floating disconnected
+
+MICRO-INTERACTIONS (use Framer Motion if not already installed, npm install 
+framer-motion)
+- Fade-in + slight upward slide (opacity 0→1, y: 10px→0) on the empty state 
+  content when the page first loads
+- Smooth transition (150-200ms ease) on all hover/focus states for buttons, 
+  dropdowns, and the input box
+- When "Generate Page" is clicked and loading begins, animate a subtle pulse 
+  or shimmer on the preview panel's placeholder icon instead of an abrupt swap
+
+ICON CONSISTENCY
+- Ensure all icons (sparkle, brand kit upload, history, viewport toggles, send 
+  button) are from the same icon set (lucide-react is a good fit if not already 
+  in use) at consistent stroke-width and size — mixing icon styles is a common 
+  source of "unpolished" feeling in AI tool UIs
+
+OVERALL AESTHETIC GOAL
+Reference point: aim for the polish level of Linear, Vercel's dashboard, or 
+Raycast — dark, confident, minimal, with restrained but well-placed accent 
+color rather than heavy gradients everywhere. Avoid looking like a generic 
+"AI startup" template (overused purple-blue gradient blobs, glowing borders 
+on every element) — the current direction is close, just needs tighter 
+execution and more restraint in where the gradient/glow effects are applied.
+
+Apply these changes across the existing components without restructuring the 
+overall layout or changing any functional behavior.

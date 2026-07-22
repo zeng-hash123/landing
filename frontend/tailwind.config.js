@@ -8,22 +8,24 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: "#0a0a1a",
-        surface: "#111127",
-        "surface-hover": "#1a1a2e",
+        background: "#0d0d14",
+        surface: "#13131a",
+        "surface-hover": "#1a1a26",
+        "surface-border": "rgba(255, 255, 255, 0.08)",
         primary: {
-          DEFAULT: "#6366f1",
-          hover: "#4f46e5",
+          DEFAULT: "#7c3aed",
+          hover: "#6d28d9",
         },
-        accent: "#a855f7",
-        border: "rgba(255, 255, 255, 0.1)",
+        accent: "#d946ef",
+        border: "rgba(255, 255, 255, 0.08)",
         text: {
-          DEFAULT: "#f8fafc",
+          DEFAULT: "#ffffff",
           muted: "#94a3b8",
+          subtle: "#64748b",
         },
       },
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
+        sans: ["var(--font-sans)", "Inter", "sans-serif"],
       },
     },
   },

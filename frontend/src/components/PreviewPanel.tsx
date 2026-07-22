@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Monitor, Tablet, Smartphone, Copy, Download, History } from 'lucide-react';
+import { Monitor, Tablet, Smartphone, Copy, Download, History, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface PreviewPanelProps {
   html: string;
@@ -53,96 +54,123 @@ export function PreviewPanel({
 
   if (!html) {
     return (
-      <div className="flex-1 min-w-0 bg-background flex flex-col h-full overflow-hidden">
-        {/* Toolbar in empty state */}
-        <div className="h-14 border-b border-border bg-surface/50 flex items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-surface rounded-lg p-1 border border-border">
-              <button onClick={() => setViewport('desktop')} title="Desktop View (100%)" className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewport === 'desktop' ? 'bg-primary/20 text-primary' : 'text-text-muted hover:text-text'}`}>
+      <div className="flex-1 min-w-0 bg-[#0d0d14] flex flex-col h-full overflow-hidden">
+        {/* Top Toolbar in empty state */}
+        <div className="h-14 border-b border-white/10 bg-[#13131a]/80 backdrop-blur-md flex items-center justify-between px-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 bg-[#161622] rounded-xl p-1 border border-white/10">
+              <button 
+                onClick={() => setViewport('desktop')} 
+                title="Desktop View (100%)" 
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${viewport === 'desktop' ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              >
                 <Monitor className="w-4 h-4" />
               </button>
-              <button onClick={() => setViewport('tablet')} title="Tablet View (768px)" className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewport === 'tablet' ? 'bg-primary/20 text-primary' : 'text-text-muted hover:text-text'}`}>
+              <button 
+                onClick={() => setViewport('tablet')} 
+                title="Tablet View (768px)" 
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${viewport === 'tablet' ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              >
                 <Tablet className="w-4 h-4" />
               </button>
-              <button onClick={() => setViewport('mobile')} title="Mobile View (375px)" className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewport === 'mobile' ? 'bg-primary/20 text-primary' : 'text-text-muted hover:text-text'}`}>
+              <button 
+                onClick={() => setViewport('mobile')} 
+                title="Mobile View (375px)" 
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${viewport === 'mobile' ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              >
                 <Smartphone className="w-4 h-4" />
               </button>
             </div>
-            <span className="text-xs font-mono text-text-muted/60 hidden md:inline">
+            <span className="text-[11px] font-mono text-gray-500 hidden md:inline">
               {viewport === 'desktop' ? '100% width' : viewport === 'tablet' ? '768px width' : '375px width'}
             </span>
           </div>
+
           {onToggleHistory && (
-            <button onClick={onToggleHistory} className="flex items-center gap-2 px-3 py-1.5 glass-button rounded-lg text-sm font-medium text-text-muted hover:text-text cursor-pointer">
-              <History className="w-4 h-4 text-primary" />
+            <button 
+              onClick={onToggleHistory} 
+              className="flex items-center gap-2 px-3.5 py-1.5 glass-button rounded-xl text-xs font-semibold text-gray-300 hover:text-white transition-all cursor-pointer"
+            >
+              <History className="w-3.5 h-3.5 text-violet-400" />
               <span className="hidden sm:inline">Version History</span>
               {versionCount && versionCount > 0 ? (
-                <span className="bg-primary/20 text-primary text-xs px-1.5 py-0.5 rounded-full font-bold">
+                <span className="bg-violet-500/20 text-violet-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-violet-500/30">
                   {versionCount}
                 </span>
               ) : null}
             </button>
           )}
         </div>
+
+        {/* Empty State Content */}
         <div className="flex-1 flex items-center justify-center p-8">
-          <div className="w-full h-full glass-panel flex flex-col items-center justify-center text-center opacity-60">
-            <div className="w-24 h-24 mb-6 rounded-2xl bg-surface-hover flex items-center justify-center">
-              <Monitor className="w-12 h-12 text-primary opacity-50" />
+          <motion.div 
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-full max-w-md p-8 glass-panel flex flex-col items-center justify-center text-center shadow-2xl border border-white/10"
+          >
+            <div className={`w-20 h-20 mb-6 rounded-3xl bg-gradient-to-b from-violet-500/10 to-transparent border border-violet-500/20 flex items-center justify-center text-violet-400 shadow-[0_0_40px_rgba(124,58,237,0.15)] ${isGenerating ? 'animate-pulse' : ''}`}>
+              <Monitor className="w-10 h-10 text-violet-400" />
             </div>
-            <h2 className="text-2xl font-bold text-text-muted mb-2">Your preview will appear here</h2>
-            <p className="text-sm text-text-muted max-w-sm">
-              Describe your landing page in the chat to generate a fully functional HTML output.
+            <h2 className="text-xl font-bold text-white tracking-tight mb-1.5">
+              {isGenerating ? 'Generating Your Page...' : 'Your preview will appear here'}
+            </h2>
+            <p className="text-xs text-gray-400 leading-relaxed max-w-xs">
+              {isGenerating 
+                ? 'AI is assembling components, copywriting, and styling...' 
+                : 'Describe your landing page in the chat to generate a fully functional HTML output.'}
             </p>
-          </div>
+          </motion.div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 min-w-0 bg-background flex flex-col h-full overflow-hidden">
+    <div className="flex-1 min-w-0 bg-[#0d0d14] flex flex-col h-full overflow-hidden">
       {/* Toolbar */}
-      <div className="h-14 border-b border-border bg-surface/50 flex items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 bg-surface rounded-lg p-1 border border-border">
+      <div className="h-14 border-b border-white/10 bg-[#13131a]/80 backdrop-blur-md flex items-center justify-between px-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 bg-[#161622] rounded-xl p-1 border border-white/10">
             <button
               onClick={() => setViewport('desktop')}
               title="Desktop View (100%)"
-              className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewport === 'desktop' ? 'bg-primary/20 text-primary' : 'text-text-muted hover:text-text'}`}
+              className={`p-1.5 rounded-lg transition-all cursor-pointer ${viewport === 'desktop' ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
             >
               <Monitor className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewport('tablet')}
               title="Tablet View (768px)"
-              className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewport === 'tablet' ? 'bg-primary/20 text-primary' : 'text-text-muted hover:text-text'}`}
+              className={`p-1.5 rounded-lg transition-all cursor-pointer ${viewport === 'tablet' ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
             >
               <Tablet className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewport('mobile')}
               title="Mobile View (375px)"
-              className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewport === 'mobile' ? 'bg-primary/20 text-primary' : 'text-text-muted hover:text-text'}`}
+              className={`p-1.5 rounded-lg transition-all cursor-pointer ${viewport === 'mobile' ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
             >
               <Smartphone className="w-4 h-4" />
             </button>
           </div>
-          <span className="text-xs font-mono text-text-muted/60 hidden md:inline">
+          <span className="text-[11px] font-mono text-gray-500 hidden md:inline">
             {viewport === 'desktop' ? '100% width' : viewport === 'tablet' ? '768px width' : '375px width'}
           </span>
         </div>
 
         {Boolean(htmlB) && (
-          <div className="flex bg-surface rounded-lg p-1 border border-border text-sm font-medium">
+          <div className="flex bg-[#161622] rounded-xl p-1 border border-white/10 text-xs font-semibold">
             <button
               onClick={() => setActiveVariant('A')}
-              className={`px-4 py-1 rounded-md transition-colors ${activeVariant === 'A' ? 'bg-primary text-white' : 'text-text-muted hover:text-text'}`}
+              className={`px-3.5 py-1 rounded-lg transition-all cursor-pointer ${activeVariant === 'A' ? 'bg-violet-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
             >
               Variant A
             </button>
             <button
               onClick={() => setActiveVariant('B')}
-              className={`px-4 py-1 rounded-md transition-colors ${activeVariant === 'B' ? 'bg-accent text-white' : 'text-text-muted hover:text-text'}`}
+              className={`px-3.5 py-1 rounded-lg transition-all cursor-pointer ${activeVariant === 'B' ? 'bg-fuchsia-500 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
             >
               Variant B
             </button>
@@ -151,37 +179,37 @@ export function PreviewPanel({
 
         <div className="flex items-center gap-2">
           {onToggleHistory && (
-            <button onClick={onToggleHistory} className="flex items-center gap-2 px-3 py-1.5 glass-button rounded-lg text-sm font-medium text-text-muted hover:text-text cursor-pointer">
-              <History className="w-4 h-4 text-primary" />
-              <span className="hidden sm:inline">History</span>
+            <button onClick={onToggleHistory} className="flex items-center gap-1.5 px-3 py-1.5 glass-button rounded-xl text-xs font-medium text-gray-300 hover:text-white cursor-pointer">
+              <History className="w-3.5 h-3.5 text-violet-400" />
+              <span className="hidden sm:inline">Version History</span>
               {versionCount && versionCount > 0 ? (
-                <span className="bg-primary/20 text-primary text-xs px-1.5 py-0.5 rounded-full font-bold">
+                <span className="bg-violet-500/20 text-violet-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-violet-500/30">
                   {versionCount}
                 </span>
               ) : null}
             </button>
           )}
-          <button onClick={handleCopy} className="flex items-center gap-2 px-3 py-1.5 glass-button rounded-lg text-sm font-medium text-text-muted hover:text-text cursor-pointer">
-            <Copy className="w-4 h-4" />
+          <button onClick={handleCopy} className="flex items-center gap-1.5 px-3 py-1.5 glass-button rounded-xl text-xs font-medium text-gray-300 hover:text-white cursor-pointer">
+            <Copy className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Copy HTML</span>
           </button>
-          <button onClick={handleDownload} className="flex items-center gap-2 px-3 py-1.5 glass-button rounded-lg text-sm font-medium text-text-muted hover:text-text cursor-pointer">
-            <Download className="w-4 h-4" />
+          <button onClick={handleDownload} className="flex items-center gap-1.5 px-3 py-1.5 glass-button rounded-xl text-xs font-medium text-gray-300 hover:text-white cursor-pointer">
+            <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Download</span>
           </button>
         </div>
       </div>
 
       {/* iframe container */}
-      <div className="flex-1 min-h-0 overflow-auto bg-[#e5e7eb] flex justify-center p-4">
+      <div className="flex-1 min-h-0 overflow-auto bg-[#0a0a0f] flex justify-center p-4">
         <div 
-          className="h-full min-h-[600px] bg-white shadow-2xl transition-all duration-300 ease-in-out relative rounded-sm overflow-hidden border border-border flex flex-col"
+          className="h-full min-h-[600px] bg-white shadow-2xl transition-all duration-300 ease-in-out relative rounded-xl overflow-hidden border border-white/10 flex flex-col"
           style={{ width: viewportWidths[viewport] }}
         >
           {isGenerating && (
-            <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mb-4"></div>
-              <p className="text-gray-600 font-medium animate-pulse">Rendering preview...</p>
+            <div className="absolute inset-0 bg-[#13131a]/85 backdrop-blur-md z-10 flex flex-col items-center justify-center text-center p-6">
+              <div className="animate-spin rounded-full h-10 w-10 border-2 border-violet-500/20 border-t-violet-500 mb-3"></div>
+              <p className="text-sm text-white font-semibold animate-pulse">Updating preview...</p>
             </div>
           )}
           <iframe
