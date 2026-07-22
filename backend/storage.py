@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 # Fallback in-memory storage if Supabase SQL schema has not been executed yet
 _memory_pages: Dict[str, Dict] = {}
 _memory_versions: List[Dict] = []
-_use_memory_fallback = False
+_use_memory_fallback = (supabase_client is None)
 
 def _is_table_missing_error(e: Exception) -> bool:
     err_str = str(e)

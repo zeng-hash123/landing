@@ -8,8 +8,9 @@ import dotenv
 
 dotenv.load_dotenv()
 
+api_key = os.getenv("KIMI_API_KEY") or "placeholder-key"
 client = AsyncOpenAI(
-    api_key=os.getenv("KIMI_API_KEY"),
+    api_key=api_key,
     base_url="https://api.moonshot.ai/v1"
 )
 MODEL_NAME = "kimi-k2.7-code"

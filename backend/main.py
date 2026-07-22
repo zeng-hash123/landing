@@ -28,6 +28,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+@app.get("/api")
+async def root_health_check():
+    return {"status": "ok", "message": "FastAPI Landing Page Generator Service Running"}
+
 @app.post("/generate")
 async def generate_page(req: GenerateRequest, request: Request):
     library = request.app.state.library
