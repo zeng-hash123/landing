@@ -7,17 +7,20 @@ import { motion } from 'framer-motion';
 export function Hero() {
   return (
     <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 overflow-hidden bg-[#0d0d14]">
-      {/* Background SVG Grid & Pattern Overlay */}
+      {/* High-Visibility Modern Tech Grid & Dot Matrix Overlay */}
       <div 
-        className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" 
+        className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.12)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_85%_70%_at_50%_20%,#000_85%,transparent_100%)] pointer-events-none" 
       />
       <div 
-        className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_30%,#000_60%,transparent_100%)] pointer-events-none" 
+        className="absolute inset-0 bg-[radial-gradient(rgba(168,85,247,0.3)_1.5px,transparent_1.5px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_80%_70%_at_50%_30%,#000_85%,transparent_100%)] pointer-events-none" 
+      />
+      <div 
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full bg-[linear-gradient(to_right,rgba(124,58,237,0.18)_1px,transparent_1px),linear-gradient(to_bottom,rgba(124,58,237,0.18)_1px,transparent_1px)] bg-[size:120px_120px] pointer-events-none"
       />
 
-      {/* Subtle Background Radial Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-fuchsia-500/10 rounded-full blur-[120px] pointer-events-none" />
+      {/* Glowing Radial Backdrops */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-violet-600/20 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 w-[450px] h-[450px] bg-fuchsia-500/15 rounded-full blur-[130px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
@@ -26,7 +29,7 @@ export function Hero() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold mb-6 shadow-sm backdrop-blur-md"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-500/15 border border-violet-500/30 text-violet-200 text-xs font-semibold mb-6 shadow-lg shadow-violet-500/10 backdrop-blur-md"
           >
             <Sparkles className="w-3.5 h-3.5 text-violet-400" />
             <span>Built for Marketing Agencies & Growth Teams</span>
