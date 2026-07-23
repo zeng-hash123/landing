@@ -47,8 +47,8 @@ export default function ChatStudioPage() {
   // Auth protection check
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const isAuth = localStorage.getItem('forge_authenticated');
-      const email = localStorage.getItem('forge_user_email');
+      const isAuth = localStorage.getItem('promtpage_authenticated') || localStorage.getItem('forge_authenticated');
+      const email = localStorage.getItem('promtpage_user_email') || localStorage.getItem('forge_user_email');
       if (!isAuth) {
         // Redirect unauthenticated users to Auth
         const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || '/auth';

@@ -34,6 +34,16 @@
       "has": [
         {
           "type": "host",
+          "value": "auth.promtpage.vercel.app"
+        }
+      ],
+      "src": "/(.*)",
+      "dest": "frontend/auth/$1"
+    },
+    {
+      "has": [
+        {
+          "type": "host",
           "value": "auth.forgeailanding.vercel.app"
         }
       ],

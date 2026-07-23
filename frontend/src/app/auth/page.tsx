@@ -28,9 +28,9 @@ export default function AuthPage() {
     setErrorMessage('');
 
     if (typeof window !== 'undefined') {
-      localStorage.setItem('forge_authenticated', 'true');
-      localStorage.setItem('forge_user_email', 'google.user@promtpage.com');
-      localStorage.setItem('forge_token', 'promtpage_google_token_' + Date.now());
+      localStorage.setItem('promtpage_authenticated', 'true');
+      localStorage.setItem('promtpage_user_email', 'google.user@promtpage.com');
+      localStorage.setItem('promtpage_token', 'promtpage_google_token_' + Date.now());
     }
 
     if (supabase) {
@@ -68,9 +68,9 @@ export default function AuthPage() {
     const userEmail = email || 'user@promtpage.com';
 
     if (typeof window !== 'undefined') {
-      localStorage.setItem('forge_authenticated', 'true');
-      localStorage.setItem('forge_user_email', userEmail);
-      localStorage.setItem('forge_token', 'promtpage_email_token_' + Date.now());
+      localStorage.setItem('promtpage_authenticated', 'true');
+      localStorage.setItem('promtpage_user_email', userEmail);
+      localStorage.setItem('promtpage_token', 'promtpage_email_token_' + Date.now());
     }
 
     if (supabase) {

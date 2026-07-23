@@ -5,7 +5,7 @@ import './globals.css';
 const epilogue = Epilogue({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  title: 'Forge - AI Landing Page Generator',
+  title: 'PromtPage - AI Landing Page Generator',
   description: 'Generate stunning landing pages with AI',
 };
 

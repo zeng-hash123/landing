@@ -33,7 +33,7 @@ const FEATURES = [
   {
     icon: Briefcase,
     title: "Agency White-Label Export",
-    description: "Export clean, lightweight HTML/CSS code or share live previews with clients without any Forge branding or platform locks."
+    description: "Export clean, lightweight HTML/CSS code or share live previews with clients without any PromtPage branding or platform locks."
   }
 ];
 

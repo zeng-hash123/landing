@@ -43,7 +43,7 @@ export function HowItWorks() {
             Simple 3-Step Process
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-2 font-sans">
-            How Forge turns ideas into high-converting pages
+            How PromtPage turns ideas into high-converting pages
           </h2>
           <p className="text-sm text-gray-400 mt-3 leading-relaxed">
             Eliminate developer bottlenecks and copy blocks. Go from prompt to production-ready landing page in seconds.

@@ -15,7 +15,7 @@ export function Footer() {
                 <Sparkles className="w-3.5 h-3.5" />
               </div>
               <span className="text-base font-bold text-white tracking-tight font-sans">
-                Forge AI
+                PromtPage AI
               </span>
             </div>
             <p className="text-gray-400 leading-relaxed">
@@ -56,7 +56,7 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-gray-500">
-          <p>© {new Date().getFullYear()} Forge AI Technologies. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} PromtPage AI Technologies. All rights reserved.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-gray-300">Twitter</a>
             <a href="#" className="hover:text-gray-300">LinkedIn</a>

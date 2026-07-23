@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 
 const TESTIMONIALS = [
   {
-    quote: "Forge allowed our agency to launch 14 client campaign pages in one week. The multi-agent copy and compliance check saved us countless hours of revision.",
+    quote: "PromtPage allowed our agency to launch 14 client campaign pages in one week. The multi-agent copy and compliance check saved us countless hours of revision.",
     author: "Marcus Vance",
     role: "Founder & Lead Strategist",
     agency: "ScaleFlow Media",
