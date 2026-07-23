@@ -1,10 +1,9 @@
 {
   "name": "landing-monorepo",
-  "version": 1.0,
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "build:astro": "cd astro-landing && npm install && npm run build",
-    "build:frontend": "cd frontend && npm install && npm run build",
-    "build": "npm run build:astro && npm run build:frontend"
+    "build": "echo 'Monorepo build handled by Vercel builders'"
   },
   "dependencies": {
     "next": "^14.2.0",
