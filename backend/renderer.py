@@ -3,6 +3,15 @@ from typing import List, Dict, Optional, Any
 from models import SectionSelection, BrandKit
 
 DEFAULT_TOKENS = {
+    "logo_text": "Brand",
+    "nav_link_1": "Features",
+    "nav_link_2": "Solutions",
+    "nav_link_3": "Pricing",
+    "nav_link_4": "About",
+    "nav_url_1": "#features",
+    "nav_url_2": "#solutions",
+    "nav_url_3": "#pricing",
+    "nav_url_4": "#about",
     "primary_color": "#6366f1",
     "secondary_color": "#a855f7",
     "accent_color": "#3b82f6",
@@ -39,7 +48,7 @@ def render_section(section: SectionSelection, library: List[Dict], brand_context
     if not template_data:
         return ""
     
-    html_template_string = template_data.get("html_template", "")
+    html_template_string = template_data.get("html_template") or template_data.get("html", "")
     
     context = dict(DEFAULT_TOKENS)
     if brand_context:
@@ -104,7 +113,7 @@ def assemble_page(sections: List[SectionSelection], meta: Dict, pixel_ids: Optio
     requires_js = False
     for sec in sections:
         template_data = next((item for item in library if item["template_file"] == sec.template_file), None)
-        if template_data and template_data.get("metadata", {}).get("js_dependency") == "requires_js":
+        if template_data and template_data.get("metadata", {}).get("js_dependency") in ["requires_js", "alpine"]:
             requires_js = True
             break
             

@@ -7,7 +7,15 @@ import { motion } from 'framer-motion';
 export function Hero() {
   return (
     <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 overflow-hidden bg-[#0d0d14]">
-      {/* Subtle Background Radial Glow */}
+      {/* Background SVG Grid & Pattern Overlay */}
+      <div 
+        className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" 
+      />
+      <div 
+        className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_30%,#000_60%,transparent_100%)] pointer-events-none" 
+      />
+
+      {/* Subtle Background Radial Glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-fuchsia-500/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -18,7 +26,7 @@ export function Hero() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold mb-6 shadow-sm"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold mb-6 shadow-sm backdrop-blur-md"
           >
             <Sparkles className="w-3.5 h-3.5 text-violet-400" />
             <span>Built for Marketing Agencies & Growth Teams</span>
@@ -123,7 +131,7 @@ export function Hero() {
                   "Create a high-converting SaaS landing page for an AI email writer..."
                 </div>
                 <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-xs text-gray-300">
-                  ⚡ 3 AI Agents (Copywriter, Designer, Compliance) generated 5 sections & 2 A/B variants.
+                  ⚡ 3 AI Agents (Copywriter, Designer, Compliance) generated navbar, hero, features & A/B variants.
                 </div>
               </div>
               <div className="p-3 rounded-xl bg-[#161622] border border-white/10 text-xs text-gray-500 flex justify-between items-center">
@@ -134,8 +142,16 @@ export function Hero() {
 
             {/* Right Live Preview Column */}
             <div className="md:col-span-8 bg-white rounded-xl overflow-hidden p-6 text-gray-900 flex flex-col justify-between relative shadow-inner">
-              <div className="space-y-4 text-center max-w-md mx-auto pt-6">
-                <span className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-violet-100 text-violet-700">
+              <div className="space-y-4 text-center max-w-md mx-auto pt-4">
+                <div className="flex items-center justify-between pb-3 border-b border-gray-100 text-xs font-medium text-gray-600">
+                  <span className="font-bold text-violet-600 text-sm">BrandAI</span>
+                  <div className="flex gap-3 text-[11px]">
+                    <span>Features</span>
+                    <span>Pricing</span>
+                    <span>About</span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 inline-block mt-2">
                   AI-Generated Preview
                 </span>
                 <h3 className="text-2xl font-bold text-gray-900 leading-tight">
@@ -155,10 +171,10 @@ export function Hero() {
               </div>
 
               {/* Bottom Feature Badges */}
-              <div className="grid grid-cols-3 gap-2 pt-8 text-center text-[10px] font-semibold text-gray-500 border-t border-gray-100 mt-6">
-                <div className="p-2 bg-gray-50 rounded-lg">✓ A/B Variant A</div>
+              <div className="grid grid-cols-3 gap-2 pt-6 text-center text-[10px] font-semibold text-gray-500 border-t border-gray-100 mt-6">
+                <div className="p-2 bg-gray-50 rounded-lg">✓ Navbar + Hero</div>
                 <div className="p-2 bg-gray-50 rounded-lg">✓ Brand Kit Synced</div>
-                <div className="p-2 bg-gray-50 rounded-lg">✓ 0 Ad Policy Flags</div>
+                <div className="p-2 bg-gray-50 rounded-lg">✓ 0 Policy Flags</div>
               </div>
             </div>
           </div>

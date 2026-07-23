@@ -9,7 +9,7 @@ async def classify_edit_intent(instruction: str) -> dict:
     system_prompt = (
         "Classify user edit instruction. Determine if it requires a copywriter edit (updating text) "
         "or designer edit (changing design or template). Also extract the target section_type if any. "
-        "Return JSON: {'agent': 'copywriter'|'designer', 'fields': ['token1', '...'], 'section_type': 'hero'|'features'|'testimonial'|'pricing'|'cta'}"
+        "Return JSON: {'agent': 'copywriter'|'designer', 'fields': ['token1', '...'], 'section_type': 'navbar'|'hero'|'features'|'testimonial'|'pricing'|'cta'}"
     )
     messages = [
         {"role": "system", "content": system_prompt},
