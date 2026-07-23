@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Lock, Mail, Github, CheckCircle } from 'lucide-react';
+import { ArrowRight, Lock, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 
@@ -126,7 +126,7 @@ export default function AuthPage() {
           <p className="text-xs text-gray-400 mt-1">
             {mode === 'signin' 
               ? 'Sign in to access your landing page generator studio' 
-              : 'Sign up for $49/mo unlimited AI page generation'}
+              : 'Create your account to start generating high-converting pages'}
           </p>
         </div>
 
@@ -155,12 +155,12 @@ export default function AuthPage() {
           </button>
         </div>
 
-        {/* Social Auth Buttons */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        {/* Google OAuth Button Only */}
+        <div className="mb-6">
           <button 
             type="button"
             onClick={handleGoogleSignIn}
-            className="flex items-center justify-center gap-2 py-2.5 px-4 bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-white/20 rounded-xl text-xs font-semibold text-gray-200 transition-all cursor-pointer"
+            className="w-full flex items-center justify-center gap-2.5 py-3 px-4 bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-white/20 rounded-xl text-xs font-semibold text-white transition-all cursor-pointer shadow-sm"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/>
@@ -168,16 +168,7 @@ export default function AuthPage() {
               <path fill="#FBBC05" d="M5.6 14.8c-.3-.8-.4-1.8-.4-2.8s.1-2 .4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z"/>
               <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z"/>
             </svg>
-            <span>Google OAuth</span>
-          </button>
-
-          <button 
-            type="button"
-            onClick={handleGoogleSignIn}
-            className="flex items-center justify-center gap-2 py-2.5 px-4 bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-white/20 rounded-xl text-xs font-semibold text-gray-200 transition-all cursor-pointer"
-          >
-            <Github className="w-4 h-4" />
-            <span>GitHub</span>
+            <span>Continue with Google</span>
           </button>
         </div>
 
@@ -231,7 +222,7 @@ export default function AuthPage() {
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <span>{mode === 'signin' ? 'Sign In & Launch Studio' : 'Create Account ($49/mo Plan)'}</span>
+                <span>{mode === 'signin' ? 'Sign In & Launch Studio' : 'Create Account'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </span>
             )}
