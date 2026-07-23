@@ -41,8 +41,9 @@ async def run_copywriter(brief: PageBrief) -> Dict:
     system_prompt = (
         "You are a world-class direct-response copywriter for landing pages. "
         "Given the product brief, generate compelling copy for each section. Return JSON only. "
-        "Generate content keys for: navbar, hero, features, testimonial, pricing, cta sections. "
+        "Generate content keys for: navbar, hero, features, testimonial, pricing, cta, footer sections. "
         "For 'navbar', generate 'logo_text' (short product/brand name), 'nav_link_1', 'nav_link_2', 'nav_link_3', 'nav_link_4', and 'cta_text'. "
+        "For 'footer', generate 'headline', 'subheadline', 'copyright_text', 'company_name', and 'cta_text'. "
         "Include both 'headline' style (single headline) and 'headline_line1/line2/highlight' style for hero, features, and cta. "
         "If ab_test is true, generate a variant_b with alternative headline and CTA text."
     )
@@ -60,7 +61,7 @@ async def _design_section(sec_type: str, brief: PageBrief, copy: Dict, brand_kit
         candidates_meta = []
         for item in library:
             st = item.get("metadata", {}).get("section_type", "").lower()
-            if st == sec_type or st == sec_type + "s" or (sec_type == "testimonial" and st == "testimonials") or (sec_type == "features" and st == "feature"):
+            if st == sec_type or st == sec_type + "s" or (sec_type == "testimonial" and st == "testimonials") or (sec_type == "features" and st == "feature") or (sec_type == "footer" and st in ["footer", "footers"]):
                 candidates_meta.append({"template_file": item.get("template_file"), "metadata": item.get("metadata")})
         candidates = candidates_meta
     
@@ -85,7 +86,7 @@ async def _design_section(sec_type: str, brief: PageBrief, copy: Dict, brand_kit
 
 async def run_designer(brief: PageBrief, copy: Dict, brand_kit: Optional[BrandKit], library: List[Dict]) -> List[SectionSelection]:
     import asyncio
-    section_types = ["navbar", "hero", "features", "testimonial", "pricing", "cta"]
+    section_types = ["navbar", "hero", "features", "testimonial", "pricing", "cta", "footer"]
     tasks = [_design_section(st, brief, copy, brand_kit, library) for st in section_types]
     sections = await asyncio.gather(*tasks)
     return list(sections)

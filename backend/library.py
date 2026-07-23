@@ -5,10 +5,10 @@ from typing import List, Dict
 def load_component_library(base_path: str) -> List[Dict]:
     """
     Scans subdirectories for .json files and returns a flat list of components.
-    Handles single-component JSONs and multi-variant JSONs like navbar.json.
+    Handles single-component JSONs, array JSONs (footer_templates.json), and multi-variant JSONs (navbar.json).
     """
     library = []
-    subdirs = ["navbar", "hero", "Features", "cta", "pricing", "testimonials"]
+    subdirs = ["navbar", "hero", "Features", "cta", "pricing", "testimonials", "footer"]
     for subdir in subdirs:
         dir_path = os.path.join(base_path, subdir)
         if not os.path.exists(dir_path):
@@ -19,13 +19,19 @@ def load_component_library(base_path: str) -> List[Dict]:
                 try:
                     with open(file_path, "r", encoding="utf-8") as f:
                         data = json.load(f)
-                        if "variants" in data and isinstance(data["variants"], list):
+                        if isinstance(data, list):
+                            for idx, item in enumerate(data):
+                                if isinstance(item, dict) and "metadata" in item:
+                                    item["metadata"]["section_type"] = item["metadata"].get("section_type", "").lower()
+                                    item["template_file"] = f"{filename}_{item.get('filename', idx)}"
+                                    library.append(item)
+                        elif isinstance(data, dict) and "variants" in data and isinstance(data["variants"], list):
                             for idx, variant in enumerate(data["variants"]):
                                 var_item = {
                                     "template_file": f"{filename}_{variant.get('id', idx)}",
                                     "html_template": variant.get("html", variant.get("html_template", "")),
                                     "metadata": {
-                                        "section_type": "navbar",
+                                        "section_type": subdir.lower(),
                                         "structural_approach": variant.get("structural_approach", ""),
                                         "vibe_tags": variant.get("vibe_tags", ["bold", "minimal", "modern", "corporate", "tech", "luxury", "playful", "warm", "edgy"]),
                                         "js_dependency": variant.get("js_dependency", "static"),
@@ -33,7 +39,7 @@ def load_component_library(base_path: str) -> List[Dict]:
                                     }
                                 }
                                 library.append(var_item)
-                        elif "metadata" in data:
+                        elif isinstance(data, dict) and "metadata" in data:
                             data["metadata"]["section_type"] = data["metadata"].get("section_type", "").lower()
                             data["template_file"] = filename
                             library.append(data)
@@ -69,6 +75,8 @@ def filter_candidates(library: List[Dict], section_type: str, vibe: str, js_allo
             elif sec_target in ["feature", "features"] and sec_type_meta in ["feature", "features"]:
                 pass
             elif sec_target in ["navbar", "navbars", "nav"] and sec_type_meta in ["navbar", "navbars", "nav"]:
+                pass
+            elif sec_target in ["footer", "footers", "foot"] and sec_type_meta in ["footer", "footers", "foot"]:
                 pass
             else:
                 continue
