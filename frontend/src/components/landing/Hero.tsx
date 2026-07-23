@@ -118,7 +118,7 @@ export function Hero() {
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               build.landing-xyx.vercel.app
             </div>
-            <div className="text-xs font-semibold text-violet-400">Forge AI</div>
+            <div className="text-xs font-semibold text-violet-400">PromtPage AI</div>
           </div>
 
           {/* Interface Preview Grid */}
@@ -128,7 +128,7 @@ export function Hero() {
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-white pb-2 border-b border-white/5">
                   <Sparkles className="w-3.5 h-3.5 text-violet-400" />
-                  Forge Assistant
+                  PromtPage Assistant
                 </div>
                 <div className="p-3 rounded-xl bg-violet-600/20 border border-violet-500/30 text-xs text-violet-200">
                   "Create a high-converting SaaS landing page for an AI email writer..."

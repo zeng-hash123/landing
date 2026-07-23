@@ -46,13 +46,13 @@ export function Nav() {
         {/* Desktop Action Buttons */}
         <div className="hidden md:flex items-center gap-3">
           <a
-            href="/chat"
+            href="/auth"
             className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-all"
           >
             Sign In
           </a>
           <a
-            href="/chat"
+            href="/auth"
             className="flex items-center gap-1.5 px-4.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
           >
             <span>Try PromtPage Free</span>
@@ -63,7 +63,7 @@ export function Nav() {
         {/* Mobile Actions & Menu Toggle */}
         <div className="flex items-center gap-2 md:hidden">
           <a
-            href="/chat"
+            href="/auth"
             className="px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-md"
           >
             Try Free
@@ -90,10 +90,10 @@ export function Nav() {
             </a>
           </nav>
           <div className="pt-4 border-t border-white/10 flex flex-col gap-2.5">
-            <a href="/chat" className="w-full text-center py-2.5 rounded-xl text-xs font-semibold border border-white/10 text-white">
+            <a href="/auth" className="w-full text-center py-2.5 rounded-xl text-xs font-semibold border border-white/10 text-white">
               Sign In
             </a>
-            <a href="/chat" className="w-full text-center py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg">
+            <a href="/auth" className="w-full text-center py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg">
               Start Generating Free →
             </a>
           </div>
