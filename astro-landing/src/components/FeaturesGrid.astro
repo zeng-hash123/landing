@@ -1,0 +1,66 @@
+---
+const FEATURES = [
+  {
+    icon: "🧠",
+    title: "Multi-Agent AI Pipeline",
+    description: "Specialized Copywriter, Designer, and Compliance agents run in parallel to craft copy, select layout components, and evaluate conversion structure."
+  },
+  {
+    icon: "🎨",
+    title: "Brand Kit Engine",
+    description: "Upload your client's logo, primary & secondary brand colors, and custom Google Fonts to ensure every landing page stays 100% on-brand."
+  },
+  {
+    icon: "⚖️",
+    title: "Built-In A/B Testing",
+    description: "Automatically generate Variant A and Variant B with alternate headlines and CTA copy to double your campaign testing volume instantly."
+  },
+  {
+    icon: "💬",
+    title: "Chat-Based Real-Time Editing",
+    description: "Refine headlines, swap colors, adjust copy tone, or modify section layouts instantly using simple natural language chat commands."
+  },
+  {
+    icon: "🛡️",
+    title: "Ad Compliance & Policy Checks",
+    description: "Automated scan flags misleading claims, guarantees, or prohibited ad copy before you launch on Meta or Google Ads."
+  },
+  {
+    icon: "💼",
+    title: "Agency White-Label Export",
+    description: "Export clean, lightweight HTML/CSS code or share live previews with clients without any Forge branding or platform locks."
+  }
+];
+---
+
+<section id="features" class="py-24 bg-[#0d0d14] relative border-t border-white/5">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <span class="text-xs font-extrabold uppercase tracking-widest text-violet-400">
+        Engineered For Agencies
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-2 font-sans">
+        Everything your growth team needs to scale landing pages
+      </h2>
+      <p class="text-sm text-gray-400 mt-3 leading-relaxed">
+        Replace fragmented design files and slow copywriter turnarounds with an integrated AI workflow.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {FEATURES.map((f) => (
+        <div class="bg-[#13131a] border border-white/10 hover:border-violet-500/40 rounded-2xl p-6 transition-all duration-300 group hover:shadow-xl hover:shadow-violet-500/10">
+          <div class="w-12 h-12 rounded-xl bg-violet-600/15 border border-violet-500/30 flex items-center justify-center text-xl mb-5 group-hover:scale-110 transition-transform">
+            {f.icon}
+          </div>
+          <h3 class="text-base font-bold text-white tracking-tight mb-2">
+            {f.title}
+          </h3>
+          <p class="text-xs text-gray-400 leading-relaxed">
+            {f.description}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

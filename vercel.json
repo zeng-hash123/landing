@@ -2,6 +2,13 @@
   "version": 2,
   "builds": [
     {
+      "src": "astro-landing/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
       "src": "frontend/package.json",
       "use": "@vercel/next"
     },
@@ -24,8 +31,40 @@
       "dest": "api/index.py"
     },
     {
+      "src": "/chat(.*)",
+      "dest": "frontend/chat$1"
+    },
+    {
+      "src": "/auth(.*)",
+      "dest": "frontend/auth$1"
+    },
+    {
+      "src": "/_next/(.*)",
+      "dest": "frontend/_next/$1"
+    },
+    {
+      "src": "/blog/(.*)",
+      "dest": "astro-landing/blog/$1"
+    },
+    {
+      "src": "/blog",
+      "dest": "astro-landing/blog/index.html"
+    },
+    {
+      "src": "/sitemap-index.xml",
+      "dest": "astro-landing/sitemap-index.xml"
+    },
+    {
+      "src": "/sitemap-0.xml",
+      "dest": "astro-landing/sitemap-0.xml"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "astro-landing/robots.txt"
+    },
+    {
       "src": "/(.*)",
-      "dest": "frontend/$1"
+      "dest": "astro-landing/$1"
     }
   ]
 }

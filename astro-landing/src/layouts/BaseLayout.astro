@@ -1,0 +1,72 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title = "Landing pages that convert visitors into customers | Forge AI",
+  description = "Multi-agent AI (copywriter, designer, compliance) generates on-brand, high-converting landing pages from a single prompt or ad URL for marketing agencies.",
+  ogImage = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80"
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || "https://landing-xyx.vercel.app");
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Forge AI",
+  "operatingSystem": "Web",
+  "applicationCategory": "BusinessApplication",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": description
+};
+---
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth bg-[#0d0d14] text-white">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="generator" content={Astro.generator} />
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href={canonicalURL} />
+
+  <!-- Title & Meta Description -->
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="keywords" content="AI landing page generator, landing pages for agencies, AI landing page builder, conversion copywriting AI, ad compliance checker" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={Astro.url} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+
+  <!-- Twitter Card -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content={Astro.url} />
+  <meta property="twitter:title" content={title} />
+  <meta property="twitter:description" content={description} />
+  <meta property="twitter:image" content={ogImage} />
+
+  <!-- Google Fonts - Epilogue -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Structured Data JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col bg-[#0d0d14] text-white selection:bg-violet-500 selection:text-white">
+  <slot />
+</body>
+</html>

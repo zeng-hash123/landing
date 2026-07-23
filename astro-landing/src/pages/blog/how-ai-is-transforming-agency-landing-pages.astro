@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<BaseLayout
+  title="How Multi-Agent AI is Transforming Agency Landing Page Workflows | Forge Blog"
+  description="Discover how performance marketing agencies use multi-agent AI to write copy, pick high-converting layouts, and verify policy compliance in 10 minutes."
+>
+  <Nav />
+  <main class="pt-32 pb-24 bg-[#0d0d14]">
+    <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-8">
+        <a href="/blog" class="text-xs font-semibold text-violet-400 hover:text-violet-300 flex items-center gap-1 mb-4">
+          <span>← Back to Blog Overview</span>
+        </a>
+        <span class="text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
+          Agency Growth
+        </span>
+        <h1 class="text-3xl sm:text-5xl font-bold text-white tracking-tight mt-4 mb-4 leading-tight font-sans">
+          How Multi-Agent AI is Transforming Agency Landing Page Workflows
+        </h1>
+        <div class="flex items-center gap-4 text-xs text-gray-400 pb-6 border-b border-white/10">
+          <span>By Forge Strategy Team</span>
+          <span>•</span>
+          <span>July 22, 2026</span>
+          <span>•</span>
+          <span>5 min read</span>
+        </div>
+      </div>
+
+      <div class="prose prose-invert max-w-none space-y-6 text-gray-300 text-sm leading-relaxed">
+        <p class="text-base text-gray-200 leading-relaxed font-semibold">
+          For years, performance marketing agencies have faced a persistent operational bottleneck: turning around client landing pages quickly enough to match high-velocity ad campaigns.
+        </p>
+
+        <h2 class="text-xl font-bold text-white tracking-tight pt-4">1. The Traditional Agency Bottleneck</h2>
+        <p>
+          Creating a single custom client landing page traditionally required four separate roles: a media buyer to write the brief, a direct-response copywriter to draft the messaging, a UI/UX designer to layout the visual components, and a frontend developer to code and test the page.
+        </p>
+        <p>
+          This multi-step handoff often took 10 to 14 days per page. When paid ad budgets are burning $5,000/day, waiting two weeks for landing page iterations drains campaign profitability.
+        </p>
+
+        <h2 class="text-xl font-bold text-white tracking-tight pt-4">2. Enter Multi-Agent Architecture</h2>
+        <p>
+          Single-prompt LLMs often produce generic copy or mismatched designs. Forge solves this by deploying three specialized AI agents that execute specialized functions concurrently:
+        </p>
+        <ul class="list-disc pl-6 space-y-2 text-gray-300">
+          <li><strong>Copywriter Agent:</strong> Trained on top-performing direct-response frameworks (PAS, AIDA, Before-After-Bridge) to craft high-converting headlines and subtexts.</li>
+          <li><strong>Designer Agent:</strong> Matches user brand kits with proven Tailwind CSS component layouts (Navbar, Hero, Features Grid, Testimonials, CTA).</li>
+          <li><strong>Compliance Agent:</strong> Scans generated pages for ad policy risks (guarantees, unverified claims, misleading urgency) before campaigns go live.</li>
+        </ul>
+
+        <div class="p-6 rounded-2xl bg-[#13131a] border border-violet-500/30 my-8">
+          <h3 class="text-base font-bold text-white mb-2">⚡ The Results in Numbers</h3>
+          <p class="text-xs text-gray-300">
+            Agencies leveraging multi-agent workflows report launching landing pages in under 10 minutes, generating an average 38% increase in conversion rates while eliminating frontend developer bottlenecks.
+          </p>
+        </div>
+
+        <h2 class="text-xl font-bold text-white tracking-tight pt-4">3. Scaling Client Accounts with Brand Isolation</h2>
+        <p>
+          One of the biggest challenges for growing agencies is managing multiple brand identities simultaneously. With Forge's Brand Kit engine, account managers can lock in client primary colors, secondary accents, logos, and Google Fonts — ensuring every AI-generated landing page aligns perfectly with brand guidelines.
+        </p>
+
+        <div class="pt-8 border-t border-white/10 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h4 class="text-base font-bold text-white">Ready to test multi-agent AI for your agency?</h4>
+            <p class="text-xs text-gray-400">Generate your first landing page free in under 2 minutes.</p>
+          </div>
+          <a href="/chat" class="px-6 py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg">
+            Start Free Generator Studio →
+          </a>
+        </div>
+      </div>
+    </article>
+  </main>
+  <Footer />
+</BaseLayout>
