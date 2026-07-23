@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles, ArrowRight, Menu, X } from 'lucide-react';
+import { ArrowRight, Menu, X } from 'lucide-react';
 
 export function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -22,12 +22,12 @@ export function Nav() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2.5 group">
-          <div className="p-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 group-hover:scale-105 transition-transform">
-            <Sparkles className="w-4 h-4" />
+          <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/20 p-1 flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-transform overflow-hidden">
+            <img src="/logo.jpg" alt="PromtPage Logo" className="w-full h-full object-contain rounded-lg" />
           </div>
           <div className="flex flex-col">
             <span className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-1.5 font-sans">
-              Forge <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-extrabold px-1.5 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">AI</span>
+              PromtPage <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-extrabold px-1.5 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">AI</span>
             </span>
           </div>
         </a>
@@ -35,7 +35,7 @@ export function Nav() {
         {/* Desktop Nav Links */}
         <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-gray-300">
           <a href="/#features" className="hover:text-white transition-colors">Features</a>
-          <a href="/#how-it-works" className="hover:text-white transition-colors">How It Works</a>
+          <a href="/#how-it-works" class="hover:text-white transition-colors">How It Works</a>
           <a href="/#agencies" className="hover:text-white transition-colors">For Agencies</a>
           <a href="/blog" className="hover:text-violet-300 transition-colors text-violet-400 font-bold flex items-center gap-1">
             <span>Blog</span>
@@ -55,7 +55,7 @@ export function Nav() {
             href="/chat"
             className="flex items-center gap-1.5 px-4.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
           >
-            <span>Try Forge Free</span>
+            <span>Try PromtPage Free</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </a>
         </div>
