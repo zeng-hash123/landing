@@ -35,7 +35,7 @@ export function Nav() {
         {/* Desktop Nav Links */}
         <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-gray-300">
           <a href="/#features" className="hover:text-white transition-colors">Features</a>
-          <a href="/#how-it-works" class="hover:text-white transition-colors">How It Works</a>
+          <a href="/#how-it-works" className="hover:text-white transition-colors">How It Works</a>
           <a href="/#agencies" className="hover:text-white transition-colors">For Agencies</a>
           <a href="/blog" className="hover:text-violet-300 transition-colors text-violet-400 font-bold flex items-center gap-1">
             <span>Blog</span>
