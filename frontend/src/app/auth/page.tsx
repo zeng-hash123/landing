@@ -1,25 +1,51 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sparkles, ArrowRight, Lock, Mail, Github } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function AuthPage() {
+  const router = useRouter();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const getTargetUrl = () => {
+    const envUrl = process.env.NEXT_PUBLIC_CHAT_UI_URL;
+    if (!envUrl) return '/chat';
+    if (envUrl.startsWith('http://') || envUrl.startsWith('https://')) {
+      return envUrl;
+    }
+    return `https://${envUrl}`;
+  };
+
+  const handleAuthSubmit = (userEmail?: string) => {
     setIsLoading(true);
 
-    // Simulate login authentication and redirect to Chat UI
+    const finalEmail = userEmail || email || 'user@agency.com';
+
+    // Store user session in localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('forge_authenticated', 'true');
+      localStorage.setItem('forge_user_email', finalEmail);
+      localStorage.setItem('forge_token', 'forge_mock_token_' + Date.now());
+    }
+
     setTimeout(() => {
-      // If subdomain env var is set, use it; otherwise redirect to /chat
-      const redirectUrl = process.env.NEXT_PUBLIC_CHAT_UI_URL || '/chat';
-      window.location.href = redirectUrl;
-    }, 600);
+      const targetUrl = getTargetUrl();
+      if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
+        window.location.href = targetUrl;
+      } else {
+        router.push(targetUrl);
+      }
+    }, 400);
+  };
+
+  const handleSubmitForm = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleAuthSubmit(email);
   };
 
   return (
@@ -58,12 +84,14 @@ export default function AuthPage() {
         {/* Auth Mode Toggle */}
         <div className="flex bg-[#161622] p-1 rounded-xl border border-white/10 mb-6 text-xs font-semibold">
           <button
+            type="button"
             onClick={() => setMode('signin')}
             className={`flex-1 py-2 rounded-lg transition-all cursor-pointer ${mode === 'signin' ? 'bg-violet-600 text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
           >
             Sign In
           </button>
           <button
+            type="button"
             onClick={() => setMode('signup')}
             className={`flex-1 py-2 rounded-lg transition-all cursor-pointer ${mode === 'signup' ? 'bg-violet-600 text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
           >
@@ -75,7 +103,7 @@ export default function AuthPage() {
         <div className="grid grid-cols-2 gap-3 mb-6">
           <button 
             type="button"
-            onClick={handleSubmit}
+            onClick={() => handleAuthSubmit('google.user@agency.com')}
             className="flex items-center justify-center gap-2 py-2.5 px-4 bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-white/20 rounded-xl text-xs font-medium text-gray-200 transition-all cursor-pointer"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -89,7 +117,7 @@ export default function AuthPage() {
 
           <button 
             type="button"
-            onClick={handleSubmit}
+            onClick={() => handleAuthSubmit('github.user@agency.com')}
             className="flex items-center justify-center gap-2 py-2.5 px-4 bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-white/20 rounded-xl text-xs font-medium text-gray-200 transition-all cursor-pointer"
           >
             <Github className="w-4 h-4" />
@@ -104,7 +132,7 @@ export default function AuthPage() {
         </div>
 
         {/* Email / Password Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmitForm} className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-gray-400 mb-1.5">Email Address</label>
             <div className="relative">
@@ -143,7 +171,7 @@ export default function AuthPage() {
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white/20 border-t-white" />
-                Signing in...
+                <span>Redirecting...</span>
               </span>
             ) : (
               <span className="flex items-center gap-2">
