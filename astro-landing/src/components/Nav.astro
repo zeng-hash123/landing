@@ -1,6 +1,6 @@
 ---
 ---
-<header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#0d0d14]/90 backdrop-blur-xl border-b border-white/10 py-4">
+<header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#0d0d14]/90 backdrop-blur-xl border-b border-white/10 py-3.5">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
     <!-- Logo -->
     <a href="/" class="flex items-center gap-2.5 group">
@@ -10,8 +10,8 @@
         </svg>
       </div>
       <div class="flex flex-col">
-        <span class="text-lg font-bold text-white tracking-tight flex items-center gap-1.5 font-sans">
-          Forge <span class="text-[10px] uppercase tracking-widest font-extrabold px-1.5 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">AI</span>
+        <span class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-1.5 font-sans">
+          Forge <span class="text-[9px] sm:text-[10px] uppercase tracking-widest font-extrabold px-1.5 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">AI</span>
         </span>
       </div>
     </a>
@@ -45,5 +45,80 @@
         </svg>
       </a>
     </div>
+
+    <!-- Mobile Actions & Menu Toggle -->
+    <div class="flex items-center gap-2 md:hidden">
+      <a
+        href="/chat"
+        class="px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-md"
+      >
+        Try Free
+      </a>
+      <button
+        id="mobile-menu-btn"
+        type="button"
+        aria-label="Toggle navigation menu"
+        class="p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+      >
+        <svg id="hamburger-icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <svg id="close-icon" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Dropdown Panel -->
+  <div id="mobile-menu" class="hidden md:hidden bg-[#13131a] border-b border-white/10 px-4 py-6 space-y-4 shadow-2xl mt-3">
+    <nav class="flex flex-col space-y-3.5 text-sm font-semibold text-gray-300">
+      <a href="/#features" class="hover:text-white transition-colors mobile-link">Features</a>
+      <a href="/#how-it-works" class="hover:text-white transition-colors mobile-link">How It Works</a>
+      <a href="/#agencies" class="hover:text-white transition-colors mobile-link">For Agencies</a>
+      <a href="/blog" class="hover:text-violet-300 transition-colors text-violet-400 font-bold flex items-center justify-between mobile-link">
+        <span>Blog & Insights</span>
+        <span class="text-[9px] px-2 py-0.5 rounded bg-violet-500/20 border border-violet-500/30 text-violet-300">NEW</span>
+      </a>
+    </nav>
+    <div class="pt-4 border-t border-white/10 flex flex-col gap-2.5">
+      <a href="/chat" class="w-full text-center py-2.5 rounded-xl text-xs font-semibold border border-white/10 text-white hover:bg-white/5">
+        Sign In
+      </a>
+      <a href="/chat" class="w-full text-center py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg">
+        Start Generating Free →
+      </a>
+    </div>
   </div>
 </header>
+
+<script>
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const hamburgerIcon = document.getElementById('hamburger-icon');
+  const closeIcon = document.getElementById('close-icon');
+  const mobileLinks = document.querySelectorAll('.mobile-link');
+
+  if (menuBtn && mobileMenu && hamburgerIcon && closeIcon) {
+    menuBtn.addEventListener('click', () => {
+      const isOpen = !mobileMenu.classList.contains('hidden');
+      if (isOpen) {
+        mobileMenu.classList.add('hidden');
+        hamburgerIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+      } else {
+        mobileMenu.classList.remove('hidden');
+        hamburgerIcon.classList.add('hidden');
+        closeIcon.classList.remove('hidden');
+      }
+    });
+
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+        hamburgerIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+      });
+    });
+  }
+</script>
