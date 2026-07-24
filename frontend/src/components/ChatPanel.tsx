@@ -80,14 +80,18 @@ export function ChatPanel({
 
         <button
           onClick={onOpenBrandKit}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+          className={`relative group p-[1.5px] rounded-full transition-all cursor-pointer overflow-hidden ${
             brandKitActive 
-              ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 shadow-sm' 
-              : 'glass-button text-gray-300 hover:text-white'
+              ? 'bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 shadow-md shadow-violet-500/25' 
+              : 'bg-gradient-to-r from-violet-500/60 via-fuchsia-500/40 to-violet-500/60 hover:from-violet-500 hover:via-fuchsia-400 hover:to-pink-500 shadow-sm shadow-violet-500/10'
           }`}
         >
-          {brandKitActive ? <Check className="w-3.5 h-3.5 text-violet-400" /> : <Upload className="w-3.5 h-3.5" />}
-          <span>{brandKitActive ? 'Brand Kit Active' : 'Brand Kit'}</span>
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md transition-all ${
+            brandKitActive ? 'bg-[#161624] text-violet-200' : 'bg-[#13131a] text-gray-200 group-hover:bg-[#161622] group-hover:text-white'
+          }`}>
+            {brandKitActive ? <Check className="w-3.5 h-3.5 text-violet-400" /> : <Upload className="w-3.5 h-3.5 text-violet-400" />}
+            <span>{brandKitActive ? 'Brand Kit Active' : 'Brand Kit'}</span>
+          </div>
         </button>
       </div>
 

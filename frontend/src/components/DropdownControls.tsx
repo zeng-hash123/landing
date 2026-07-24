@@ -55,7 +55,7 @@ export function DropdownControls({
             onChange={e => setCampaignGoal(e.target.value)}
             className="w-full appearance-none bg-[#161622] border border-white/10 hover:border-white/20 rounded-xl py-2.5 px-3.5 pr-8 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/60 transition-all duration-200 cursor-pointer"
           >
-            <option value="" disabled className="bg-[#13131a] text-gray-400">Campaign Goal</option>
+            <option value="" disabled className="bg-[#13131a] text-gray-400">Goal</option>
             {CAMPAIGN_GOALS.map(g => <option key={g} value={g} className="bg-[#13131a] text-gray-200">{g}</option>)}
           </select>
           <ChevronDown className="absolute right-3 top-3 h-4 w-4 text-gray-400 pointer-events-none" />
