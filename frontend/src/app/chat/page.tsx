@@ -167,7 +167,7 @@ export default function ChatStudioPage() {
         cta_focus: ctaFocus,
         ab_test: abTest,
         brand_kit: brandKitActive ? brandKit : undefined,
-        created_by: userId || userEmail || undefined,
+        created_by: userEmail || userId || undefined,
       };
 
       if (/^https?:\/\//i.test(prompt)) {
@@ -227,7 +227,7 @@ export default function ChatStudioPage() {
       const req: EditRequest = {
         page_id: pageId,
         edit_instruction: instruction,
-        created_by: userId || userEmail || undefined,
+        created_by: userEmail || userId || undefined,
       };
 
       const res = await editPage(req);
