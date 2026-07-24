@@ -27,37 +27,37 @@ export default function AuthPage() {
     setIsLoading(true);
     setErrorMessage('');
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('promtpage_authenticated', 'true');
-      localStorage.setItem('promtpage_user_email', 'google.user@promtpage.com');
-      localStorage.setItem('promtpage_token', 'promtpage_google_token_' + Date.now());
-    }
-
     if (supabase) {
       try {
-        const { error } = await supabase.auth.signInWithOAuth({
+        const redirectOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+        const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/chat` : undefined
+            redirectTo: `${redirectOrigin}/chat`
           }
         });
+
         if (error) {
           console.error("Supabase Google OAuth error:", error);
           setErrorMessage(error.message);
+          setIsLoading(false);
+          return;
         }
-      } catch (e) {
-        console.error(e);
-      }
-    }
 
-    setTimeout(() => {
-      const targetUrl = getTargetUrl();
-      if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
-        window.location.href = targetUrl;
-      } else {
-        router.push(targetUrl);
+        if (data?.url) {
+          window.location.href = data.url;
+          return;
+        }
+      } catch (e: any) {
+        console.error("Google OAuth error:", e);
+        setErrorMessage(e.message || "Failed to initiate Google OAuth sign-in");
+        setIsLoading(false);
+        return;
       }
-    }, 500);
+    } else {
+      setErrorMessage("Supabase is not configured yet. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.");
+      setIsLoading(false);
+    }
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -65,36 +65,69 @@ export default function AuthPage() {
     setIsLoading(true);
     setErrorMessage('');
 
-    const userEmail = email || 'user@promtpage.com';
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('promtpage_authenticated', 'true');
-      localStorage.setItem('promtpage_user_email', userEmail);
-      localStorage.setItem('promtpage_token', 'promtpage_email_token_' + Date.now());
-    }
-
     if (supabase) {
       try {
         if (mode === 'signup') {
-          const { error } = await supabase.auth.signUp({ email, password });
-          if (error) setErrorMessage(error.message);
+          const { data, error } = await supabase.auth.signUp({ email, password });
+          if (error) {
+            setErrorMessage(error.message);
+            setIsLoading(false);
+            return;
+          }
+          if (data.session) {
+            localStorage.setItem('promtpage_authenticated', 'true');
+            if (data.user?.email) localStorage.setItem('promtpage_user_email', data.user.email);
+            const targetUrl = getTargetUrl();
+            if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
+              window.location.href = targetUrl;
+            } else {
+              router.push(targetUrl);
+            }
+            return;
+          } else {
+            setErrorMessage("Confirmation email sent! Please check your inbox to complete sign up.");
+            setIsLoading(false);
+            return;
+          }
         } else {
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
-          if (error) setErrorMessage(error.message);
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) {
+            setErrorMessage(error.message);
+            setIsLoading(false);
+            return;
+          }
+          if (data.session) {
+            localStorage.setItem('promtpage_authenticated', 'true');
+            if (data.user?.email) localStorage.setItem('promtpage_user_email', data.user.email);
+            const targetUrl = getTargetUrl();
+            if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
+              window.location.href = targetUrl;
+            } else {
+              router.push(targetUrl);
+            }
+            return;
+          }
         }
-      } catch (e) {
-        console.error(e);
+      } catch (e: any) {
+        console.error("Email auth error:", e);
+        setErrorMessage(e.message || "Authentication failed");
+        setIsLoading(false);
+        return;
       }
-    }
-
-    setTimeout(() => {
+    } else {
+      // Fallback for local testing when Supabase env variables are not present
+      const userEmail = email || 'user@promtpage.com';
+      localStorage.setItem('promtpage_authenticated', 'true');
+      localStorage.setItem('promtpage_user_email', userEmail);
+      localStorage.setItem('promtpage_token', 'promtpage_email_token_' + Date.now());
+      
       const targetUrl = getTargetUrl();
       if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
         window.location.href = targetUrl;
       } else {
         router.push(targetUrl);
       }
-    }, 500);
+    }
   };
 
   return (
@@ -132,7 +165,7 @@ export default function AuthPage() {
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-300 text-center">
+          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-300 text-center leading-relaxed">
             {errorMessage}
           </div>
         )}
@@ -155,12 +188,13 @@ export default function AuthPage() {
           </button>
         </div>
 
-        {/* Google OAuth Button Only */}
+        {/* Google OAuth Button */}
         <div className="mb-6">
           <button 
             type="button"
+            disabled={isLoading}
             onClick={handleGoogleSignIn}
-            className="w-full flex items-center justify-center gap-2.5 py-3 px-4 bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-white/20 rounded-xl text-xs font-semibold text-white transition-all cursor-pointer shadow-sm"
+            className="w-full flex items-center justify-center gap-2.5 py-3 px-4 bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-white/20 rounded-xl text-xs font-semibold text-white transition-all cursor-pointer shadow-sm disabled:opacity-50"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/>
@@ -168,7 +202,7 @@ export default function AuthPage() {
               <path fill="#FBBC05" d="M5.6 14.8c-.3-.8-.4-1.8-.4-2.8s.1-2 .4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z"/>
               <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z"/>
             </svg>
-            <span>Continue with Google</span>
+            <span>{isLoading ? 'Connecting to Google...' : 'Continue with Google'}</span>
           </button>
         </div>
 
@@ -213,12 +247,12 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+            className="w-full py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mt-2 disabled:opacity-50"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white/20 border-t-white" />
-                <span>Redirecting...</span>
+                <span>Processing...</span>
               </span>
             ) : (
               <span className="flex items-center gap-2">

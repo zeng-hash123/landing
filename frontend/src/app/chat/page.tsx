@@ -9,6 +9,7 @@ import { VersionHistory } from '../../components/VersionHistory';
 import { ComplianceBanner } from '../../components/ComplianceBanner';
 import { ChatLogEntry, BrandKit, VersionEntry, GenerateRequest, EditRequest } from '../../types';
 import { generatePage, editPage, getVersions, revertVersion, getPage } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 import { Sparkles, Check, ShieldCheck, Zap, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -44,19 +45,40 @@ export default function ChatStudioPage() {
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [userEmail, setUserEmail] = useState<string>('');
 
-  // Auth protection check
+  // Auth protection & Supabase session sync
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isAuth = localStorage.getItem('promtpage_authenticated') || localStorage.getItem('forge_authenticated');
-      const email = localStorage.getItem('promtpage_user_email') || localStorage.getItem('forge_user_email');
+    const checkAuth = async () => {
+      if (typeof window === 'undefined') return;
+
+      let isAuth = localStorage.getItem('promtpage_authenticated') || localStorage.getItem('forge_authenticated');
+      let email = localStorage.getItem('promtpage_user_email') || localStorage.getItem('forge_user_email');
+
+      // Check real Supabase OAuth session upon redirect from Google
+      if (supabase) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session && session.user) {
+            isAuth = 'true';
+            email = session.user.email || 'google.user@promtpage.com';
+            localStorage.setItem('promtpage_authenticated', 'true');
+            if (session.user.email) {
+              localStorage.setItem('promtpage_user_email', session.user.email);
+            }
+          }
+        } catch (e) {
+          console.error("Supabase session check error:", e);
+        }
+      }
+
       if (!isAuth) {
-        // Redirect unauthenticated users to Auth
         const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || '/auth';
         router.push(authUrl);
       } else if (email) {
         setUserEmail(email);
       }
-    }
+    };
+
+    checkAuth();
   }, [router]);
 
   const fetchVersions = async (id: string) => {
@@ -310,7 +332,7 @@ export default function ChatStudioPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>A/B Variant A/B Generator & Version History</span>
+                    <span>A/B Variant Generator & Version History</span>
                   </div>
                 </div>
               </div>
