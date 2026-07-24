@@ -16,6 +16,7 @@ class BrandKit(BaseModel):
     logo_url: Optional[str] = None
     font_heading: Optional[str] = None
     font_body: Optional[str] = None
+    reference_images: Optional[List[str]] = Field(default_factory=list)
 
 class SectionSelection(BaseModel):
     section_type: str

@@ -67,7 +67,8 @@ async def _design_section(sec_type: str, brief: PageBrief, copy: Dict, brand_kit
     
     system_prompt = (
         "You are an expert web designer. Pick the best template from the candidates and fill ALL token values from the tokens list. "
-        "If brand_kit is provided, use those colors, else generate a cohesive palette in hex. "
+        "If brand_kit is provided, use those colors. "
+        "If brand_kit has reference_images (list of URLs), use those image URLs for image tokens like hero_image, feature_image, background_image, or product_image where appropriate. "
         "Return JSON matching SectionSelection model: {'section_type': '...', 'template_file': '...', 'values': {'token_name': 'value'}}."
     )
     user_prompt = json.dumps({

@@ -14,6 +14,7 @@ export interface BrandKit {
   logo_url?: string;
   font_heading?: string;
   font_body?: string;
+  reference_images?: string[];
 }
 
 export interface GenerateRequest {
