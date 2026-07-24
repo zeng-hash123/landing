@@ -278,18 +278,6 @@ export default function ChatStudioPage() {
   return (
     <main className="flex flex-row w-full h-screen overflow-hidden bg-[#0d0d14] text-white relative font-sans">
       <ComplianceBanner flags={complianceFlags} />
-      
-      {/* Top Header Plan Badge */}
-      <div className="absolute top-3 right-4 z-40 flex items-center gap-2">
-        <button
-          onClick={() => setShowPricingModal(true)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-violet-500/15 border border-violet-500/30 text-violet-300 text-xs font-bold shadow-lg hover:bg-violet-500/25 transition-all cursor-pointer"
-        >
-          <Zap className="w-3.5 h-3.5 text-violet-400" />
-          <span>$49/mo Unlimited Plan</span>
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        </button>
-      </div>
 
       <ChatPanel 
         chatHistory={chatHistory}
@@ -314,6 +302,7 @@ export default function ChatStudioPage() {
         abTestActive={abTest}
         onToggleHistory={() => setShowVersionHistory(prev => !prev)}
         versionCount={versions.length}
+        onOpenPricing={() => setShowPricingModal(true)}
       />
 
       <VersionHistory 

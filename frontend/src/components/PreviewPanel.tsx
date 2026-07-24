@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Monitor, Tablet, Smartphone, Copy, Download, History, Sparkles } from 'lucide-react';
+import { Monitor, Tablet, Smartphone, Copy, Download, History, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface PreviewPanelProps {
@@ -13,12 +13,13 @@ interface PreviewPanelProps {
   abTestActive: boolean;
   onToggleHistory?: () => void;
   versionCount?: number;
+  onOpenPricing?: () => void;
 }
 
 export function PreviewPanel({
   html, htmlB, isGenerating,
   activeVariant, setActiveVariant, abTestActive,
-  onToggleHistory, versionCount
+  onToggleHistory, versionCount, onOpenPricing
 }: PreviewPanelProps) {
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
@@ -86,20 +87,32 @@ export function PreviewPanel({
             </span>
           </div>
 
-          {onToggleHistory && (
-            <button 
-              onClick={onToggleHistory} 
-              className="flex items-center gap-2 px-3.5 py-1.5 glass-button rounded-xl text-xs font-semibold text-gray-300 hover:text-white transition-all cursor-pointer"
-            >
-              <History className="w-3.5 h-3.5 text-violet-400" />
-              <span className="hidden sm:inline">Version History</span>
-              {versionCount && versionCount > 0 ? (
-                <span className="bg-violet-500/20 text-violet-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-violet-500/30">
-                  {versionCount}
-                </span>
-              ) : null}
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {onOpenPricing && (
+              <button
+                onClick={onOpenPricing}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-violet-500/15 border border-violet-500/30 text-violet-300 text-xs font-bold shadow-lg hover:bg-violet-500/25 transition-all cursor-pointer"
+              >
+                <Zap className="w-3.5 h-3.5 text-violet-400" />
+                <span>Pricing</span>
+              </button>
+            )}
+
+            {onToggleHistory && (
+              <button 
+                onClick={onToggleHistory} 
+                className="flex items-center gap-2 px-3.5 py-1.5 glass-button rounded-xl text-xs font-semibold text-gray-300 hover:text-white transition-all cursor-pointer"
+              >
+                <History className="w-3.5 h-3.5 text-violet-400" />
+                <span className="hidden sm:inline">Version History</span>
+                {versionCount && versionCount > 0 ? (
+                  <span className="bg-violet-500/20 text-violet-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-violet-500/30">
+                    {versionCount}
+                  </span>
+                ) : null}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Empty State Content */}
@@ -178,6 +191,16 @@ export function PreviewPanel({
         )}
 
         <div className="flex items-center gap-2">
+          {onOpenPricing && (
+            <button
+              onClick={onOpenPricing}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-violet-500/15 border border-violet-500/30 text-violet-300 text-xs font-bold shadow-lg hover:bg-violet-500/25 transition-all cursor-pointer"
+            >
+              <Zap className="w-3.5 h-3.5 text-violet-400" />
+              <span>Pricing</span>
+            </button>
+          )}
+
           {onToggleHistory && (
             <button onClick={onToggleHistory} className="flex items-center gap-1.5 px-3 py-1.5 glass-button rounded-xl text-xs font-medium text-gray-300 hover:text-white cursor-pointer">
               <History className="w-3.5 h-3.5 text-violet-400" />
@@ -189,35 +212,36 @@ export function PreviewPanel({
               ) : null}
             </button>
           )}
+
           <button onClick={handleCopy} className="flex items-center gap-1.5 px-3 py-1.5 glass-button rounded-xl text-xs font-medium text-gray-300 hover:text-white cursor-pointer">
             <Copy className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Copy HTML</span>
           </button>
-          <button onClick={handleDownload} className="flex items-center gap-1.5 px-3 py-1.5 glass-button rounded-xl text-xs font-medium text-gray-300 hover:text-white cursor-pointer">
+          
+          <button onClick={handleDownload} className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/20 hover:opacity-95 cursor-pointer">
             <Download className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Download</span>
+            <span>Download</span>
           </button>
         </div>
       </div>
 
-      {/* iframe container */}
-      <div className="flex-1 min-h-0 overflow-auto bg-[#0a0a0f] flex justify-center p-4">
+      {/* Preview Container */}
+      <div className="flex-1 overflow-auto bg-[#09090e] p-4 flex justify-center items-start">
         <div 
-          className="h-full min-h-[600px] bg-white shadow-2xl transition-all duration-300 ease-in-out relative rounded-xl overflow-hidden border border-white/10 flex flex-col"
-          style={{ width: viewportWidths[viewport] }}
+          className="bg-white rounded-xl shadow-2xl transition-all duration-300 overflow-hidden min-h-full"
+          style={{ 
+            width: viewportWidths[viewport],
+            maxWidth: '100%'
+          }}
         >
-          {isGenerating && (
-            <div className="absolute inset-0 bg-[#13131a]/85 backdrop-blur-md z-10 flex flex-col items-center justify-center text-center p-6">
-              <div className="animate-spin rounded-full h-10 w-10 border-2 border-violet-500/20 border-t-violet-500 mb-3"></div>
-              <p className="text-sm text-white font-semibold animate-pulse">Updating preview...</p>
-            </div>
-          )}
-          <iframe
-            srcDoc={currentHtml}
-            className="w-full h-full min-h-[600px] border-0 bg-white flex-1"
-            title="Landing Page Preview"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
-          />
+          {currentHtml ? (
+            <iframe
+              srcDoc={currentHtml}
+              title="Landing Page Live Preview"
+              className="w-full h-[calc(100vh-120px)] border-0 rounded-xl"
+              sandbox="allow-scripts allow-same-origin"
+            />
+          ) : null}
         </div>
       </div>
     </div>
