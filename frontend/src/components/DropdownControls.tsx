@@ -62,11 +62,11 @@ function CustomSelect({ value, onChange, options, placeholder }: CustomSelectPro
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between bg-[#161622] border border-white/10 hover:border-white/20 rounded-2xl py-2.5 px-3.5 text-xs transition-all duration-200 cursor-pointer ${
+        className={`w-full flex items-center justify-between bg-[#161622] border border-white/10 hover:border-white/20 rounded-2xl py-2.5 px-3.5 text-xs transition-all duration-200 cursor-pointer min-h-[42px] ${
           value ? 'text-gray-100 font-medium' : 'text-gray-400'
         } ${isOpen ? 'ring-2 ring-violet-500/40 border-violet-500/60' : ''}`}
       >
-        <span className="truncate">{value || placeholder}</span>
+        <span className="text-left font-medium leading-tight pr-2">{value || placeholder}</span>
         <ChevronDown className={`h-4 w-4 text-gray-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-violet-400' : ''}`} />
       </button>
 
@@ -77,7 +77,7 @@ function CustomSelect({ value, onChange, options, placeholder }: CustomSelectPro
             animate={{ opacity: 1, y: 4, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-50 left-0 right-0 mt-1 bg-[#14141f] border border-white/15 rounded-2xl p-1.5 shadow-2xl backdrop-blur-2xl max-h-56 overflow-y-auto space-y-1"
+            className="absolute z-50 left-0 mt-1 bg-[#14141f] border border-white/15 rounded-2xl p-1.5 shadow-2xl backdrop-blur-2xl max-h-64 overflow-y-auto space-y-1 w-full min-w-full md:min-w-[220px]"
           >
             {options.map((opt) => {
               const isSelected = value === opt;
@@ -95,8 +95,8 @@ function CustomSelect({ value, onChange, options, placeholder }: CustomSelectPro
                       : 'text-gray-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
-                  <span className="truncate">{opt}</span>
-                  {isSelected && <Check className="w-3.5 h-3.5 text-violet-400 shrink-0 ml-2" />}
+                  <span className="whitespace-normal leading-snug pr-2">{opt}</span>
+                  {isSelected && <Check className="w-3.5 h-3.5 text-violet-400 shrink-0 ml-1" />}
                 </button>
               );
             })}
