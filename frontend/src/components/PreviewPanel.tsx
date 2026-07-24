@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Monitor, Tablet, Smartphone, Copy, Download, History, Zap, User, LogOut, ShieldCheck } from 'lucide-react';
+import { Monitor, Tablet, Smartphone, Copy, Download, History, DollarSign, User, LogOut, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface PreviewPanelProps {
@@ -182,7 +182,7 @@ export function PreviewPanel({
                 onClick={onOpenPricing}
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-violet-500/15 border border-violet-500/30 text-violet-300 text-xs font-bold shadow-lg hover:bg-violet-500/25 transition-all cursor-pointer"
               >
-                <Zap className="w-3.5 h-3.5 text-violet-400" />
+                <DollarSign className="w-3.5 h-3.5 text-violet-400" />
                 <span>Pricing</span>
               </button>
             )}
@@ -287,7 +287,7 @@ export function PreviewPanel({
               onClick={onOpenPricing}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-violet-500/15 border border-violet-500/30 text-violet-300 text-xs font-bold shadow-lg hover:bg-violet-500/25 transition-all cursor-pointer"
             >
-              <Zap className="w-3.5 h-3.5 text-violet-400" />
+              <DollarSign className="w-3.5 h-3.5 text-violet-400" />
               <span>Pricing</span>
             </button>
           )}
