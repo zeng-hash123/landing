@@ -70,7 +70,14 @@ export default function AuthPage() {
     if (supabase) {
       try {
         if (mode === 'signup') {
-          const { data, error } = await supabase.auth.signUp({ email, password });
+          const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+          const { data, error } = await supabase.auth.signUp({ 
+            email, 
+            password,
+            options: {
+              emailRedirectTo: `${currentOrigin}/chat`
+            }
+          });
           if (error) {
             setErrorMessage(error.message);
             setIsLoading(false);
