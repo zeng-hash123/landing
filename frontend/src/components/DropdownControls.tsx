@@ -1,7 +1,8 @@
 "use client";
 
-import React from 'react';
-import { ChevronDown, Sparkles } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ChevronDown, Sparkles, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DropdownControlsProps {
   campaignGoal: string;
@@ -35,6 +36,77 @@ const CTA_FOCUSES = [
   "Risk-reversal", "Value-stack", "Multi-step"
 ];
 
+interface CustomSelectProps {
+  value: string;
+  onChange: (val: string) => void;
+  options: string[];
+  placeholder: string;
+}
+
+function CustomSelect({ value, onChange, options, placeholder }: CustomSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative w-full" ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full flex items-center justify-between bg-[#161622] border border-white/10 hover:border-white/20 rounded-2xl py-2.5 px-3.5 text-xs transition-all duration-200 cursor-pointer ${
+          value ? 'text-gray-100 font-medium' : 'text-gray-400'
+        } ${isOpen ? 'ring-2 ring-violet-500/40 border-violet-500/60' : ''}`}
+      >
+        <span className="truncate">{value || placeholder}</span>
+        <ChevronDown className={`h-4 w-4 text-gray-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-violet-400' : ''}`} />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 4, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-50 left-0 right-0 mt-1 bg-[#14141f] border border-white/15 rounded-2xl p-1.5 shadow-2xl backdrop-blur-2xl max-h-56 overflow-y-auto space-y-1"
+          >
+            {options.map((opt) => {
+              const isSelected = value === opt;
+              return (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between text-left px-3 py-2 text-xs rounded-xl transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-violet-600/30 text-violet-200 font-semibold border border-violet-500/30'
+                      : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <span className="truncate">{opt}</span>
+                  {isSelected && <Check className="w-3.5 h-3.5 text-violet-400 shrink-0 ml-2" />}
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export function DropdownControls({
   campaignGoal, setCampaignGoal,
   designVibe, setDesignVibe,
@@ -46,46 +118,31 @@ export function DropdownControls({
   const canGenerate = prompt.trim().length > 0;
 
   return (
-    <div className="flex flex-col gap-4 w-full p-4 glass-panel mt-4 border border-white/10 shadow-2xl">
+    <div className="flex flex-col gap-4 w-full p-4 glass-panel mt-4 border border-white/10 shadow-2xl rounded-3xl">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {/* Campaign Goal */}
-        <div className="relative">
-          <select 
-            value={campaignGoal} 
-            onChange={e => setCampaignGoal(e.target.value)}
-            className="w-full appearance-none bg-[#161622] border border-white/10 hover:border-white/20 rounded-xl py-2.5 px-3.5 pr-8 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/60 transition-all duration-200 cursor-pointer"
-          >
-            <option value="" disabled className="bg-[#13131a] text-gray-400">Goal</option>
-            {CAMPAIGN_GOALS.map(g => <option key={g} value={g} className="bg-[#13131a] text-gray-200">{g}</option>)}
-          </select>
-          <ChevronDown className="absolute right-3 top-3 h-4 w-4 text-gray-400 pointer-events-none" />
-        </div>
+        {/* Goal */}
+        <CustomSelect 
+          value={campaignGoal} 
+          onChange={setCampaignGoal} 
+          options={CAMPAIGN_GOALS} 
+          placeholder="Goal" 
+        />
 
         {/* Design Vibe */}
-        <div className="relative">
-          <select 
-            value={designVibe} 
-            onChange={e => setDesignVibe(e.target.value)}
-            className="w-full appearance-none bg-[#161622] border border-white/10 hover:border-white/20 rounded-xl py-2.5 px-3.5 pr-8 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/60 transition-all duration-200 cursor-pointer"
-          >
-            <option value="" disabled className="bg-[#13131a] text-gray-400">Design Vibe</option>
-            {DESIGN_VIBES.map(g => <option key={g} value={g} className="bg-[#13131a] text-gray-200">{g}</option>)}
-          </select>
-          <ChevronDown className="absolute right-3 top-3 h-4 w-4 text-gray-400 pointer-events-none" />
-        </div>
+        <CustomSelect 
+          value={designVibe} 
+          onChange={setDesignVibe} 
+          options={DESIGN_VIBES} 
+          placeholder="Design Vibe" 
+        />
 
         {/* CTA Focus */}
-        <div className="relative">
-          <select 
-            value={ctaFocus} 
-            onChange={e => setCtaFocus(e.target.value)}
-            className="w-full appearance-none bg-[#161622] border border-white/10 hover:border-white/20 rounded-xl py-2.5 px-3.5 pr-8 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/60 transition-all duration-200 cursor-pointer"
-          >
-            <option value="" disabled className="bg-[#13131a] text-gray-400">CTA Focus</option>
-            {CTA_FOCUSES.map(g => <option key={g} value={g} className="bg-[#13131a] text-gray-200">{g}</option>)}
-          </select>
-          <ChevronDown className="absolute right-3 top-3 h-4 w-4 text-gray-400 pointer-events-none" />
-        </div>
+        <CustomSelect 
+          value={ctaFocus} 
+          onChange={setCtaFocus} 
+          options={CTA_FOCUSES} 
+          placeholder="CTA Focus" 
+        />
       </div>
 
       <div className="flex items-center justify-between mt-1 pt-2 border-t border-white/5">
