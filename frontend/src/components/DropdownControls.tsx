@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Sparkles, Check } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface DropdownControlsProps {
@@ -13,9 +13,9 @@ interface DropdownControlsProps {
   setCtaFocus: (val: string) => void;
   abTest: boolean;
   setAbTest: (val: boolean) => void;
-  onGenerate: () => void;
-  isGenerating: boolean;
-  prompt: string;
+  onGenerate?: () => void;
+  isGenerating?: boolean;
+  prompt?: string;
 }
 
 const CAMPAIGN_GOALS = [
@@ -111,11 +111,8 @@ export function DropdownControls({
   campaignGoal, setCampaignGoal,
   designVibe, setDesignVibe,
   ctaFocus, setCtaFocus,
-  abTest, setAbTest,
-  onGenerate, isGenerating, prompt
+  abTest, setAbTest
 }: DropdownControlsProps) {
-  
-  const canGenerate = prompt.trim().length > 0;
 
   return (
     <div className="flex flex-col gap-4 w-full p-4 glass-panel mt-4 border border-white/10 shadow-2xl rounded-3xl">
@@ -159,28 +156,6 @@ export function DropdownControls({
           </div>
           <span className="ml-2.5 text-xs text-gray-400 group-hover:text-gray-200 transition-colors">A/B Variant (Optional)</span>
         </label>
-
-        <button
-          onClick={() => onGenerate()}
-          disabled={!canGenerate || isGenerating}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 ${
-            canGenerate && !isGenerating
-              ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:opacity-95 hover:shadow-violet-500/40 hover:scale-[1.01] active:scale-[0.99] cursor-pointer'
-              : 'bg-white/[0.04] text-gray-500 border border-white/10 cursor-not-allowed opacity-50'
-          }`}
-        >
-          {isGenerating ? (
-            <span className="flex items-center gap-2">
-              <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white/20 border-t-white"></span>
-              Generating...
-            </span>
-          ) : (
-            <span className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" />
-              Generate Page
-            </span>
-          )}
-        </button>
       </div>
     </div>
   );
