@@ -5,10 +5,11 @@ from typing import List, Dict
 def load_component_library(base_path: str) -> List[Dict]:
     """
     Scans subdirectories for .json files and returns a flat list of components.
-    Handles single-component JSONs, array JSONs (footer_templates.json), and multi-variant JSONs (navbar.json).
+    Handles single-component JSONs, array JSONs (footer_templates.json), multi-variant JSONs (navbar.json),
+    and component collection JSONs (forms.json).
     """
     library = []
-    subdirs = ["navbar", "hero", "Features", "cta", "pricing", "testimonials", "footer"]
+    subdirs = ["navbar", "hero", "Features", "cta", "pricing", "testimonials", "footer", "forms"]
     for subdir in subdirs:
         dir_path = os.path.join(base_path, subdir)
         if not os.path.exists(dir_path):
@@ -21,6 +22,12 @@ def load_component_library(base_path: str) -> List[Dict]:
                         data = json.load(f)
                         if isinstance(data, list):
                             for idx, item in enumerate(data):
+                                if isinstance(item, dict) and "metadata" in item:
+                                    item["metadata"]["section_type"] = item["metadata"].get("section_type", "").lower()
+                                    item["template_file"] = f"{filename}_{item.get('filename', idx)}"
+                                    library.append(item)
+                        elif isinstance(data, dict) and "components" in data and isinstance(data["components"], list):
+                            for idx, item in enumerate(data["components"]):
                                 if isinstance(item, dict) and "metadata" in item:
                                     item["metadata"]["section_type"] = item["metadata"].get("section_type", "").lower()
                                     item["template_file"] = f"{filename}_{item.get('filename', idx)}"
@@ -77,6 +84,8 @@ def filter_candidates(library: List[Dict], section_type: str, vibe: str, js_allo
             elif sec_target in ["navbar", "navbars", "nav"] and sec_type_meta in ["navbar", "navbars", "nav"]:
                 pass
             elif sec_target in ["footer", "footers", "foot"] and sec_type_meta in ["footer", "footers", "foot"]:
+                pass
+            elif sec_target in ["cta", "ctas", "form", "forms"] and sec_type_meta in ["cta", "ctas", "form", "forms"]:
                 pass
             else:
                 continue

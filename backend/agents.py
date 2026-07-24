@@ -61,7 +61,7 @@ async def _design_section(sec_type: str, brief: PageBrief, copy: Dict, brand_kit
         candidates_meta = []
         for item in library:
             st = item.get("metadata", {}).get("section_type", "").lower()
-            if st == sec_type or st == sec_type + "s" or (sec_type == "testimonial" and st == "testimonials") or (sec_type == "features" and st == "feature") or (sec_type == "footer" and st in ["footer", "footers"]):
+            if st == sec_type or st == sec_type + "s" or (sec_type == "testimonial" and st == "testimonials") or (sec_type == "features" and st == "feature") or (sec_type == "footer" and st in ["footer", "footers"]) or (sec_type in ["cta", "form", "forms"] and st in ["cta", "form", "forms"]):
                 candidates_meta.append({"template_file": item.get("template_file"), "metadata": item.get("metadata")})
         candidates = candidates_meta
     
