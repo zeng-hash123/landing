@@ -36,6 +36,10 @@ async def root_health_check():
 
 @app.post("/webhook/dodopayments")
 @app.post("/api/webhook/dodopayments")
+@app.post("/dodo")
+@app.post("/webhook/dodo")
+@app.post("/api/dodo")
+@app.post("/api/webhook/dodo")
 async def dodo_payments_webhook(request: Request):
     try:
         body = await request.json()

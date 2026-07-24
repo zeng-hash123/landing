@@ -31,6 +31,18 @@
       "dest": "api/index.py"
     },
     {
+      "src": "/dodo(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/webhook(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/user/(.*)",
+      "dest": "api/index.py"
+    },
+    {
       "src": "/chat",
       "dest": "frontend/chat"
     },
