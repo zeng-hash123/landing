@@ -119,7 +119,7 @@ export function PreviewPanel({
   html, htmlB, isGenerating,
   activeVariant, setActiveVariant, abTestActive,
   onToggleHistory, versionCount, onOpenPricing,
-  userEmail, onSignOut, isAdmin = false
+  userEmail, onSignOut, isAdmin = false, isPro = false
 }: PreviewPanelProps) {
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
