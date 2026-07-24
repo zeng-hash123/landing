@@ -10,8 +10,10 @@ import { ComplianceBanner } from '../../components/ComplianceBanner';
 import { ChatLogEntry, BrandKit, VersionEntry, GenerateRequest, EditRequest } from '../../types';
 import { generatePage, editPage, getVersions, revertVersion, getPage } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
-import { Sparkles, Check, ShieldCheck, Zap, X } from 'lucide-react';
+import { Sparkles, Check, ShieldCheck, Zap, X, ArrowRight, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const ADMIN_EMAIL = 'zeng07292@gmail.com';
 
 export default function ChatStudioPage() {
   const router = useRouter();
@@ -46,6 +48,8 @@ export default function ChatStudioPage() {
   const [userEmail, setUserEmail] = useState<string>('');
   const [userId, setUserId] = useState<string>('');
   const [authLoading, setAuthLoading] = useState(true);
+
+  const isAdminUser = userEmail?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase();
 
   // Auth protection & Supabase OAuth session sync
   useEffect(() => {
@@ -139,6 +143,12 @@ export default function ChatStudioPage() {
   };
 
   const handleGenerate = async (prompt: string) => {
+    // Non-admin email safeguard: prompt payment modal immediately!
+    if (!isAdminUser) {
+      setShowPricingModal(true);
+      return;
+    }
+
     setIsGenerating(true);
     
     // Add user message
@@ -196,6 +206,12 @@ export default function ChatStudioPage() {
   };
 
   const handleEdit = async (instruction: string) => {
+    // Non-admin email safeguard: prompt payment modal immediately!
+    if (!isAdminUser) {
+      setShowPricingModal(true);
+      return;
+    }
+
     if (!pageId) return;
     setIsGenerating(true);
     
@@ -325,8 +341,8 @@ export default function ChatStudioPage() {
         versionCount={versions.length}
         onOpenPricing={() => setShowPricingModal(true)}
         userEmail={userEmail}
-        userPlan="Pro"
         onSignOut={handleSignOut}
+        isAdmin={isAdminUser}
       />
 
       <VersionHistory 
@@ -359,7 +375,7 @@ export default function ChatStudioPage() {
             >
               <button 
                 onClick={() => setShowPricingModal(false)}
-                className="absolute top-4 right-4 p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+                className="absolute top-4 right-4 p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -368,12 +384,12 @@ export default function ChatStudioPage() {
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white flex items-center justify-center mx-auto mb-3 shadow-lg shadow-violet-500/25">
                   <Sparkles className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-white">PromtPage Unlimited Plan</h3>
-                <p className="text-xs text-gray-400 mt-1">Single simple plan for fast-growing agencies & marketers.</p>
+                <h3 className="text-xl font-bold text-white font-sans">PromtPage Unlimited Plan</h3>
+                <p className="text-xs text-gray-400 mt-1">Subscription required to start generating and editing pages.</p>
               </div>
 
               <div className="bg-[#161622] border border-violet-500/40 p-6 rounded-2xl mb-6 relative overflow-hidden">
-                <div className="flex items-baseline gap-1 mb-3">
+                <div className="flex items-baseline gap-1 mb-4">
                   <span className="text-4xl font-black text-white font-mono">$49</span>
                   <span className="text-xs text-gray-400">/ month</span>
                 </div>
@@ -402,11 +418,28 @@ export default function ChatStudioPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-white/5">
+              {/* Continue Unlimited Generation Button */}
+              <button
+                onClick={() => {
+                  alert("Payment gateway connection pending. Payment link will be attached here!");
+                }}
+                className="w-full py-3.5 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mb-4"
+              >
+                <span>Continue unlimited generation</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-white/5">
                 <span>Account: <strong className="text-violet-300">{userEmail || 'Authenticated'}</strong></span>
-                <span className="text-emerald-400 font-bold flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5" /> Plan Active
-                </span>
+                {isAdminUser ? (
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5" /> Admin Access
+                  </span>
+                ) : (
+                  <span className="text-amber-400 font-bold flex items-center gap-1">
+                    <Lock className="w-3.5 h-3.5" /> Subscription Required
+                  </span>
+                )}
               </div>
             </motion.div>
           </div>

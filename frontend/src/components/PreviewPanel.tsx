@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Monitor, Tablet, Smartphone, Copy, Download, History, DollarSign, User, LogOut, ShieldCheck } from 'lucide-react';
+import { Monitor, Tablet, Smartphone, Copy, Download, History, DollarSign, User, LogOut, ShieldCheck, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface PreviewPanelProps {
@@ -15,11 +15,12 @@ interface PreviewPanelProps {
   versionCount?: number;
   onOpenPricing?: () => void;
   userEmail?: string;
-  userPlan?: 'Free' | 'Pro';
+  userPlan?: 'Free' | 'Pro' | 'Admin';
   onSignOut?: () => void;
+  isAdmin?: boolean;
 }
 
-function ProfileMenu({ userEmail, userPlan = 'Pro', onSignOut }: { userEmail?: string; userPlan?: 'Free' | 'Pro'; onSignOut?: () => void }) {
+function ProfileMenu({ userEmail, isAdmin = false, onSignOut }: { userEmail?: string; isAdmin?: boolean; onSignOut?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -66,24 +67,27 @@ function ProfileMenu({ userEmail, userPlan = 'Pro', onSignOut }: { userEmail?: s
                 </p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md ${
-                    userPlan === 'Pro' 
+                    isAdmin 
                       ? 'bg-violet-500/20 text-violet-300 border border-violet-500/40' 
-                      : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                   }`}>
-                    {userPlan} Plan
+                    {isAdmin ? 'Admin Plan' : 'Subscription Required'}
                   </span>
-                  {userPlan === 'Pro' && (
-                    <span className="flex items-center text-[10px] text-emerald-400 font-medium gap-0.5">
-                      <ShieldCheck className="w-3 h-3" /> Active
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
 
             {/* Plan Details Info */}
             <div className="bg-[#161622] p-2.5 rounded-xl border border-white/5 text-[11px] text-gray-400 leading-tight">
-              {userPlan === 'Pro' ? 'Unlimited page generations active ($49/mo).' : 'Free tier (Up to 3 page generations).'}
+              {isAdmin ? (
+                <span className="text-emerald-400 font-medium flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> Full Admin & Unlimited Access Active
+                </span>
+              ) : (
+                <span className="text-amber-300 font-medium flex items-center gap-1">
+                  <Lock className="w-3.5 h-3.5 shrink-0" /> $49/mo Unlimited Plan Required
+                </span>
+              )}
             </div>
 
             {/* Sign Out Button */}
@@ -108,7 +112,7 @@ export function PreviewPanel({
   html, htmlB, isGenerating,
   activeVariant, setActiveVariant, abTestActive,
   onToggleHistory, versionCount, onOpenPricing,
-  userEmail, userPlan = 'Pro', onSignOut
+  userEmail, onSignOut, isAdmin = false
 }: PreviewPanelProps) {
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
@@ -202,7 +206,7 @@ export function PreviewPanel({
               </button>
             )}
 
-            <ProfileMenu userEmail={userEmail} userPlan={userPlan} onSignOut={onSignOut} />
+            <ProfileMenu userEmail={userEmail} isAdmin={isAdmin} onSignOut={onSignOut} />
           </div>
         </div>
 
@@ -304,7 +308,7 @@ export function PreviewPanel({
             </button>
           )}
 
-          <ProfileMenu userEmail={userEmail} userPlan={userPlan} onSignOut={onSignOut} />
+          <ProfileMenu userEmail={userEmail} isAdmin={isAdmin} onSignOut={onSignOut} />
 
           <button onClick={handleCopy} className="flex items-center gap-1.5 px-3 py-1.5 glass-button rounded-xl text-xs font-medium text-gray-300 hover:text-white cursor-pointer">
             <Copy className="w-3.5 h-3.5" />
