@@ -30,7 +30,7 @@ export default function AuthPage() {
     if (supabase) {
       try {
         const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
-        const redirectUrl = `${currentOrigin}/chat`;
+        const redirectUrl = `${currentOrigin}/auth/callback`;
 
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'google',

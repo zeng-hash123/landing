@@ -106,7 +106,7 @@ export default function ChatStudioPage() {
       if (hasOAuthCallback) {
         setTimeout(() => {
           if (!mounted) return;
-          const retryAuth = localStorage.getItem('promtpage_authenticated');
+          const retryAuth = localStorage.getItem('pixelpage_authenticated') || localStorage.getItem('promtpage_authenticated');
           if (!retryAuth) {
             const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || '/auth';
             router.push(authUrl);
