@@ -28,11 +28,13 @@ class PageState(BaseModel):
     sections: List[SectionSelection]
     meta: Dict[str, str]
     flags: List[Any]
+    created_by: Optional[str] = None
 
 class EditRequest(BaseModel):
     page_id: str
     edit_instruction: str
     target_section: Optional[str] = None
+    created_by: Optional[str] = None
 
 class GenerateRequest(BaseModel):
     prompt: Optional[str] = None
@@ -42,6 +44,7 @@ class GenerateRequest(BaseModel):
     cta_focus: str
     ab_test: bool = False
     brand_kit: Optional[BrandKit] = None
+    created_by: Optional[str] = None
 
 class PageNotFoundError(Exception):
     pass

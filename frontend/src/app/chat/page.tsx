@@ -44,6 +44,7 @@ export default function ChatStudioPage() {
   // Pricing Modal & Auth Loading states
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [userEmail, setUserEmail] = useState<string>('');
+  const [userId, setUserId] = useState<string>('');
   const [authLoading, setAuthLoading] = useState(true);
 
   // Auth protection & Supabase OAuth session sync
@@ -62,6 +63,7 @@ export default function ChatStudioPage() {
           supabase.auth.onAuthStateChange((event, session) => {
             if (session && session.user && mounted) {
               localStorage.setItem('promtpage_authenticated', 'true');
+              if (session.user.id) setUserId(session.user.id);
               if (session.user.email) {
                 localStorage.setItem('promtpage_user_email', session.user.email);
                 setUserEmail(session.user.email);
@@ -73,6 +75,7 @@ export default function ChatStudioPage() {
           const { data: { session } } = await supabase.auth.getSession();
           if (session && session.user && mounted) {
             localStorage.setItem('promtpage_authenticated', 'true');
+            if (session.user.id) setUserId(session.user.id);
             if (session.user.email) {
               localStorage.setItem('promtpage_user_email', session.user.email);
               setUserEmail(session.user.email);
@@ -154,6 +157,7 @@ export default function ChatStudioPage() {
         cta_focus: ctaFocus,
         ab_test: abTest,
         brand_kit: brandKitActive ? brandKit : undefined,
+        created_by: userId || userEmail || undefined,
       };
 
       if (/^https?:\/\//i.test(prompt)) {
@@ -207,6 +211,7 @@ export default function ChatStudioPage() {
       const req: EditRequest = {
         page_id: pageId,
         edit_instruction: instruction,
+        created_by: userId || userEmail || undefined,
       };
 
       const res = await editPage(req);

@@ -1,7 +1,7 @@
 import uuid
 from models import PageState, PageNotFoundError, VersionNotFoundError
 from supabase_client import supabase_client
-from typing import List, Dict
+from typing import List, Dict, Optional
 from datetime import datetime, timezone
 
 # Fallback in-memory storage if Supabase SQL schema has not been executed yet
@@ -13,9 +13,10 @@ def _is_table_missing_error(e: Exception) -> bool:
     err_str = str(e)
     return "PGRST205" in err_str or "Could not find the table" in err_str or "relation" in err_str
 
-def save_page(state: PageState) -> str:
+def save_page(state: PageState, created_by: Optional[str] = None) -> str:
     global _use_memory_fallback
     page_id = str(uuid.uuid4())
+    user_id = created_by or state.created_by
     data = {
         "id": page_id,
         "brief": state.brief.model_dump(),
@@ -23,6 +24,7 @@ def save_page(state: PageState) -> str:
         "sections": [s.model_dump() for s in state.sections],
         "meta": state.meta,
         "flags": state.flags,
+        "created_by": user_id,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat()
     }
@@ -32,13 +34,17 @@ def save_page(state: PageState) -> str:
 
     if not _use_memory_fallback:
         try:
-            res = supabase_client.table("pages").insert({
+            insert_payload = {
                 "brief": data["brief"],
                 "brand_kit": data["brand_kit"],
                 "sections": data["sections"],
                 "meta": data["meta"],
                 "flags": data["flags"]
-            }).execute()
+            }
+            if user_id:
+                insert_payload["created_by"] = user_id
+
+            res = supabase_client.table("pages").insert(insert_payload).execute()
             if res.data and len(res.data) > 0:
                 supa_id = res.data[0]["id"]
                 _memory_pages[supa_id] = data
@@ -64,7 +70,8 @@ def load_page(page_id: str) -> PageState:
                     brand_kit=data.get("brand_kit"),
                     sections=data["sections"],
                     meta=data["meta"],
-                    flags=data.get("flags", [])
+                    flags=data.get("flags", []),
+                    created_by=data.get("created_by")
                 )
         except Exception as e:
             if _is_table_missing_error(e):
@@ -79,7 +86,8 @@ def load_page(page_id: str) -> PageState:
         brand_kit=data.get("brand_kit"),
         sections=data["sections"],
         meta=data["meta"],
-        flags=data.get("flags", [])
+        flags=data.get("flags", []),
+        created_by=data.get("created_by")
     )
 
 def update_page(page_id: str, state: PageState):
@@ -92,6 +100,9 @@ def update_page(page_id: str, state: PageState):
         "flags": state.flags,
         "updated_at": datetime.now(timezone.utc).isoformat()
     }
+    if state.created_by:
+        data["created_by"] = state.created_by
+
     if page_id in _memory_pages:
         _memory_pages[page_id].update(data)
 
@@ -102,9 +113,10 @@ def update_page(page_id: str, state: PageState):
             if _is_table_missing_error(e):
                 _use_memory_fallback = True
 
-def save_version(page_id: str, state: PageState, html: str):
+def save_version(page_id: str, state: PageState, html: str, created_by: Optional[str] = None):
     global _use_memory_fallback
     version_id = str(uuid.uuid4())
+    user_id = created_by or state.created_by
     version_data = {
         "id": version_id,
         "page_id": page_id,
@@ -113,9 +125,11 @@ def save_version(page_id: str, state: PageState, html: str):
             "brand_kit": state.brand_kit.model_dump() if state.brand_kit else None,
             "sections": [s.model_dump() for s in state.sections],
             "meta": state.meta,
-            "flags": state.flags
+            "flags": state.flags,
+            "created_by": user_id
         },
         "html": html,
+        "created_by": user_id,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     
@@ -124,11 +138,15 @@ def save_version(page_id: str, state: PageState, html: str):
 
     if not _use_memory_fallback:
         try:
-            res = supabase_client.table("page_versions").insert({
+            insert_payload = {
                 "page_id": page_id,
                 "state": version_data["state"],
                 "html": html
-            }).execute()
+            }
+            if user_id:
+                insert_payload["created_by"] = user_id
+
+            res = supabase_client.table("page_versions").insert(insert_payload).execute()
             if res.data and len(res.data) > 0:
                 supa_ver_id = res.data[0]["id"]
                 version_data["id"] = supa_ver_id
@@ -140,7 +158,7 @@ def get_versions(page_id: str) -> List[Dict]:
     global _use_memory_fallback
     if not _use_memory_fallback:
         try:
-            res = supabase_client.table("page_versions").select("id, created_at, html, state").eq("page_id", page_id).order("created_at", desc=True).execute()
+            res = supabase_client.table("page_versions").select("id, created_at, html, state, created_by").eq("page_id", page_id).order("created_at", desc=True).execute()
             if res.data and len(res.data) > 0:
                 return res.data
         except Exception as e:

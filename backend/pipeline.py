@@ -53,11 +53,12 @@ async def generate_landing_page(user_input: GenerateRequest, library: List[Dict]
         brand_kit=user_input.brand_kit,
         sections=sections,
         meta=meta,
-        flags=compliance.get("flags", [])
+        flags=compliance.get("flags", []),
+        created_by=user_input.created_by
     )
     
-    page_id = save_page(state)
-    save_version(page_id, state, html)
+    page_id = save_page(state, created_by=user_input.created_by)
+    save_version(page_id, state, html, created_by=user_input.created_by)
     
     res = {
         "html": html,

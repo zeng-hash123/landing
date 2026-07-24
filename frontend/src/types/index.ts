@@ -24,6 +24,7 @@ export interface GenerateRequest {
   cta_focus: string;
   ab_test: boolean;
   brand_kit?: BrandKit;
+  created_by?: string;
 }
 
 export interface GenerateResponse {
@@ -38,6 +39,7 @@ export interface EditRequest {
   page_id: string;
   edit_instruction: string;
   target_section?: string;
+  created_by?: string;
 }
 
 export interface EditResponse {
@@ -60,6 +62,7 @@ export interface VersionEntry {
   created_at: string;
   html: string;
   state: Record<string, unknown>;
+  created_by?: string;
 }
 
 export interface PageState {

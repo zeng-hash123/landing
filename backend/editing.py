@@ -52,7 +52,7 @@ async def apply_edit(page_id: str, edit: EditRequest, library: List[Dict]) -> di
     
     # Save pre-edit version
     current_html = assemble_page(state.sections, state.meta, None, library, brand_kit=state.brand_kit)
-    save_version(page_id, state, current_html)
+    save_version(page_id, state, current_html, created_by=edit.created_by)
     
     scope = intent.get("scope", "section")
     instruction_lower = edit.edit_instruction.lower()
@@ -107,9 +107,12 @@ async def apply_edit(page_id: str, edit: EditRequest, library: List[Dict]) -> di
             updates = await _call_kimi(messages, temperature=0.3)
             target_section.values.update(updates)
         
+    if edit.created_by:
+        state.created_by = edit.created_by
+        
     update_page(page_id, state)
     new_html = assemble_page(state.sections, state.meta, None, library, brand_kit=state.brand_kit)
-    save_version(page_id, state, new_html)
+    save_version(page_id, state, new_html, created_by=edit.created_by)
     
     return {
         "html": new_html,
