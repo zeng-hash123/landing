@@ -41,44 +41,85 @@ export default function ChatStudioPage() {
   const [currentVersionId, setCurrentVersionId] = useState<string>('');
   const [showVersionHistory, setShowVersionHistory] = useState(false);
 
-  // Pricing Modal state
+  // Pricing Modal & Auth Loading states
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [userEmail, setUserEmail] = useState<string>('');
+  const [authLoading, setAuthLoading] = useState(true);
 
-  // Auth protection & Supabase session sync
+  // Auth protection & Supabase OAuth session sync
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       if (typeof window === 'undefined') return;
 
-      let isAuth = localStorage.getItem('promtpage_authenticated') || localStorage.getItem('forge_authenticated');
-      let email = localStorage.getItem('promtpage_user_email') || localStorage.getItem('forge_user_email');
+      const hasOAuthCallback = window.location.hash.includes('access_token') || window.location.search.includes('code=');
 
-      // Check real Supabase OAuth session upon redirect from Google
+      // Check real Supabase OAuth session
       if (supabase) {
         try {
+          // Listen for Auth state changes
+          supabase.auth.onAuthStateChange((event, session) => {
+            if (session && session.user && mounted) {
+              localStorage.setItem('promtpage_authenticated', 'true');
+              if (session.user.email) {
+                localStorage.setItem('promtpage_user_email', session.user.email);
+                setUserEmail(session.user.email);
+              }
+              setAuthLoading(false);
+            }
+          });
+
           const { data: { session } } = await supabase.auth.getSession();
-          if (session && session.user) {
-            isAuth = 'true';
-            email = session.user.email || 'google.user@promtpage.com';
+          if (session && session.user && mounted) {
             localStorage.setItem('promtpage_authenticated', 'true');
             if (session.user.email) {
               localStorage.setItem('promtpage_user_email', session.user.email);
+              setUserEmail(session.user.email);
             }
+            setAuthLoading(false);
+            return;
           }
         } catch (e) {
           console.error("Supabase session check error:", e);
         }
       }
 
-      if (!isAuth) {
-        const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || '/auth';
-        router.push(authUrl);
-      } else if (email) {
-        setUserEmail(email);
+      // Check local storage fallback
+      const isAuth = localStorage.getItem('promtpage_authenticated') || localStorage.getItem('forge_authenticated');
+      const email = localStorage.getItem('promtpage_user_email') || localStorage.getItem('forge_user_email');
+
+      if (isAuth && mounted) {
+        if (email) setUserEmail(email);
+        setAuthLoading(false);
+        return;
+      }
+
+      // If OAuth callback is processing, wait 2s before redirecting
+      if (hasOAuthCallback) {
+        setTimeout(() => {
+          if (!mounted) return;
+          const retryAuth = localStorage.getItem('promtpage_authenticated');
+          if (!retryAuth) {
+            const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || '/auth';
+            router.push(authUrl);
+          } else {
+            setAuthLoading(false);
+          }
+        }, 2000);
+      } else {
+        if (mounted) {
+          const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || '/auth';
+          router.push(authUrl);
+        }
       }
     };
 
     checkAuth();
+
+    return () => {
+      mounted = false;
+    };
   }, [router]);
 
   const fetchVersions = async (id: string) => {
@@ -222,6 +263,17 @@ export default function ChatStudioPage() {
       setCurrentVersionId(v.id);
     }
   };
+
+  if (authLoading) {
+    return (
+      <main className="min-h-screen bg-[#0d0d14] text-white flex flex-col items-center justify-center font-sans">
+        <div className="flex items-center gap-3">
+          <div className="animate-spin rounded-full h-5 w-5 border-2 border-violet-500 border-t-transparent"></div>
+          <span className="text-sm font-semibold text-gray-300">Verifying session...</span>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex flex-row w-full h-screen overflow-hidden bg-[#0d0d14] text-white relative font-sans">
