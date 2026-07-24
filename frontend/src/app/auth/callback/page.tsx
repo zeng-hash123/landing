@@ -12,13 +12,13 @@ export default function AuthCallbackPage() {
       if (supabase) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session && session.user) {
-          localStorage.setItem('promtpage_authenticated', 'true');
+          localStorage.setItem('pixelpage_authenticated', 'true');
           if (session.user.email) {
-            localStorage.setItem('promtpage_user_email', session.user.email);
+            localStorage.setItem('pixelpage_user_email', session.user.email);
           }
         }
       } else {
-        localStorage.setItem('promtpage_authenticated', 'true');
+        localStorage.setItem('pixelpage_authenticated', 'true');
       }
       router.push('/chat');
     };

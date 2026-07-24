@@ -24,7 +24,7 @@ export function BuiltForAgencies() {
               Stop waiting 2 weeks to launch a client landing page
             </h2>
             <p className="text-sm text-gray-400 leading-relaxed">
-              Agencies lose money when client campaigns sit in development queues. PromtPage empowers account managers and media buyers to generate, review, and ship high-converting pages in under 10 minutes.
+              Agencies lose money when client campaigns sit in development queues. PixelPage empowers account managers and media buyers to generate, review, and ship high-converting pages in under 10 minutes.
             </p>
 
             <div className="space-y-3 pt-2">
@@ -101,7 +101,7 @@ export function BuiltForAgencies() {
                 <Users className="w-5 h-5" />
               </div>
               <div className="text-3xl font-black text-white font-mono">500+</div>
-              <p className="text-xs text-gray-400">Agencies generating client pages with PromtPage daily</p>
+              <p className="text-xs text-gray-400">Agencies generating client pages with PixelPage daily</p>
             </div>
           </motion.div>
         </div>

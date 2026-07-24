@@ -15,7 +15,7 @@ export function Footer() {
                 <Sparkles className="w-3.5 h-3.5" />
               </div>
               <span className="text-base font-bold text-white tracking-tight font-sans">
-                PromtPage AI
+                PixelPage AI
               </span>
             </div>
             <p className="text-gray-400 leading-relaxed">
@@ -27,10 +27,10 @@ export function Footer() {
           <div className="space-y-2">
             <h4 className="font-bold text-white uppercase tracking-wider text-[11px]">Product</h4>
             <ul className="space-y-2">
-              <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-              <li><a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
-              <li><a href="#agencies" className="hover:text-white transition-colors">For Agencies</a></li>
-              <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
+              <li><a href="/#features" className="hover:text-white transition-colors">Features</a></li>
+              <li><a href="/#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
+              <li><a href="/#agencies" className="hover:text-white transition-colors">For Agencies</a></li>
+              <li><a href="/blog" className="hover:text-white transition-colors text-violet-300">Blog & Insights</a></li>
             </ul>
           </div>
 
@@ -56,7 +56,7 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-gray-500">
-          <p>&copy; {new Date().getFullYear()} PromtPage AI Technologies. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} PixelPage AI Technologies. All rights reserved.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-gray-300">Twitter</a>
             <a href="#" className="hover:text-gray-300">LinkedIn</a>

@@ -68,11 +68,11 @@ export function ChatPanel({
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/20 p-1 flex items-center justify-center shadow-lg shadow-violet-500/20 overflow-hidden">
-            <img src="/logo.jpg" alt="PromtPage Logo" className="w-full h-full object-contain rounded-md" />
+            <img src="/logo.jpg" alt="PixelPage Logo" className="w-full h-full object-contain rounded-md" />
           </div>
           <div>
             <h1 className="text-base font-bold text-white tracking-tight flex items-center gap-1.5 font-sans">
-              PromtPage <span className="text-[10px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">AI</span>
+              PixelPage <span className="text-[10px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">AI</span>
             </h1>
             <p className="text-[11px] text-gray-400">Landing Page Generator</p>
           </div>

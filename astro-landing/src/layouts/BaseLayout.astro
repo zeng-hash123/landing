@@ -6,9 +6,9 @@ interface Props {
 }
 
 const {
-  title = "Landing pages that convert visitors into customers | PromtPage AI",
-  description = "Multi-agent AI (copywriter, designer, compliance) generates on-brand, high-converting landing pages from a single prompt or ad URL for marketing agencies.",
-  ogImage = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80"
+  title = "Landing pages that convert visitors into customers | PixelPage AI",
+  description = "Generate high-converting landing pages in minutes using multi-agent AI. Tailored for agencies, media buyers, and growth marketers.",
+  ogImage = "/og-image.jpg"
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site || "https://landing-xyx.vercel.app");
@@ -16,7 +16,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || "https://landing-
 const schemaData = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "PromtPage AI",
+  "name": "PixelPage AI",
   "operatingSystem": "Web",
   "applicationCategory": "BusinessApplication",
   "offers": {

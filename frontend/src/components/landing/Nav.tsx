@@ -23,17 +23,17 @@ export function Nav() {
         {/* Logo */}
         <a href="/" className="flex items-center gap-2.5 group">
           <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/20 p-1 flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-transform overflow-hidden">
-            <img src="/logo.jpg" alt="PromtPage Logo" className="w-full h-full object-contain rounded-lg" />
+            <img src="/logo.jpg" alt="PixelPage Logo" className="w-full h-full object-contain rounded-lg" />
           </div>
           <div className="flex flex-col">
             <span className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-1.5 font-sans">
-              PromtPage <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-extrabold px-1.5 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">AI</span>
+              PixelPage <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-extrabold px-1.5 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">AI</span>
             </span>
           </div>
         </a>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-gray-300">
+        <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-gray-300" aria-label="Main Navigation">
           <a href="/#features" className="hover:text-white transition-colors">Features</a>
           <a href="/#how-it-works" className="hover:text-white transition-colors">How It Works</a>
           <a href="/#agencies" className="hover:text-white transition-colors">For Agencies</a>
@@ -43,7 +43,7 @@ export function Nav() {
           </a>
         </nav>
 
-        {/* Desktop Action Buttons */}
+        {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-3">
           <a
             href="/auth"
@@ -55,7 +55,7 @@ export function Nav() {
             href="/auth"
             className="flex items-center gap-1.5 px-4.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
           >
-            <span>Try PromtPage Free</span>
+            <span>Try PixelPage Free</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </a>
         </div>

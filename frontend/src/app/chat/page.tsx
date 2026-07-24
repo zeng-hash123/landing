@@ -66,10 +66,10 @@ export default function ChatStudioPage() {
           // Listen for Auth state changes
           supabase.auth.onAuthStateChange((event, session) => {
             if (session && session.user && mounted) {
-              localStorage.setItem('promtpage_authenticated', 'true');
+              localStorage.setItem('pixelpage_authenticated', 'true');
               if (session.user.id) setUserId(session.user.id);
               if (session.user.email) {
-                localStorage.setItem('promtpage_user_email', session.user.email);
+                localStorage.setItem('pixelpage_user_email', session.user.email);
                 setUserEmail(session.user.email);
               }
               setAuthLoading(false);
@@ -78,10 +78,10 @@ export default function ChatStudioPage() {
 
           const { data: { session } } = await supabase.auth.getSession();
           if (session && session.user && mounted) {
-            localStorage.setItem('promtpage_authenticated', 'true');
+            localStorage.setItem('pixelpage_authenticated', 'true');
             if (session.user.id) setUserId(session.user.id);
             if (session.user.email) {
-              localStorage.setItem('promtpage_user_email', session.user.email);
+              localStorage.setItem('pixelpage_user_email', session.user.email);
               setUserEmail(session.user.email);
             }
             setAuthLoading(false);
@@ -93,8 +93,8 @@ export default function ChatStudioPage() {
       }
 
       // Check local storage fallback
-      const isAuth = localStorage.getItem('promtpage_authenticated') || localStorage.getItem('forge_authenticated');
-      const email = localStorage.getItem('promtpage_user_email') || localStorage.getItem('forge_user_email');
+      const isAuth = localStorage.getItem('pixelpage_authenticated') || localStorage.getItem('forge_authenticated');
+      const email = localStorage.getItem('pixelpage_user_email') || localStorage.getItem('forge_user_email');
 
       if (isAuth && mounted) {
         if (email) setUserEmail(email);
@@ -186,7 +186,7 @@ export default function ChatStudioPage() {
       
       // Update chat with response
       setChatHistory(prev => prev.map(msg => 
-        msg.id === msgId ? { ...msg, response: "I've generated your PromtPage landing page! You can preview it on the right. Let me know if you want to make any edits." } : msg
+        msg.id === msgId ? { ...msg, response: "I've generated your PixelPage landing page! You can preview it on the right. Let me know if you want to make any edits." } : msg
       ));
 
       if (res.versions && res.versions.length > 0) {
@@ -384,7 +384,7 @@ export default function ChatStudioPage() {
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white flex items-center justify-center mx-auto mb-3 shadow-lg shadow-violet-500/25">
                   <Sparkles className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-white font-sans">PromtPage Unlimited Plan</h3>
+                <h3 className="text-xl font-bold text-white font-sans">PixelPage Unlimited Plan</h3>
                 <p className="text-xs text-gray-400 mt-1">Subscription required to start generating and editing pages.</p>
               </div>
 

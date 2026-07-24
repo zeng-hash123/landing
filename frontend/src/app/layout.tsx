@@ -5,8 +5,8 @@ import './globals.css';
 const epilogue = Epilogue({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  title: 'PromtPage - AI Landing Page Generator',
-  description: 'Generate stunning landing pages with AI',
+  title: 'PixelPage AI - Multi-Agent AI Landing Page Generator',
+  description: 'Transform prompts and ad briefs into production-ready, high-converting landing pages using multi-agent AI.',
 };
 
 export default function RootLayout({

@@ -34,7 +34,7 @@ function ProfileMenu({ userEmail, isAdmin = false, onSignOut }: { userEmail?: st
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const displayEmail = userEmail || 'user@promtpage.com';
+  const displayEmail = userEmail || 'user@pixelpage.com';
   const initial = displayEmail.charAt(0).toUpperCase();
 
   return (

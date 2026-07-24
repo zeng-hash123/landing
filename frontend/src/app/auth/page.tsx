@@ -84,8 +84,8 @@ export default function AuthPage() {
             return;
           }
           if (data.session) {
-            localStorage.setItem('promtpage_authenticated', 'true');
-            if (data.user?.email) localStorage.setItem('promtpage_user_email', data.user.email);
+            localStorage.setItem('pixelpage_authenticated', 'true');
+            if (data.user?.email) localStorage.setItem('pixelpage_user_email', data.user.email);
             const targetUrl = getTargetUrl();
             if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
               window.location.href = targetUrl;
@@ -106,8 +106,8 @@ export default function AuthPage() {
             return;
           }
           if (data.session) {
-            localStorage.setItem('promtpage_authenticated', 'true');
-            if (data.user?.email) localStorage.setItem('promtpage_user_email', data.user.email);
+            localStorage.setItem('pixelpage_authenticated', 'true');
+            if (data.user?.email) localStorage.setItem('pixelpage_user_email', data.user.email);
             const targetUrl = getTargetUrl();
             if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
               window.location.href = targetUrl;
@@ -125,10 +125,10 @@ export default function AuthPage() {
       }
     } else {
       // Fallback for local testing when Supabase env variables are not present
-      const userEmail = email || 'user@promtpage.com';
-      localStorage.setItem('promtpage_authenticated', 'true');
-      localStorage.setItem('promtpage_user_email', userEmail);
-      localStorage.setItem('promtpage_token', 'promtpage_email_token_' + Date.now());
+      const userEmail = email || 'user@pixelpage.com';
+      localStorage.setItem('pixelpage_authenticated', 'true');
+      localStorage.setItem('pixelpage_user_email', userEmail);
+      localStorage.setItem('pixelpage_token', 'pixelpage_email_token_' + Date.now());
       
       const targetUrl = getTargetUrl();
       if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
@@ -147,7 +147,7 @@ export default function AuthPage() {
       {/* Header Back Link */}
       <div className="absolute top-6 left-6 sm:left-10 z-20">
         <a href="/" className="flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-white transition-colors">
-          <span>← Back to PromtPage Home</span>
+          <span>← Back to PixelPage Home</span>
         </a>
       </div>
 
@@ -160,10 +160,10 @@ export default function AuthPage() {
         {/* Logo & Header */}
         <div className="flex flex-col items-center text-center mb-8">
           <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 p-2.5 flex items-center justify-center shadow-xl shadow-violet-500/20 mb-3 group hover:scale-105 transition-transform">
-            <img src="/logo.jpg" alt="PromtPage Logo" className="w-full h-full object-contain rounded-xl" />
+            <img src="/logo.jpg" alt="PixelPage Logo" className="w-full h-full object-contain rounded-xl" />
           </div>
           <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5 font-sans">
-            PromtPage <span className="text-[10px] uppercase tracking-widest font-extrabold px-1.5 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">AI</span>
+            PixelPage <span className="text-[10px] uppercase tracking-widest font-extrabold px-1.5 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">AI</span>
           </h1>
           <p className="text-xs text-gray-400 mt-1">
             {mode === 'signin' 
