@@ -269,6 +269,22 @@ export default function ChatStudioPage() {
     }
   };
 
+  const handleSignOut = async () => {
+    localStorage.removeItem('promtpage_authenticated');
+    localStorage.removeItem('promtpage_user_email');
+    localStorage.removeItem('promtpage_token');
+    localStorage.removeItem('forge_authenticated');
+    localStorage.removeItem('forge_user_email');
+    if (supabase) {
+      try {
+        await supabase.auth.signOut();
+      } catch (e) {
+        console.error("Sign out error:", e);
+      }
+    }
+    router.push('/auth');
+  };
+
   if (authLoading) {
     return (
       <main className="min-h-screen bg-[#0d0d14] text-white flex flex-col items-center justify-center font-sans">
@@ -308,6 +324,9 @@ export default function ChatStudioPage() {
         onToggleHistory={() => setShowVersionHistory(prev => !prev)}
         versionCount={versions.length}
         onOpenPricing={() => setShowPricingModal(true)}
+        userEmail={userEmail}
+        userPlan="Pro"
+        onSignOut={handleSignOut}
       />
 
       <VersionHistory 
