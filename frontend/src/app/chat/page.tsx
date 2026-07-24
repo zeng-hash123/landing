@@ -58,24 +58,25 @@ export default function ChatStudioPage() {
     const checkAuth = async () => {
       if (typeof window === 'undefined') return;
 
-      const hasOAuthCallback = window.location.hash.includes('access_token') || window.location.search.includes('code=');
+      const hasOAuthCallback = window.location.hash.includes('access_token') || 
+                               window.location.search.includes('code=') ||
+                               window.location.search.includes('error=');
 
-      // Check real Supabase OAuth session
       if (supabase) {
-        try {
-          // Listen for Auth state changes
-          supabase.auth.onAuthStateChange((event, session) => {
-            if (session && session.user && mounted) {
-              localStorage.setItem('pixelpage_authenticated', 'true');
-              if (session.user.id) setUserId(session.user.id);
-              if (session.user.email) {
-                localStorage.setItem('pixelpage_user_email', session.user.email);
-                setUserEmail(session.user.email);
-              }
-              setAuthLoading(false);
+        // Listen to Auth State Changes
+        supabase.auth.onAuthStateChange((event, session) => {
+          if (session && session.user && mounted) {
+            localStorage.setItem('pixelpage_authenticated', 'true');
+            if (session.user.id) setUserId(session.user.id);
+            if (session.user.email) {
+              localStorage.setItem('pixelpage_user_email', session.user.email);
+              setUserEmail(session.user.email);
             }
-          });
+            setAuthLoading(false);
+          }
+        });
 
+        try {
           const { data: { session } } = await supabase.auth.getSession();
           if (session && session.user && mounted) {
             localStorage.setItem('pixelpage_authenticated', 'true');
@@ -88,7 +89,7 @@ export default function ChatStudioPage() {
             return;
           }
         } catch (e) {
-          console.error("Supabase session check error:", e);
+          console.error("Supabase getSession error:", e);
         }
       }
 
@@ -102,22 +103,20 @@ export default function ChatStudioPage() {
         return;
       }
 
-      // If OAuth callback is processing, wait 2s before redirecting
+      // If OAuth callback is processing in URL, wait 4s before redirecting to /auth
       if (hasOAuthCallback) {
         setTimeout(() => {
           if (!mounted) return;
-          const retryAuth = localStorage.getItem('pixelpage_authenticated') || localStorage.getItem('promtpage_authenticated');
-          if (!retryAuth) {
-            const authUrl = '/auth';
-            router.push(authUrl);
-          } else {
+          const retryAuth = localStorage.getItem('pixelpage_authenticated');
+          if (retryAuth) {
             setAuthLoading(false);
+          } else {
+            router.push('/auth');
           }
-        }, 2000);
+        }, 4000);
       } else {
         if (mounted) {
-          const authUrl = '/auth';
-          router.push(authUrl);
+          router.push('/auth');
         }
       }
     };

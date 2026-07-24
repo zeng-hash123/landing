@@ -31,16 +31,6 @@
       "dest": "api/index.py"
     },
     {
-      "has": [
-        {
-          "type": "host",
-          "value": "auth.pixelpage.site"
-        }
-      ],
-      "src": "/(.*)",
-      "dest": "frontend/auth"
-    },
-    {
       "src": "/chat",
       "dest": "frontend/chat"
     },
