@@ -38,45 +38,27 @@
         }
       ],
       "src": "/(.*)",
+      "dest": "frontend/auth"
+    },
+    {
+      "src": "/chat",
+      "dest": "frontend/chat"
+    },
+    {
+      "src": "/chat/(.*)",
+      "dest": "frontend/chat/$1"
+    },
+    {
+      "src": "/auth",
+      "dest": "frontend/auth"
+    },
+    {
+      "src": "/auth/callback",
+      "dest": "frontend/auth/callback"
+    },
+    {
+      "src": "/auth/(.*)",
       "dest": "frontend/auth/$1"
-    },
-    {
-      "has": [
-        {
-          "type": "host",
-          "value": "auth.pixelpage.vercel.app"
-        }
-      ],
-      "src": "/(.*)",
-      "dest": "frontend/auth/$1"
-    },
-    {
-      "has": [
-        {
-          "type": "host",
-          "value": "auth.promtpage.vercel.app"
-        }
-      ],
-      "src": "/(.*)",
-      "dest": "frontend/auth/$1"
-    },
-    {
-      "has": [
-        {
-          "type": "host",
-          "value": "auth.forgeailanding.vercel.app"
-        }
-      ],
-      "src": "/(.*)",
-      "dest": "frontend/auth/$1"
-    },
-    {
-      "src": "/chat(.*)",
-      "dest": "frontend/chat$1"
-    },
-    {
-      "src": "/auth(.*)",
-      "dest": "frontend/auth$1"
     },
     {
       "src": "/_next/(.*)",

@@ -108,7 +108,7 @@ export default function ChatStudioPage() {
           if (!mounted) return;
           const retryAuth = localStorage.getItem('pixelpage_authenticated') || localStorage.getItem('promtpage_authenticated');
           if (!retryAuth) {
-            const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || '/auth';
+            const authUrl = '/auth';
             router.push(authUrl);
           } else {
             setAuthLoading(false);
@@ -116,7 +116,7 @@ export default function ChatStudioPage() {
         }, 2000);
       } else {
         if (mounted) {
-          const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || '/auth';
+          const authUrl = '/auth';
           router.push(authUrl);
         }
       }

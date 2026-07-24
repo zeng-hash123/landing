@@ -17,10 +17,10 @@ export default function AuthPage() {
   const getTargetUrl = () => {
     const envUrl = process.env.NEXT_PUBLIC_CHAT_UI_URL;
     if (!envUrl) return '/chat';
-    if (envUrl.startsWith('http://') || envUrl.startsWith('https://')) {
-      return envUrl;
+    if (envUrl.includes('/chat')) {
+      return envUrl.startsWith('http') ? envUrl : `https://${envUrl}`;
     }
-    return `https://${envUrl}`;
+    return '/chat';
   };
 
   const handleGoogleSignIn = async () => {
