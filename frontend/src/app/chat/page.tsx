@@ -8,12 +8,13 @@ import { BrandKitModal } from '../../components/BrandKitModal';
 import { VersionHistory } from '../../components/VersionHistory';
 import { ComplianceBanner } from '../../components/ComplianceBanner';
 import { ChatLogEntry, BrandKit, VersionEntry, GenerateRequest, EditRequest } from '../../types';
-import { generatePage, editPage, getVersions, revertVersion, getPage } from '../../lib/api';
+import { generatePage, editPage, getVersions, revertVersion, getPage, getUserPlan } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
 import { Sparkles, Check, ShieldCheck, Zap, X, ArrowRight, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ADMIN_EMAIL = 'zeng07292@gmail.com';
+const DODO_PAYMENT_URL = 'https://checkout.dodopayments.com/buy/pdt_0Njtj6vpds8u2k9BreAhC?quantity=1';
 
 export default function ChatStudioPage() {
   const router = useRouter();
@@ -47,9 +48,42 @@ export default function ChatStudioPage() {
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [userEmail, setUserEmail] = useState<string>('');
   const [userId, setUserId] = useState<string>('');
+  const [isProUser, setIsProUser] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
 
   const isAdminUser = userEmail?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase();
+
+  const getCheckoutUrl = () => {
+    if (userEmail) {
+      return `${DODO_PAYMENT_URL}&email=${encodeURIComponent(userEmail)}&disableEmail=true`;
+    }
+    return DODO_PAYMENT_URL;
+  };
+
+  const handleOpenCheckout = () => {
+    window.open(getCheckoutUrl(), '_blank');
+  };
+
+  // Sync user plan (Free, Pro, Admin)
+  useEffect(() => {
+    if (!userEmail) return;
+    const cleanEmail = userEmail.toLowerCase().trim();
+    if (cleanEmail === ADMIN_EMAIL.toLowerCase()) {
+      setIsProUser(true);
+      return;
+    }
+    const localPro = localStorage.getItem(`pixelpage_pro_${cleanEmail}`);
+    if (localPro === 'true') {
+      setIsProUser(true);
+      return;
+    }
+    getUserPlan(cleanEmail).then(res => {
+      if (res && (res.plan === 'pro' || res.plan === 'admin')) {
+        setIsProUser(true);
+        localStorage.setItem(`pixelpage_pro_${cleanEmail}`, 'true');
+      }
+    }).catch(console.error);
+  }, [userEmail]);
 
   // Auth protection & Supabase OAuth session sync
   useEffect(() => {
@@ -142,8 +176,8 @@ export default function ChatStudioPage() {
   };
 
   const handleGenerate = async (prompt: string) => {
-    // Non-admin email safeguard: prompt payment modal immediately!
-    if (!isAdminUser) {
+    // Non-pro / non-admin safeguard: prompt payment modal immediately!
+    if (!isAdminUser && !isProUser) {
       setShowPricingModal(true);
       return;
     }
@@ -205,8 +239,8 @@ export default function ChatStudioPage() {
   };
 
   const handleEdit = async (instruction: string) => {
-    // Non-admin email safeguard: prompt payment modal immediately!
-    if (!isAdminUser) {
+    // Non-pro / non-admin safeguard: prompt payment modal immediately!
+    if (!isAdminUser && !isProUser) {
       setShowPricingModal(true);
       return;
     }
@@ -215,12 +249,6 @@ export default function ChatStudioPage() {
     setIsGenerating(true);
     
     const msgId = Date.now().toString();
-    setChatHistory(prev => [...prev, {
-      id: msgId,
-      type: 'edit',
-      instruction,
-      timestamp: new Date()
-    }]);
 
     try {
       const req: EditRequest = {
@@ -234,9 +262,13 @@ export default function ChatStudioPage() {
       setHtml(res.html);
       setActiveVariant('A'); // Switch back to A if editing
       
-      setChatHistory(prev => prev.map(msg => 
-        msg.id === msgId ? { ...msg, response: "I've applied your edits." } : msg
-      ));
+      setChatHistory(prev => [...prev, {
+        id: msgId,
+        type: 'edit',
+        instruction,
+        response: "I've applied your edits.",
+        timestamp: new Date()
+      }]);
 
       if (res.versions && res.versions.length > 0) {
         setVersions(res.versions);
@@ -246,9 +278,13 @@ export default function ChatStudioPage() {
       }
     } catch (error) {
       console.error(error);
-      setChatHistory(prev => prev.map(msg => 
-        msg.id === msgId ? { ...msg, response: "Sorry, there was an error applying your edit." } : msg
-      ));
+      setChatHistory(prev => [...prev, {
+        id: msgId,
+        type: 'edit',
+        instruction,
+        response: "Sorry, there was an error applying your edit.",
+        timestamp: new Date()
+      }]);
     } finally {
       setIsGenerating(false);
     }
@@ -285,6 +321,8 @@ export default function ChatStudioPage() {
   };
 
   const handleSignOut = async () => {
+    localStorage.removeItem('pixelpage_authenticated');
+    localStorage.removeItem('pixelpage_user_email');
     localStorage.removeItem('promtpage_authenticated');
     localStorage.removeItem('promtpage_user_email');
     localStorage.removeItem('promtpage_token');
@@ -342,6 +380,7 @@ export default function ChatStudioPage() {
         userEmail={userEmail}
         onSignOut={handleSignOut}
         isAdmin={isAdminUser}
+        isPro={isProUser}
       />
 
       <VersionHistory 
@@ -417,11 +456,9 @@ export default function ChatStudioPage() {
                 </div>
               </div>
 
-              {/* Continue Unlimited Generation Button */}
+              {/* Continue Unlimited Generation Button (Dodo Payments Checkout with locked email) */}
               <button
-                onClick={() => {
-                  alert("Payment gateway connection pending. Payment link will be attached here!");
-                }}
+                onClick={handleOpenCheckout}
                 className="w-full py-3.5 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mb-4"
               >
                 <span>Continue unlimited generation</span>
@@ -433,6 +470,10 @@ export default function ChatStudioPage() {
                 {isAdminUser ? (
                   <span className="text-emerald-400 font-bold flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" /> Admin Access
+                  </span>
+                ) : isProUser ? (
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5" /> Unlimited Plan Active
                   </span>
                 ) : (
                   <span className="text-amber-400 font-bold flex items-center gap-1">

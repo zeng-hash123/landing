@@ -49,3 +49,13 @@ export async function revertVersion(pageId: string, versionId: string): Promise<
   if (!res.ok) throw new Error('Failed to revert version');
   return res.json();
 }
+
+export async function getUserPlan(email: string): Promise<{ email: string; plan: string }> {
+  try {
+    const res = await fetch(`${BASE_URL}/user/plan?email=${encodeURIComponent(email)}`);
+    if (!res.ok) return { email, plan: 'free' };
+    return res.json();
+  } catch (e) {
+    return { email, plan: 'free' };
+  }
+}

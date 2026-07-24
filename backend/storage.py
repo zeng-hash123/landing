@@ -7,7 +7,59 @@ from datetime import datetime, timezone
 # Fallback in-memory storage if Supabase SQL schema has not been executed yet
 _memory_pages: Dict[str, Dict] = {}
 _memory_versions: List[Dict] = []
+_memory_pro_users: set = set()
 _use_memory_fallback = (supabase_client is None)
+
+def save_pro_user(email: str) -> bool:
+    global _use_memory_fallback
+    clean_email = email.lower().strip()
+    if not clean_email:
+        return False
+
+    _memory_pro_users.add(clean_email)
+
+    if not _use_memory_fallback and supabase_client:
+        try:
+            payload = {
+                "email": clean_email,
+                "plan": "pro",
+                "status": "active",
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+            supabase_client.table("subscriptions").upsert(payload).execute()
+        except Exception as e:
+            print(f"Notice: Supabase save_pro_user subscription save ({e})")
+    return True
+
+def get_user_plan(email: str) -> str:
+    global _use_memory_fallback
+    clean_email = email.lower().strip()
+    if not clean_email:
+        return "free"
+    
+    if clean_email == "zeng07292@gmail.com":
+        return "admin"
+
+    if clean_email in _memory_pro_users:
+        return "pro"
+
+    if not _use_memory_fallback and supabase_client:
+        try:
+            res = supabase_client.table("subscriptions").select("plan, status").eq("email", clean_email).execute()
+            if res.data and len(res.data) > 0:
+                user_sub = res.data[0]
+                status = user_sub.get("status", "")
+                plan = user_sub.get("plan", "free")
+                if plan in ["pro", "unlimited", "active"] or status in ["active", "succeeded"]:
+                    _memory_pro_users.add(clean_email)
+                    return "pro"
+        except Exception as e:
+            if _is_table_missing_error(e):
+                pass
+            else:
+                print(f"Notice: Supabase get_user_plan check ({e})")
+
+    return "free"
 
 def _is_table_missing_error(e: Exception) -> bool:
     err_str = str(e)

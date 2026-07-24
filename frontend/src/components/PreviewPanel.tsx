@@ -18,9 +18,10 @@ interface PreviewPanelProps {
   userPlan?: 'Free' | 'Pro' | 'Admin';
   onSignOut?: () => void;
   isAdmin?: boolean;
+  isPro?: boolean;
 }
 
-function ProfileMenu({ userEmail, isAdmin = false, onSignOut }: { userEmail?: string; isAdmin?: boolean; onSignOut?: () => void }) {
+function ProfileMenu({ userEmail, isAdmin = false, isPro = false, onSignOut }: { userEmail?: string; isAdmin?: boolean; isPro?: boolean; onSignOut?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -68,10 +69,12 @@ function ProfileMenu({ userEmail, isAdmin = false, onSignOut }: { userEmail?: st
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md ${
                     isAdmin 
-                      ? 'bg-violet-500/20 text-violet-300 border border-violet-500/40' 
+                      ? 'bg-violet-500/20 text-violet-300 border border-violet-500/40'
+                      : isPro
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
                       : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                   }`}>
-                    {isAdmin ? 'Admin Plan' : 'Subscription Required'}
+                    {isAdmin ? 'Admin Plan' : isPro ? 'Unlimited Plan Active' : 'Subscription Required'}
                   </span>
                 </div>
               </div>
@@ -82,6 +85,10 @@ function ProfileMenu({ userEmail, isAdmin = false, onSignOut }: { userEmail?: st
               {isAdmin ? (
                 <span className="text-emerald-400 font-medium flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> Full Admin & Unlimited Access Active
+                </span>
+              ) : isPro ? (
+                <span className="text-emerald-400 font-medium flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> Unlimited Plan Active
                 </span>
               ) : (
                 <span className="text-amber-300 font-medium flex items-center gap-1">
@@ -308,7 +315,7 @@ export function PreviewPanel({
             </button>
           )}
 
-          <ProfileMenu userEmail={userEmail} isAdmin={isAdmin} onSignOut={onSignOut} />
+          <ProfileMenu userEmail={userEmail} isAdmin={isAdmin} isPro={isPro} onSignOut={onSignOut} />
 
           <button onClick={handleCopy} className="flex items-center gap-1.5 px-3 py-1.5 glass-button rounded-xl text-xs font-medium text-gray-300 hover:text-white cursor-pointer">
             <Copy className="w-3.5 h-3.5" />

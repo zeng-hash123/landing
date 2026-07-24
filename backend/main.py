@@ -1,11 +1,13 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
+import json
 
 from models import GenerateRequest, EditRequest, PageNotFoundError, VersionNotFoundError, PageState
 from pipeline import generate_landing_page
 from editing import apply_edit
-from storage import load_page, get_versions, get_version, update_page, save_version
+from storage import load_page, get_versions, get_version, update_page, save_version, save_pro_user, get_user_plan
 from renderer import assemble_page
 from library import load_component_library
 
@@ -31,6 +33,56 @@ app.add_middleware(
 @app.get("/api")
 async def root_health_check():
     return {"status": "ok", "message": "FastAPI Landing Page Generator Service Running"}
+
+@app.post("/webhook/dodopayments")
+@app.post("/api/webhook/dodopayments")
+async def dodo_payments_webhook(request: Request):
+    try:
+        body = await request.json()
+        print(f"Dodo Payments Webhook Event Received: {json.dumps(body)}")
+        
+        event_type = body.get("type") or body.get("event") or ""
+        data = body.get("data", {})
+        
+        customer_email = None
+        if isinstance(data, dict):
+            customer = data.get("customer", {})
+            if isinstance(customer, dict):
+                customer_email = customer.get("email")
+            if not customer_email:
+                customer_email = data.get("email") or data.get("customer_email")
+        if not customer_email:
+            customer_email = body.get("customer_email") or body.get("email")
+            
+        if customer_email:
+            email = str(customer_email).strip().lower()
+            save_pro_user(email)
+            print(f"SUCCESS: Marked user {email} as PRO via Dodo Payments webhook ({event_type})")
+            return {"status": "success", "message": f"User {email} activated as Pro"}
+        
+        return {"status": "ignored", "message": "No customer email found in webhook payload"}
+    except Exception as e:
+        print(f"Error processing Dodo Payments webhook: {e}")
+        return JSONResponse(status_code=400, content={"status": "error", "message": str(e)})
+
+@app.get("/user/plan")
+@app.get("/api/user/plan")
+async def check_user_plan(email: str = Query(...)):
+    plan = get_user_plan(email)
+    return {"email": email, "plan": plan}
+
+@app.post("/user/activate-pro")
+@app.post("/api/user/activate-pro")
+async def activate_pro_user(request: Request):
+    try:
+        body = await request.json()
+        email = body.get("email", "").strip().lower()
+        if email:
+            save_pro_user(email)
+            return {"status": "success", "email": email, "plan": "pro"}
+        raise HTTPException(status_code=400, detail="Email is required")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/generate")
 async def generate_page(req: GenerateRequest, request: Request):
