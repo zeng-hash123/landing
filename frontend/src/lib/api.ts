@@ -54,7 +54,7 @@ export async function editPage(req: EditRequest): Promise<EditResponse> {
   return res.json();
 }
 
-export async function getPage(pageId: string): Promise<PageState> {
+export async function getPage(pageId: string): Promise<{ state: PageState; html: string }> {
   const res = await fetch(`${BASE_URL}/page/${pageId}`);
   if (!res.ok) throw new Error('Failed to get page');
   return res.json();
