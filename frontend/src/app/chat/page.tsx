@@ -402,6 +402,16 @@ export default function ChatStudioPage() {
     );
   }
 
+  const handleStopGeneration = () => {
+    setIsGenerating(false);
+    setChatHistory(prev => [...prev, {
+      id: Date.now().toString(),
+      sender: 'ai',
+      response: 'Session stopped by user.',
+      timestamp: new Date()
+    }]);
+  };
+
   return (
     <main className="flex flex-row w-full h-screen overflow-hidden bg-[#0d0d14] text-white relative font-sans">
       <ComplianceBanner flags={complianceFlags} />
@@ -412,6 +422,7 @@ export default function ChatStudioPage() {
         isGenerated={isGenerated}
         onGenerate={handleGenerate}
         onEdit={handleEdit}
+        onStopGeneration={handleStopGeneration}
         brandKitActive={brandKitActive}
         onOpenBrandKit={() => setShowBrandKitModal(true)}
         campaignGoal={campaignGoal} setCampaignGoal={setCampaignGoal}

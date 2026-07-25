@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Send, Upload, Check, Sparkles } from 'lucide-react';
+import { Send, Upload, Check, Sparkles, Square } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatLogEntry } from '../types';
 import { DropdownControls } from './DropdownControls';
@@ -237,13 +237,24 @@ export function ChatPanel({
             placeholder={isGenerated ? "Ask AI to edit the page..." : "Describe the page or paste an ad URL..."}
             className="w-full bg-[#161622] border border-white/10 rounded-2xl py-3 pl-4 pr-12 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/80 resize-none transition-all duration-200 h-28 shadow-inner"
           />
-          <button
-            type="submit"
-            disabled={!input.trim() || isGenerating}
-            className="absolute bottom-3.5 right-3.5 p-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white disabled:bg-white/5 disabled:text-gray-600 transition-all hover:opacity-95 active:scale-95 shadow-md shadow-violet-500/25 cursor-pointer disabled:cursor-not-allowed disabled:shadow-none"
-          >
-            <Send className="w-3.5 h-3.5" />
-          </button>
+          {isGenerating ? (
+            <button
+              type="button"
+              onClick={onStopGeneration}
+              title="Stop generation"
+              className="absolute bottom-3.5 right-3.5 p-2.5 rounded-xl bg-red-600/90 hover:bg-red-500 text-white transition-all hover:scale-105 active:scale-95 shadow-lg shadow-red-500/30 cursor-pointer flex items-center justify-center"
+            >
+              <Square className="w-3.5 h-3.5 fill-current" />
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={!input.trim()}
+              className="absolute bottom-3.5 right-3.5 p-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white disabled:bg-white/5 disabled:text-gray-600 transition-all hover:opacity-95 active:scale-95 shadow-md shadow-violet-500/25 cursor-pointer disabled:cursor-not-allowed disabled:shadow-none"
+            >
+              <Send className="w-3.5 h-3.5" />
+            </button>
+          )}
         </form>
 
         {!isGenerated && (

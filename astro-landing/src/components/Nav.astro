@@ -21,11 +21,12 @@
     </div>
 
     <!-- Desktop Actions -->
-    <div class="hidden md:flex items-center gap-3">
-      <a href="/chat" class="text-xs font-semibold text-gray-300 hover:text-white transition-colors px-3 py-2">
+    <div id="nav-desktop-actions" class="hidden md:flex items-center gap-3">
+      <a id="nav-signin-btn" href="/auth" class="text-xs font-semibold text-gray-300 hover:text-white transition-colors px-3 py-2">
         Sign In
       </a>
       <a
+        id="nav-tryfree-btn"
         href="/chat"
         class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:opacity-95 active:scale-95 transition-all"
       >
@@ -34,14 +35,39 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
         </svg>
       </a>
+      <!-- Profile Button (Shown when logged in) -->
+      <a
+        id="nav-profile-btn"
+        href="/chat"
+        class="hidden flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#161624] border border-violet-500/30 text-white hover:border-violet-500/60 transition-all shadow-md group"
+      >
+        <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-500 flex items-center justify-center text-[10px] font-extrabold text-white shadow-sm">
+          <span id="nav-user-avatar">U</span>
+        </div>
+        <span id="nav-user-label" class="text-xs font-semibold text-gray-200 group-hover:text-white max-w-[110px] truncate">Dashboard</span>
+        <svg class="w-3.5 h-3.5 text-violet-400 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </a>
     </div>
     <!-- Mobile Actions & Menu Toggle -->
     <div class="flex items-center gap-2 md:hidden">
       <a
+        id="nav-mobile-try-btn"
         href="/auth"
         class="px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-md"
       >
         Try Free
+      </a>
+      <a
+        id="nav-mobile-profile-btn"
+        href="/chat"
+        class="hidden flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#161624] border border-violet-500/40 text-xs font-bold text-violet-300"
+      >
+        <div class="w-5 h-5 rounded-full bg-violet-600 text-white text-[9px] flex items-center justify-center font-bold">
+          <span id="nav-mobile-user-avatar">U</span>
+        </div>
+        <span>App</span>
       </a>
       <button
         id="mobile-menu-btn"
@@ -110,4 +136,38 @@
       });
     });
   }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const userEmail = localStorage.getItem('pixelpage_user_email') || localStorage.getItem('forge_user_email');
+    const isAuth = localStorage.getItem('pixelpage_authenticated') === 'true' || Boolean(userEmail);
+
+    if (isAuth && userEmail) {
+      const initial = userEmail.charAt(0).toUpperCase();
+      const name = userEmail.split('@')[0];
+
+      const signInBtn = document.getElementById('nav-signin-btn');
+      const tryFreeBtn = document.getElementById('nav-tryfree-btn');
+      const profileBtn = document.getElementById('nav-profile-btn');
+      const userAvatar = document.getElementById('nav-user-avatar');
+      const userLabel = document.getElementById('nav-user-label');
+
+      const mobileTryBtn = document.getElementById('nav-mobile-try-btn');
+      const mobileProfileBtn = document.getElementById('nav-mobile-profile-btn');
+      const mobileUserAvatar = document.getElementById('nav-mobile-user-avatar');
+
+      if (signInBtn) signInBtn.classList.add('hidden');
+      if (tryFreeBtn) tryFreeBtn.classList.add('hidden');
+      if (profileBtn) {
+        profileBtn.classList.remove('hidden');
+        if (userAvatar) userAvatar.textContent = initial;
+        if (userLabel) userLabel.textContent = name;
+      }
+
+      if (mobileTryBtn) mobileTryBtn.classList.add('hidden');
+      if (mobileProfileBtn) {
+        mobileProfileBtn.classList.remove('hidden');
+        if (mobileUserAvatar) mobileUserAvatar.textContent = initial;
+      }
+    }
+  });
 </script>
