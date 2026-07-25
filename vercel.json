@@ -78,6 +78,10 @@
       "dest": "astro-landing/blog/index.html"
     },
     {
+      "src": "/sitemap.xml",
+      "dest": "astro-landing/sitemap.xml"
+    },
+    {
       "src": "/sitemap-index.xml",
       "dest": "astro-landing/sitemap-index.xml"
     },
