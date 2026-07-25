@@ -26,7 +26,7 @@ export function FinalCTA() {
           </h2>
 
           <p className="text-sm sm:text-base text-gray-400 max-w-xl mx-auto mt-4 leading-relaxed font-sans">
-            Join 500+ agencies building high-converting, on-brand landing pages in minutes with multi-agent AI.
+            Join 50+ agencies building high-converting, on-brand landing pages in minutes with multi-agent AI.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">

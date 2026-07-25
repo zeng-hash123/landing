@@ -100,7 +100,7 @@ export function BuiltForAgencies() {
               <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                 <Users className="w-5 h-5" />
               </div>
-              <div className="text-3xl font-black text-white font-mono">500+</div>
+              <div className="text-3xl font-black text-white font-mono">50+</div>
               <p className="text-xs text-gray-400">Agencies generating client pages with PixelPage daily</p>
             </div>
           </motion.div>

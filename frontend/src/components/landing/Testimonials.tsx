@@ -14,10 +14,10 @@ const TESTIMONIALS = [
   },
   {
     quote: "The brand kit integration is a game-changer. We uploaded our client's logo and primary colors, and the AI generated an on-brand page instantly.",
-    author: "Sarah Chen",
+    author: "Vikas Singha",
     role: "Head of Performance Marketing",
     agency: "Nexus Growth Lab",
-    avatar: "SC"
+    avatar: "VS"
   },
   {
     quote: "We used the built-in A/B test variant generator for a DTC e-commerce client and saw a 34% increase in conversion rate on Day 1.",
