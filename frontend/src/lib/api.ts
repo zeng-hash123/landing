@@ -16,10 +16,15 @@ export async function generatePage(req: GenerateRequest): Promise<GenerateRespon
     body: JSON.stringify(req),
   });
   if (!res.ok) {
-    let errText = 'Failed to generate page';
+    let errText = `Failed to generate page (HTTP ${res.status})`;
     try {
-      const errJson = await res.json();
-      errText = errJson.detail || errJson.message || errText;
+      const errBody = await res.text();
+      try {
+        const errJson = JSON.parse(errBody);
+        errText = errJson.detail || errJson.message || errText;
+      } catch (_) {
+        if (errBody.length < 200) errText = errBody || errText;
+      }
     } catch (_) {}
     throw new Error(errText);
   }

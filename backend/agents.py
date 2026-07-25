@@ -128,9 +128,21 @@ async def _design_section(sec_type: str, brief: PageBrief, copy: Dict, brand_kit
 async def run_designer(brief: PageBrief, copy: Dict, brand_kit: Optional[BrandKit], library: List[Dict]) -> List[SectionSelection]:
     import asyncio
     section_types = ["navbar", "hero", "features", "testimonial", "pricing", "cta", "footer"]
-    tasks = [_design_section(st, brief, copy, brand_kit, library) for st in section_types]
-    sections = await asyncio.gather(*tasks)
-    return list(sections)
+    sections = []
+    batch_size = 2
+    for i in range(0, len(section_types), batch_size):
+        batch = section_types[i:i + batch_size]
+        tasks = [_design_section(st, brief, copy, brand_kit, library) for st in batch]
+        batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+        for j, result in enumerate(batch_results):
+            if isinstance(result, Exception):
+                print(f"Warning: Section '{batch[j]}' failed: {result}, using fallback")
+                sections.append(SectionSelection(section_type=batch[j], template_file="", values={}))
+            else:
+                sections.append(result)
+        if i + batch_size < len(section_types):
+            await asyncio.sleep(1.5)
+    return sections
 
 async def run_compliance_review(sections: List[SectionSelection], brief: PageBrief) -> Dict:
     system_prompt = (
