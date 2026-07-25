@@ -160,6 +160,8 @@ export default function ChatStudioPage() {
     return () => {
       mounted = false;
     };
+  }, [router]);
+
   useEffect(() => {
     if (!userEmail) return;
     let isCancelled = false;
