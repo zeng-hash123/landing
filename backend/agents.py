@@ -10,6 +10,18 @@ dotenv.load_dotenv()
 
 kimi_semaphore = asyncio.Semaphore(4)
 
+def _clean_json_loads(content_str: str) -> dict:
+    if not content_str:
+        raise ValueError("Empty response content from AI")
+    cleaned = content_str.strip()
+    if cleaned.startswith("```json"):
+        cleaned = cleaned[7:]
+    elif cleaned.startswith("```"):
+        cleaned = cleaned[3:]
+    if cleaned.endswith("```"):
+        cleaned = cleaned[:-3]
+    return json.loads(cleaned.strip())
+
 async def _call_kimi(messages: list, temperature: float = 1.0, enable_web_search: bool = False) -> dict:
     key = os.getenv("KIMI_API_KEY") or os.getenv("MOONSHOT_API_KEY") or os.getenv("OPENAI_API_KEY")
     if not key or key.strip() == "" or key == "placeholder-key":
@@ -26,13 +38,6 @@ async def _call_kimi(messages: list, temperature: float = 1.0, enable_web_search
         "moonshot-v1-32k"
     ]
 
-    extra_kwargs = {}
-    if enable_web_search:
-        extra_kwargs["tools"] = [{
-            "type": "builtin_function",
-            "function": {"name": "$web_search"}
-        }]
-
     async with kimi_semaphore:
         last_error = None
         for model in models_to_try:
@@ -41,16 +46,24 @@ async def _call_kimi(messages: list, temperature: float = 1.0, enable_web_search
                     kwargs = {
                         "model": model,
                         "messages": messages,
-                        "response_format": {"type": "json_object"},
-                        "temperature": temperature,
-                        **extra_kwargs
+                        "temperature": temperature
                     }
+                    if enable_web_search:
+                        kwargs["tools"] = [{
+                            "type": "builtin_function",
+                            "function": {"name": "$web_search"}
+                        }]
+                    else:
+                        kwargs["response_format"] = {"type": "json_object"}
+
                     response = await client.chat.completions.create(**kwargs)
-                    content = response.choices[0].message.content
+                    msg = response.choices[0].message
+                    content = msg.content
                     if content:
-                        return json.loads(content)
+                        return _clean_json_loads(content)
                 except Exception as e:
                     last_error = e
+                    print(f"Notice: AI call attempt failed (model={model}, search={enable_web_search}): {e}")
                     if isinstance(e, json.JSONDecodeError):
                         messages.append({"role": "user", "content": f"Previous response failed validation: {e}. Return valid JSON."})
                     await asyncio.sleep(1.0)

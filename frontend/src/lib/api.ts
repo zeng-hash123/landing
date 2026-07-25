@@ -15,7 +15,14 @@ export async function generatePage(req: GenerateRequest): Promise<GenerateRespon
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(req),
   });
-  if (!res.ok) throw new Error('Failed to generate page');
+  if (!res.ok) {
+    let errText = 'Failed to generate page';
+    try {
+      const errJson = await res.json();
+      errText = errJson.detail || errJson.message || errText;
+    } catch (_) {}
+    throw new Error(errText);
+  }
   return res.json();
 }
 
@@ -25,7 +32,14 @@ export async function editPage(req: EditRequest): Promise<EditResponse> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(req),
   });
-  if (!res.ok) throw new Error('Failed to edit page');
+  if (!res.ok) {
+    let errText = 'Failed to edit page';
+    try {
+      const errJson = await res.json();
+      errText = errJson.detail || errJson.message || errText;
+    } catch (_) {}
+    throw new Error(errText);
+  }
   return res.json();
 }
 
