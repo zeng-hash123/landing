@@ -492,9 +492,15 @@ export default function ChatStudioPage() {
               </div>
 
               <div className="bg-[#161622] border border-violet-500/40 p-6 rounded-2xl mb-6 relative overflow-hidden">
-                <div className="flex items-baseline gap-1 mb-4">
-                  <span className="text-4xl font-black text-white font-mono">$49</span>
-                  <span className="text-xs text-gray-400">/ month</span>
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-black text-white font-mono">$49</span>
+                    <span className="text-lg font-bold text-gray-400 line-through font-mono decoration-violet-400/80">$99</span>
+                    <span className="text-xs text-gray-400">/ month</span>
+                  </div>
+                  <span className="text-[10px] uppercase font-extrabold tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shadow-sm">
+                    Early Bird Offer
+                  </span>
                 </div>
 
                 <div className="space-y-2.5 text-xs text-gray-300">
