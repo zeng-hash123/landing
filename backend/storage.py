@@ -84,9 +84,10 @@ def save_page(state: PageState, created_by: Optional[str] = None) -> str:
     # Store in memory fallback first
     _memory_pages[page_id] = data
 
-    if not _use_memory_fallback:
+    if not _use_memory_fallback and supabase_client:
         try:
             insert_payload = {
+                "id": page_id,
                 "brief": data["brief"],
                 "brand_kit": data["brand_kit"],
                 "sections": data["sections"],
@@ -96,9 +97,17 @@ def save_page(state: PageState, created_by: Optional[str] = None) -> str:
             if user_id:
                 insert_payload["created_by"] = user_id
 
-            res = supabase_client.table("pages").insert(insert_payload).execute()
+            try:
+                res = supabase_client.table("pages").insert(insert_payload).execute()
+            except Exception as insert_err:
+                if "created_by" in insert_payload and ("PGRST204" in str(insert_err) or "created_by" in str(insert_err)):
+                    del insert_payload["created_by"]
+                    res = supabase_client.table("pages").insert(insert_payload).execute()
+                else:
+                    raise insert_err
+
             if res.data and len(res.data) > 0:
-                supa_id = res.data[0]["id"]
+                supa_id = str(res.data[0]["id"])
                 _memory_pages[supa_id] = data
                 return supa_id
         except Exception as e:
@@ -112,7 +121,7 @@ def save_page(state: PageState, created_by: Optional[str] = None) -> str:
 
 def load_page(page_id: str) -> PageState:
     global _use_memory_fallback
-    if not _use_memory_fallback:
+    if not _use_memory_fallback and supabase_client:
         try:
             res = supabase_client.table("pages").select("*").eq("id", page_id).execute()
             if res.data and len(res.data) > 0:
@@ -158,9 +167,17 @@ def update_page(page_id: str, state: PageState):
     if page_id in _memory_pages:
         _memory_pages[page_id].update(data)
 
-    if not _use_memory_fallback:
+    if not _use_memory_fallback and supabase_client:
         try:
-            supabase_client.table("pages").update(data).eq("id", page_id).execute()
+            try:
+                supabase_client.table("pages").update(data).eq("id", page_id).execute()
+            except Exception as update_err:
+                if "created_by" in data and ("PGRST204" in str(update_err) or "created_by" in str(update_err)):
+                    data_no_user = dict(data)
+                    del data_no_user["created_by"]
+                    supabase_client.table("pages").update(data_no_user).eq("id", page_id).execute()
+                else:
+                    raise update_err
         except Exception as e:
             if _is_table_missing_error(e):
                 _use_memory_fallback = True
@@ -188,9 +205,10 @@ def save_version(page_id: str, state: PageState, html: str, created_by: Optional
     # Always append to memory list first
     _memory_versions.append(version_data)
 
-    if not _use_memory_fallback:
+    if not _use_memory_fallback and supabase_client:
         try:
             insert_payload = {
+                "id": version_id,
                 "page_id": page_id,
                 "state": version_data["state"],
                 "html": html
@@ -198,32 +216,54 @@ def save_version(page_id: str, state: PageState, html: str, created_by: Optional
             if user_id:
                 insert_payload["created_by"] = user_id
 
-            res = supabase_client.table("page_versions").insert(insert_payload).execute()
+            try:
+                res = supabase_client.table("page_versions").insert(insert_payload).execute()
+            except Exception as insert_err:
+                if "created_by" in insert_payload and ("PGRST204" in str(insert_err) or "created_by" in str(insert_err)):
+                    del insert_payload["created_by"]
+                    res = supabase_client.table("page_versions").insert(insert_payload).execute()
+                else:
+                    raise insert_err
+
             if res.data and len(res.data) > 0:
-                supa_ver_id = res.data[0]["id"]
+                supa_ver_id = str(res.data[0]["id"])
                 version_data["id"] = supa_ver_id
         except Exception as e:
             if _is_table_missing_error(e):
                 _use_memory_fallback = True
+            else:
+                print(f"Notice: Supabase save_version failed ({e})")
 
 def get_versions(page_id: str) -> List[Dict]:
     global _use_memory_fallback
-    if not _use_memory_fallback:
+    results = []
+    if not _use_memory_fallback and supabase_client:
         try:
             res = supabase_client.table("page_versions").select("id, created_at, html, state, created_by").eq("page_id", page_id).order("created_at", desc=True).execute()
-            if res.data and len(res.data) > 0:
-                return res.data
+            if res.data:
+                results.extend(res.data)
         except Exception as e:
-            if _is_table_missing_error(e):
-                _use_memory_fallback = True
+            try:
+                res = supabase_client.table("page_versions").select("id, created_at, html, state").eq("page_id", page_id).order("created_at", desc=True).execute()
+                if res.data:
+                    results.extend(res.data)
+            except Exception as e2:
+                if _is_table_missing_error(e2):
+                    _use_memory_fallback = True
 
-    # Return memory versions reversed (newest first)
-    mem_matches = [v for v in reversed(_memory_versions) if v["page_id"] == page_id]
-    return mem_matches
+    # Combine with in-memory versions if any (preventing duplicates)
+    seen_ids = {str(r.get("id")) for r in results if r.get("id")}
+    mem_matches = [v for v in reversed(_memory_versions) if str(v.get("page_id")) == str(page_id)]
+    for m in mem_matches:
+        if str(m.get("id")) not in seen_ids:
+            results.append(m)
+            seen_ids.add(str(m.get("id")))
+
+    return results
 
 def get_version(version_id: str) -> Dict:
     global _use_memory_fallback
-    if not _use_memory_fallback:
+    if not _use_memory_fallback and supabase_client:
         try:
             res = supabase_client.table("page_versions").select("*").eq("id", version_id).execute()
             if res.data and len(res.data) > 0:
@@ -232,7 +272,7 @@ def get_version(version_id: str) -> Dict:
             if _is_table_missing_error(e):
                 _use_memory_fallback = True
 
-    v = next((item for item in _memory_versions if item["id"] == version_id), None)
+    v = next((item for item in _memory_versions if str(item["id"]) == str(version_id)), None)
     if not v:
         raise VersionNotFoundError(f"Version {version_id} not found")
     return v

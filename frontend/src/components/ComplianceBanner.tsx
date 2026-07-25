@@ -21,12 +21,12 @@ export function ComplianceBanner({ flags }: ComplianceBannerProps) {
 
   return (
     <AnimatePresence>
-      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-xl px-4">
+      <div className="fixed top-4 left-4 z-40 w-80 sm:w-96 px-2 pointer-events-none">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="bg-[#1e1b13]/90 border border-amber-500/30 backdrop-blur-xl text-amber-200 p-4 rounded-2xl shadow-2xl flex items-start gap-3"
+          className="bg-[#1e1b13]/95 border border-amber-500/40 backdrop-blur-xl text-amber-200 p-3.5 rounded-2xl shadow-2xl flex items-start gap-3 pointer-events-auto"
         >
           <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
           <div className="flex-1">
