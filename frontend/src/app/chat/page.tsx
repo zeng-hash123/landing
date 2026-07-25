@@ -406,7 +406,8 @@ export default function ChatStudioPage() {
     setIsGenerating(false);
     setChatHistory(prev => [...prev, {
       id: Date.now().toString(),
-      sender: 'ai',
+      type: 'edit',
+      instruction: 'Stop Session',
       response: 'Session stopped by user.',
       timestamp: new Date()
     }]);
