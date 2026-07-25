@@ -1,10 +1,96 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Send, Upload, Check, Sparkles } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChatLogEntry } from '../types';
 import { DropdownControls } from './DropdownControls';
+
+function AILoadingIndicator({ isGenerated }: { isGenerated: boolean }) {
+  const [stepIndex, setStepIndex] = useState(0);
+
+  const steps = isGenerated ? [
+    "Analyzing edit instruction...",
+    "Updating section layout & copy...",
+    "Re-assembling responsive page..."
+  ] : [
+    "Analyzing brief & ad content...",
+    "Copywriter Agent crafting headlines...",
+    "Designer Agent selecting modern layout...",
+    "Compliance Agent checking ad guidelines...",
+    "Assembling responsive PixelPage..."
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setStepIndex((prev) => (prev + 1) % steps.length);
+    }, 2800);
+    return () => clearInterval(timer);
+  }, [steps.length]);
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 10, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.25 }}
+      className="flex justify-start my-2"
+    >
+      <div className="max-w-[92%] p-4 text-xs rounded-2xl bg-gradient-to-r from-[#171529] via-[#1a1733] to-[#171529] border border-violet-500/30 text-gray-200 shadow-[0_0_30px_rgba(124,58,237,0.15)] relative overflow-hidden backdrop-blur-xl">
+        {/* Glowing top shimmer line */}
+        <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-violet-400 to-fuchsia-400 animate-pulse"></div>
+
+        <div className="flex items-center gap-3">
+          {/* Futuristic Glowing Spinner Orb */}
+          <div className="relative w-7 h-7 flex items-center justify-center shrink-0">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-500 animate-spin opacity-80 blur-[2px]"></div>
+            <div className="relative w-5.5 h-5.5 rounded-full bg-[#13131a] flex items-center justify-center border border-white/20">
+              <Sparkles className="w-3 h-3 text-violet-300 animate-pulse" />
+            </div>
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-bold text-white tracking-tight flex items-center gap-1.5 font-sans">
+                {isGenerated ? 'PixelPage Editor' : 'PixelPage Multi-Agent AI'}
+              </span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30 animate-pulse">
+                PROCESSING
+              </span>
+            </div>
+
+            {/* Dynamic Step Text */}
+            <div className="h-5 mt-1 overflow-hidden relative flex items-center">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={stepIndex}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-[11px] text-violet-200/90 font-medium truncate flex items-center gap-1.5"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-ping shrink-0" />
+                  <span>{steps[stepIndex]}</span>
+                </motion.p>
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+
+        {/* Animated Progress Bar */}
+        <div className="w-full h-1 bg-white/10 rounded-full mt-3 overflow-hidden">
+          <motion.div 
+            initial={{ width: "10%" }}
+            animate={{ width: "92%" }}
+            transition={{ duration: 12, ease: "easeOut" }}
+            className="h-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 rounded-full shadow-[0_0_12px_rgba(168,85,247,0.8)]"
+          />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 interface ChatPanelProps {
   chatHistory: ChatLogEntry[];
@@ -138,24 +224,7 @@ export function ChatPanel({
           ))
         )}
         
-        {isGenerating && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex justify-start"
-          >
-            <div className="max-w-[85%] p-3.5 text-xs message-bubble-system glass-panel flex items-center gap-2">
-              <div className="flex gap-1.5">
-                <div className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-              </div>
-              <span className="text-gray-400 ml-2 font-medium">
-                {isGenerated ? 'Applying edit...' : 'Generating your page...'}
-              </span>
-            </div>
-          </motion.div>
-        )}
+        {isGenerating && <AILoadingIndicator isGenerated={isGenerated} />}
       </div>
 
       {/* Input Area */}
