@@ -8,7 +8,7 @@ import dotenv
 
 dotenv.load_dotenv()
 
-kimi_semaphore = asyncio.Semaphore(4)
+kimi_semaphore = asyncio.Semaphore(2)
 
 def _clean_json_loads(content_str: str) -> dict:
     if not content_str:
@@ -39,7 +39,7 @@ async def _call_kimi(messages: list, temperature: float = 1.0, enable_web_search
     async with kimi_semaphore:
         last_error = None
         for model in models_to_try:
-            for attempt in range(2):
+            for attempt in range(5):
                 try:
                     kwargs = {
                         "model": model,
@@ -61,10 +61,16 @@ async def _call_kimi(messages: list, temperature: float = 1.0, enable_web_search
                         return _clean_json_loads(content)
                 except Exception as e:
                     last_error = e
-                    print(f"Notice: AI call attempt failed (model={model}, search={enable_web_search}): {e}")
+                    err_msg = str(e).lower()
+                    is_rate_limit = "429" in err_msg or "concurrency" in err_msg or "rate limit" in err_msg
+                    
+                    wait_time = (2.0 * (attempt + 1)) if is_rate_limit else (1.0 * (attempt + 1))
+                    print(f"Notice: AI call attempt {attempt + 1} failed (model={model}, rate_limit={is_rate_limit}): {e}. Waiting {wait_time}s...")
+                    
                     if isinstance(e, json.JSONDecodeError):
                         messages.append({"role": "user", "content": f"Previous response failed validation: {e}. Return valid JSON."})
-                    await asyncio.sleep(1.0)
+                    
+                    await asyncio.sleep(wait_time)
         
         raise AIGenerationError(f"AI call failed: {last_error}")
 
