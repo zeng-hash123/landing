@@ -50,10 +50,6 @@ async def apply_edit(page_id: str, edit: EditRequest, library: List[Dict]) -> di
     state = load_page(page_id)
     intent = await classify_edit_intent(edit.edit_instruction)
     
-    # Save pre-edit version
-    current_html = assemble_page(state.sections, state.meta, None, library, brand_kit=state.brand_kit)
-    save_version(page_id, state, current_html, created_by=edit.created_by)
-    
     scope = intent.get("scope", "section")
     instruction_lower = edit.edit_instruction.lower()
     
@@ -63,37 +59,20 @@ async def apply_edit(page_id: str, edit: EditRequest, library: List[Dict]) -> di
     if is_theme_edit:
         if "dark" in instruction_lower or "black" in instruction_lower or "night" in instruction_lower:
             theme_updates = DARK_THEME_TOKENS
-            if state.brand_kit:
-                state.brand_kit.text_color = "#ffffff"
-        elif "light" in instruction_lower or "white" in instruction_lower or "day" in instruction_lower:
-            theme_updates = LIGHT_THEME_TOKENS
-            if state.brand_kit:
-                state.brand_kit.text_color = "#111827"
         else:
-            # Let AI generate custom global color theme
-            system_prompt = (
-                "You are an expert UI color designer. Generate a global theme color palette in JSON matching key tokens: "
-                "background_color, bg_color, card_bg_color, text_color, heading_color, body_color, secondary_color."
-            )
-            messages = [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Generate theme palette for: {edit.edit_instruction}"}
-            ]
-            theme_updates = await _call_kimi(messages, temperature=0.5)
-            
-        # Apply theme token updates across ALL sections
-        for section in state.sections:
-            section.values.update(theme_updates)
-            
+            theme_updates = LIGHT_THEME_TOKENS
+
+        for sec in state.sections:
+            sec.values.update(theme_updates)
     else:
-        # Single Section Edit
-        target_section_type = intent.get("section_type") or edit.target_section or "hero"
-        target_section = next((s for s in state.sections if s.section_type == target_section_type), None)
+        sec_type = intent.get("target_section", "hero")
+        target_section = next((s for s in state.sections if s.section_type == sec_type), None)
         
+        if not target_section and state.sections:
+            target_section = state.sections[0]
+            
         if target_section:
             system_prompt = (
-                f"You are a helpful assistant making a specific edit to the '{target_section_type}' section. "
-                f"Given the user instruction and the current section values, return the updated values. "
                 f"Only return the JSON dict with updated key-value pairs matching the existing keys."
             )
             user_prompt = json.dumps({
@@ -112,7 +91,8 @@ async def apply_edit(page_id: str, edit: EditRequest, library: List[Dict]) -> di
         
     update_page(page_id, state)
     new_html = assemble_page(state.sections, state.meta, None, library, brand_kit=state.brand_kit)
-    save_version(page_id, state, new_html, created_by=edit.created_by)
+    edit_label = f"Edit: {edit.edit_instruction[:25]}..." if len(edit.edit_instruction) > 25 else f"Edit: {edit.edit_instruction}"
+    save_version(page_id, state, new_html, created_by=edit.created_by, label=edit_label)
     
     return {
         "html": new_html,

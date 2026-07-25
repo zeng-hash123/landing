@@ -151,8 +151,6 @@ async def revert_page(page_id: str, version_id: str, request: Request):
         update_page(page_id, state)
         html = assemble_page(state.sections, state.meta, None, library)
         
-        save_version(page_id, state, html)
-        
         return {"html": html, "message": "Reverted successfully"}
     except VersionNotFoundError:
         raise HTTPException(status_code=404, detail="Version not found")

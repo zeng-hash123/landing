@@ -344,14 +344,12 @@ export default function ChatStudioPage() {
   const handleRestoreVersion = async (versionId: string) => {
     if (!pageId) return;
     try {
-      await revertVersion(pageId, versionId);
-      const page = await getPage(pageId);
       const v = versions.find(ver => ver.id === versionId);
       if (v) {
         setHtml(v.html);
         setCurrentVersionId(v.id);
       }
-      await fetchVersions(pageId);
+      await revertVersion(pageId, versionId);
     } catch (e) {
       console.error(e);
     }
