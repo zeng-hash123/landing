@@ -15,13 +15,21 @@ async def generate_landing_page(user_input: GenerateRequest, library: List[Dict]
         raw_ad_content=None
     )
     
+    enable_web_search = False
     if user_input.ad_url:
         scraped_data = await scrape_ad_url(user_input.ad_url)
-        brief.raw_ad_content = scraped_data.get("product_description")
-        if not brief.product_description:
-            brief.product_description = scraped_data.get("product_description", "")
+        is_success = scraped_data.get("success", False)
+        desc = scraped_data.get("product_description", "")
+        
+        if is_success and len(desc) > 30:
+            brief.raw_ad_content = desc
+            if not brief.product_description:
+                brief.product_description = desc
+        else:
+            enable_web_search = True
+            brief.product_description = f"Landing page for URL: {user_input.ad_url}. {user_input.prompt or ''}"
             
-    copy = await run_copywriter(brief)
+    copy = await run_copywriter(brief, enable_web_search=enable_web_search)
     sections = await run_designer(brief, copy, user_input.brand_kit, library)
     compliance = await run_compliance_review(sections, brief)
     

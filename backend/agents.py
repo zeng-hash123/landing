@@ -10,7 +10,7 @@ dotenv.load_dotenv()
 
 kimi_semaphore = asyncio.Semaphore(4)
 
-async def _call_kimi(messages: list, temperature: float = 1.0) -> dict:
+async def _call_kimi(messages: list, temperature: float = 1.0, enable_web_search: bool = False) -> dict:
     key = os.getenv("KIMI_API_KEY") or os.getenv("MOONSHOT_API_KEY") or os.getenv("OPENAI_API_KEY")
     if not key or key.strip() == "" or key == "placeholder-key":
         raise AIGenerationError("Kimi / Moonshot API Key missing. Please set MOONSHOT_API_KEY or KIMI_API_KEY in Vercel environment variables.")
@@ -26,19 +26,29 @@ async def _call_kimi(messages: list, temperature: float = 1.0) -> dict:
         "moonshot-v1-32k"
     ]
 
+    extra_kwargs = {}
+    if enable_web_search:
+        extra_kwargs["tools"] = [{
+            "type": "builtin_function",
+            "function": {"name": "$web_search"}
+        }]
+
     async with kimi_semaphore:
         last_error = None
         for model in models_to_try:
             for attempt in range(2):
                 try:
-                    response = await client.chat.completions.create(
-                        model=model,
-                        messages=messages,
-                        response_format={"type": "json_object"},
-                        temperature=temperature
-                    )
+                    kwargs = {
+                        "model": model,
+                        "messages": messages,
+                        "response_format": {"type": "json_object"},
+                        "temperature": temperature,
+                        **extra_kwargs
+                    }
+                    response = await client.chat.completions.create(**kwargs)
                     content = response.choices[0].message.content
-                    return json.loads(content)
+                    if content:
+                        return json.loads(content)
                 except Exception as e:
                     last_error = e
                     if isinstance(e, json.JSONDecodeError):
@@ -47,7 +57,7 @@ async def _call_kimi(messages: list, temperature: float = 1.0) -> dict:
         
         raise AIGenerationError(f"AI call failed: {last_error}")
 
-async def run_copywriter(brief: PageBrief) -> Dict:
+async def run_copywriter(brief: PageBrief, enable_web_search: bool = False) -> Dict:
     system_prompt = (
         "You are a world-class direct-response copywriter for landing pages. "
         "Given the product brief, generate compelling copy for each section. Return JSON only. "
@@ -57,12 +67,15 @@ async def run_copywriter(brief: PageBrief) -> Dict:
         "Include both 'headline' style (single headline) and 'headline_line1/line2/highlight' style for hero, features, and cta. "
         "If ab_test is true, generate a variant_b with alternative headline and CTA text."
     )
+    if enable_web_search:
+        system_prompt += " If an ad URL is provided and product details are sparse, perform at most 1 web search to get key features and benefits, then output the JSON immediately."
+
     user_prompt = brief.model_dump_json()
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": f"Generate copy for this brief: {user_prompt}"}
     ]
-    return await _call_kimi(messages, temperature=0.7)
+    return await _call_kimi(messages, temperature=0.7, enable_web_search=enable_web_search)
 
 async def _design_section(sec_type: str, brief: PageBrief, copy: Dict, brand_kit: Optional[BrandKit], library: List[Dict]) -> SectionSelection:
     from library import filter_candidates

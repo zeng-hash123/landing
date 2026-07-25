@@ -75,9 +75,11 @@ async def scrape_ad_url(url: str) -> dict:
         if body_sample:
             summary_parts.append(f"Overview: {body_sample[:300]}")
 
+        is_success = bool(title or desc or headings_text or body_sample)
         scraped_text = "\n".join(summary_parts) if summary_parts else f"Content scraped from {url}"
 
         return {
+            "success": is_success,
             "product_description": scraped_text,
             "title": title,
             "description": desc,
@@ -87,6 +89,7 @@ async def scrape_ad_url(url: str) -> dict:
         print(f"Scraper notice for {url}: {e}")
         domain = url.replace("https://", "").replace("http://", "").split("/")[0]
         return {
+            "success": False,
             "product_description": f"High-converting landing page for product/service at {domain}. Highlight key features, benefits, testimonials, and clear call to action.",
             "title": domain,
             "description": f"Landing page for {domain}",
