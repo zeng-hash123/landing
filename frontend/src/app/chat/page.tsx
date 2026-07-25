@@ -10,7 +10,7 @@ import { ComplianceBanner } from '../../components/ComplianceBanner';
 import { ChatLogEntry, BrandKit, VersionEntry, GenerateRequest, EditRequest } from '../../types';
 import { generatePage, editPage, getVersions, revertVersion, getPage, getUserPlan, getUserPages } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
-import { Sparkles, Check, ShieldCheck, Zap, X, ArrowRight, Lock } from 'lucide-react';
+import { Sparkles, Check, ShieldCheck, Zap, X, ArrowRight, Lock, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ADMIN_EMAIL = 'zeng07292@gmail.com';
@@ -485,7 +485,7 @@ export default function ChatStudioPage() {
 
               <div className="text-center mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white flex items-center justify-center mx-auto mb-3 shadow-lg shadow-violet-500/25">
-                  <Sparkles className="w-6 h-6" />
+                  <TrendingUp className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl font-bold text-white font-sans">PixelPage Unlimited Plan</h3>
                 <p className="text-xs text-gray-400 mt-1">Subscription required to start generating and editing pages.</p>
