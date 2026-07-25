@@ -7,7 +7,8 @@ import {
   PageState,
 } from '../types';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://landing-gbec.onrender.com';
+const BASE_URL = rawBaseUrl.replace(/\/+$/, '');
 
 export async function generatePage(req: GenerateRequest): Promise<GenerateResponse> {
   const res = await fetch(`${BASE_URL}/generate`, {
@@ -38,10 +39,15 @@ export async function editPage(req: EditRequest): Promise<EditResponse> {
     body: JSON.stringify(req),
   });
   if (!res.ok) {
-    let errText = 'Failed to edit page';
+    let errText = `Failed to edit page (HTTP ${res.status})`;
     try {
-      const errJson = await res.json();
-      errText = errJson.detail || errJson.message || errText;
+      const errBody = await res.text();
+      try {
+        const errJson = JSON.parse(errBody);
+        errText = errJson.detail || errJson.message || errText;
+      } catch (_) {
+        if (errBody.length < 200) errText = errBody || errText;
+      }
     } catch (_) {}
     throw new Error(errText);
   }
