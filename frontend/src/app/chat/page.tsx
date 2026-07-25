@@ -203,10 +203,14 @@ export default function ChatStudioPage() {
         created_by: userEmail || userId || undefined,
       };
 
-      if (/^https?:\/\//i.test(prompt)) {
-        req.ad_url = prompt;
+      const trimmed = prompt.trim();
+      const isUrl = /^https?:\/\//i.test(trimmed) || /^([\w-]+\.)+[\w-]{2,}(\/.*)?$/i.test(trimmed);
+
+      if (isUrl) {
+        req.ad_url = trimmed.startsWith('http') ? trimmed : `https://${trimmed}`;
+        req.prompt = `Create a high-converting landing page for ${trimmed}`;
       } else {
-        req.prompt = prompt;
+        req.prompt = trimmed;
       }
 
       const res = await generatePage(req);
@@ -228,10 +232,11 @@ export default function ChatStudioPage() {
       } else {
         await fetchVersions(res.page_id);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("Generation error:", error);
+      const errDetail = error.message || "Server error";
       setChatHistory(prev => prev.map(msg => 
-        msg.id === msgId ? { ...msg, response: "Sorry, there was an error generating your page." } : msg
+        msg.id === msgId ? { ...msg, response: `Sorry, there was an error generating your page: ${errDetail}` } : msg
       ));
     } finally {
       setIsGenerating(false);

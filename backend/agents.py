@@ -8,34 +8,44 @@ import dotenv
 
 dotenv.load_dotenv()
 
-api_key = os.getenv("KIMI_API_KEY") or "placeholder-key"
-client = AsyncOpenAI(
-    api_key=api_key,
-    base_url="https://api.moonshot.ai/v1"
-)
-MODEL_NAME = "kimi-k2.7-code"
-
-kimi_semaphore = asyncio.Semaphore(2)
+kimi_semaphore = asyncio.Semaphore(4)
 
 async def _call_kimi(messages: list, temperature: float = 1.0) -> dict:
+    key = os.getenv("KIMI_API_KEY") or os.getenv("MOONSHOT_API_KEY") or os.getenv("OPENAI_API_KEY")
+    if not key or key.strip() == "" or key == "placeholder-key":
+        raise AIGenerationError("Kimi / Moonshot API Key missing. Please set MOONSHOT_API_KEY or KIMI_API_KEY in Vercel environment variables.")
+
+    client = AsyncOpenAI(
+        api_key=key.strip(),
+        base_url="https://api.moonshot.ai/v1"
+    )
+
+    models_to_try = [
+        os.getenv("KIMI_MODEL", "kimi-k2.7-code"),
+        "moonshot-v1-8k",
+        "moonshot-v1-32k"
+    ]
+
     async with kimi_semaphore:
-        for attempt in range(4):
-            try:
-                response = await client.chat.completions.create(
-                    model=MODEL_NAME,
-                    messages=messages,
-                    response_format={"type": "json_object"},
-                    temperature=1.0
-                )
-                content = response.choices[0].message.content
-                return json.loads(content)
-            except Exception as e:
-                if attempt < 3:
-                    await asyncio.sleep(1.5 * (attempt + 1))
+        last_error = None
+        for model in models_to_try:
+            for attempt in range(2):
+                try:
+                    response = await client.chat.completions.create(
+                        model=model,
+                        messages=messages,
+                        response_format={"type": "json_object"},
+                        temperature=temperature
+                    )
+                    content = response.choices[0].message.content
+                    return json.loads(content)
+                except Exception as e:
+                    last_error = e
                     if isinstance(e, json.JSONDecodeError):
-                        messages.append({"role": "user", "content": f"Previous response failed validation: {e}. Please ensure you return valid JSON."})
-                else:
-                    raise AIGenerationError(f"AI call failed: {e}")
+                        messages.append({"role": "user", "content": f"Previous response failed validation: {e}. Return valid JSON."})
+                    await asyncio.sleep(1.0)
+        
+        raise AIGenerationError(f"AI call failed: {last_error}")
 
 async def run_copywriter(brief: PageBrief) -> Dict:
     system_prompt = (
