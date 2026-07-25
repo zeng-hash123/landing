@@ -202,6 +202,16 @@ export default function ChatStudioPage() {
     return () => { isCancelled = true; };
   }, [userEmail]);
 
+  // Execute prompt entered on homepage if present
+  useEffect(() => {
+    if (typeof window === 'undefined' || !userEmail) return;
+    const initialPrompt = localStorage.getItem('pixelpage_initial_prompt');
+    if (initialPrompt && initialPrompt.trim()) {
+      localStorage.removeItem('pixelpage_initial_prompt');
+      handleGenerate(initialPrompt);
+    }
+  }, [userEmail, isProUser, isAdminUser]);
+
   const fetchVersions = async (id: string) => {
     try {
       const v = await getVersions(id);
