@@ -8,7 +8,7 @@ import { BrandKitModal } from '../../components/BrandKitModal';
 import { VersionHistory } from '../../components/VersionHistory';
 import { ComplianceBanner } from '../../components/ComplianceBanner';
 import { ChatLogEntry, BrandKit, VersionEntry, GenerateRequest, EditRequest } from '../../types';
-import { generatePage, editPage, getVersions, revertVersion, getPage, getUserPlan } from '../../lib/api';
+import { generatePage, editPage, getVersions, revertVersion, getPage, getUserPlan, getUserPages } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
 import { Sparkles, Check, ShieldCheck, Zap, X, ArrowRight, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -160,7 +160,33 @@ export default function ChatStudioPage() {
     return () => {
       mounted = false;
     };
-  }, [router]);
+  useEffect(() => {
+    if (!userEmail) return;
+    let isCancelled = false;
+    const loadUserHistory = async () => {
+      try {
+        const userPages = await getUserPages(userEmail);
+        if (isCancelled) return;
+        if (userPages && userPages.length > 0) {
+          const latest = userPages[0];
+          if (latest && latest.id) {
+            setPageId(latest.id);
+            fetchVersions(latest.id);
+            const pData = await getPage(latest.id);
+            if (isCancelled) return;
+            if (pData && pData.html) {
+              setHtml(pData.html);
+              setIsGenerated(true);
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Failed loading user history:", e);
+      }
+    };
+    loadUserHistory();
+    return () => { isCancelled = true; };
+  }, [userEmail]);
 
   const fetchVersions = async (id: string) => {
     try {

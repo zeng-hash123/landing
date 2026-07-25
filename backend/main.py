@@ -7,7 +7,7 @@ import json
 from models import GenerateRequest, EditRequest, PageNotFoundError, VersionNotFoundError, PageState
 from pipeline import generate_landing_page
 from editing import apply_edit
-from storage import load_page, get_versions, get_version, update_page, save_version, save_pro_user, get_user_plan
+from storage import load_page, get_versions, get_version, update_page, save_version, save_pro_user, get_user_plan, get_user_pages
 from renderer import assemble_page
 from library import load_component_library
 
@@ -74,6 +74,15 @@ async def dodo_payments_webhook(request: Request):
 async def check_user_plan(email: str = Query(...)):
     plan = get_user_plan(email)
     return {"email": email, "plan": plan}
+
+@app.get("/user/pages")
+@app.get("/api/user/pages")
+async def list_user_pages(email: str = Query(...)):
+    try:
+        pages = get_user_pages(email)
+        return {"pages": pages}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/user/activate-pro")
 @app.post("/api/user/activate-pro")

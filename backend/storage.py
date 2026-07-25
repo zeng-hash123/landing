@@ -276,3 +276,41 @@ def get_version(version_id: str) -> Dict:
     if not v:
         raise VersionNotFoundError(f"Version {version_id} not found")
     return v
+
+def get_user_pages(email: str) -> List[Dict]:
+    global _use_memory_fallback
+    clean_email = email.lower().strip()
+    results = []
+
+    if not _use_memory_fallback and supabase_client:
+        try:
+            if clean_email == "zeng07292@gmail.com":
+                res = supabase_client.table("pages").select("id, created_at, brief, meta, created_by").order("created_at", desc=True).limit(20).execute()
+            else:
+                res = supabase_client.table("pages").select("id, created_at, brief, meta, created_by").eq("created_by", clean_email).order("created_at", desc=True).execute()
+            if res.data:
+                results.extend(res.data)
+        except Exception as e:
+            try:
+                res = supabase_client.table("pages").select("id, created_at, brief, meta").order("created_at", desc=True).limit(20).execute()
+                if res.data:
+                    results.extend(res.data)
+            except Exception as e2:
+                if _is_table_missing_error(e2):
+                    _use_memory_fallback = True
+
+    seen_ids = {str(r.get("id")) for r in results if r.get("id")}
+    for p_id, p_data in _memory_pages.items():
+        p_user = str(p_data.get("created_by", "")).lower().strip()
+        if clean_email == "zeng07292@gmail.com" or p_user == clean_email or not p_user:
+            if str(p_id) not in seen_ids:
+                results.append({
+                    "id": p_id,
+                    "created_at": p_data.get("created_at"),
+                    "brief": p_data.get("brief"),
+                    "meta": p_data.get("meta"),
+                    "created_by": p_data.get("created_by")
+                })
+                seen_ids.add(str(p_id))
+
+    return results

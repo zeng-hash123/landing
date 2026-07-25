@@ -84,3 +84,14 @@ export async function getUserPlan(email: string): Promise<{ email: string; plan:
     return { email, plan: 'free' };
   }
 }
+
+export async function getUserPages(email: string): Promise<any[]> {
+  try {
+    const res = await fetch(`${BASE_URL}/user/pages?email=${encodeURIComponent(email)}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data.pages) ? data.pages : [];
+  } catch (e) {
+    return [];
+  }
+}
