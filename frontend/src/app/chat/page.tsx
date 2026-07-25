@@ -37,7 +37,7 @@ export default function ChatStudioPage() {
   const [campaignGoal, setCampaignGoal] = useState('');
   const [designVibe, setDesignVibe] = useState('');
   const [ctaFocus, setCtaFocus] = useState('');
-  const [abTest, setAbTest] = useState(false);
+  const [abTest, setAbTest] = useState(true);
   
   // Versions
   const [versions, setVersions] = useState<VersionEntry[]>([]);
@@ -46,7 +46,12 @@ export default function ChatStudioPage() {
 
   // Pricing Modal & Auth Loading states
   const [showPricingModal, setShowPricingModal] = useState(false);
-  const [userEmail, setUserEmail] = useState<string>('');
+  const [userEmail, setUserEmail] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('pixelpage_user_email') || localStorage.getItem('forge_user_email') || '';
+    }
+    return '';
+  });
   const [userId, setUserId] = useState<string>('');
   const [isProUser, setIsProUser] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
