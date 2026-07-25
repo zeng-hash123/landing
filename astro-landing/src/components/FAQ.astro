@@ -1,0 +1,58 @@
+---
+const FAQS = [
+  {
+    question: "Do you offer refunds?",
+    answer: "No, as each landing page generation and multi-agent AI execution incurs non-refundable AI model computational costs."
+  },
+  {
+    question: "How does multi-agent AI work?",
+    answer: "PixelPage deploys three specialized AI agents (copywriter, designer, and ad compliance scanner) that work in parallel to generate on-brand, high-converting landing pages from a single prompt or product URL."
+  },
+  {
+    question: "Can I export clean HTML/CSS code?",
+    answer: "Yes! Every generated page can be previewed, edited in real-time, and exported as clean, white-labeled HTML/CSS code with no vendor lock-in or PixelPage branding."
+  },
+  {
+    question: "How does client brand kit isolation work?",
+    answer: "You can upload and save distinct brand kits (logos, primary/secondary colors, Google Fonts) for each client. Switching between client brand kits is instant and prevents cross-contamination across client campaigns."
+  },
+  {
+    question: "Does PixelPage generate A/B test variants automatically?",
+    answer: "Yes! When enabled, every page generation automatically produces Variant A (Control) and Variant B (Challenger) with alternate headlines and CTA copy so you can test messaging hypotheses from day one."
+  }
+];
+---
+
+<section class="py-24 bg-[#0d0d14] relative border-t border-white/5 font-sans">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <span class="text-xs font-extrabold uppercase tracking-widest text-violet-400 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20">
+        Got Questions?
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-4 font-sans">
+        Frequently Asked Questions
+      </h2>
+      <p class="text-sm text-gray-400 mt-3 leading-relaxed">
+        Everything you need to know about PixelPage AI landing page generator and agency workflows.
+      </p>
+    </div>
+
+    <div class="space-y-4">
+      {FAQS.map((faq) => (
+        <details class="group bg-[#13131a] border border-white/10 rounded-2xl p-6 transition-all duration-200 [&_summary::-webkit-details-marker]:hidden hover:border-violet-500/40">
+          <summary class="flex items-center justify-between font-bold text-base text-white cursor-pointer select-none">
+            <span>{faq.question}</span>
+            <span class="ml-4 w-7 h-7 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-violet-400 group-open:rotate-180 transition-transform duration-200 shrink-0">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+          </summary>
+          <p class="text-xs sm:text-sm text-gray-300 leading-relaxed mt-4 pt-4 border-t border-white/5 font-sans">
+            {faq.answer}
+          </p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
