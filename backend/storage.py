@@ -186,18 +186,15 @@ def save_version(page_id: str, state: PageState, html: str, created_by: Optional
     global _use_memory_fallback
     version_id = str(uuid.uuid4())
     user_id = created_by or state.created_by
+    state_dump = state.model_dump()
+    if label:
+        state_dump["label"] = label
+
     version_data = {
         "id": version_id,
         "page_id": page_id,
         "label": label,
-        "state": {
-            "brief": state.brief.model_dump(),
-            "brand_kit": state.brand_kit.model_dump() if state.brand_kit else None,
-            "sections": [s.model_dump() for s in state.sections],
-            "meta": state.meta,
-            "flags": state.flags,
-            "created_by": user_id
-        },
+        "state": state_dump,
         "html": html,
         "created_by": user_id,
         "created_at": datetime.now(timezone.utc).isoformat()
@@ -222,7 +219,6 @@ def save_version(page_id: str, state: PageState, html: str, created_by: Optional
             try:
                 res = supabase_client.table("page_versions").insert(insert_payload).execute()
             except Exception as insert_err:
-                # Strip optional columns if database schema lacks them
                 clean_payload = {
                     "id": version_id,
                     "page_id": page_id,
@@ -265,6 +261,11 @@ def get_versions(page_id: str) -> List[Dict]:
             results.append(m)
             seen_ids.add(str(m.get("id")))
 
+    # Ensure label is populated from state if missing
+    for v in results:
+        if not v.get("label") and isinstance(v.get("state"), dict):
+            v["label"] = v["state"].get("label")
+
     return results
 
 def get_version(version_id: str) -> Dict:
@@ -273,7 +274,10 @@ def get_version(version_id: str) -> Dict:
         try:
             res = supabase_client.table("page_versions").select("*").eq("id", version_id).execute()
             if res.data and len(res.data) > 0:
-                return res.data[0]
+                v = res.data[0]
+                if not v.get("label") and isinstance(v.get("state"), dict):
+                    v["label"] = v["state"].get("label")
+                return v
         except Exception as e:
             if _is_table_missing_error(e):
                 _use_memory_fallback = True
@@ -281,6 +285,8 @@ def get_version(version_id: str) -> Dict:
     v = next((item for item in _memory_versions if str(item["id"]) == str(version_id)), None)
     if not v:
         raise VersionNotFoundError(f"Version {version_id} not found")
+    if not v.get("label") and isinstance(v.get("state"), dict):
+        v["label"] = v["state"].get("label")
     return v
 
 def get_user_pages(email: str) -> List[Dict]:
@@ -318,5 +324,10 @@ def get_user_pages(email: str) -> List[Dict]:
                     "created_by": p_data.get("created_by")
                 })
                 seen_ids.add(str(p_id))
+
+    # Attach version history to each user page for instant frontend loading
+    for p in results:
+        if "id" in p:
+            p["versions"] = get_versions(p["id"])
 
     return results

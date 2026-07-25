@@ -173,13 +173,20 @@ export default function ChatStudioPage() {
           const latest = userPages[0];
           if (latest && latest.id) {
             setPageId(latest.id);
-            fetchVersions(latest.id);
-            const pData = await getPage(latest.id);
-            if (isCancelled) return;
-            if (pData && pData.html) {
-              setHtml(pData.html);
-              setIsGenerated(true);
+            // Populate versions instantly from latest.versions if returned
+            if (Array.isArray(latest.versions) && latest.versions.length > 0) {
+              setVersions(latest.versions);
+              setCurrentVersionId(latest.versions[0].id);
+            } else {
+              fetchVersions(latest.id);
             }
+            // Fetch page HTML in parallel
+            getPage(latest.id).then(pData => {
+              if (!isCancelled && pData && pData.html) {
+                setHtml(pData.html);
+                setIsGenerated(true);
+              }
+            }).catch(err => console.error("Error loading page HTML:", err));
           }
         }
       } catch (e) {
