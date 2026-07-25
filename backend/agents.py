@@ -33,8 +33,7 @@ async def _call_kimi(messages: list, temperature: float = 1.0, enable_web_search
     )
 
     models_to_try = [
-        "kimi-k2.7-code",
-        "moonshot-v1-8k"
+        "kimi-k2.7-code"
     ]
 
     async with kimi_semaphore:
