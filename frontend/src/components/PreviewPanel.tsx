@@ -315,8 +315,6 @@ export function PreviewPanel({
             </button>
           )}
 
-          <ProfileMenu userEmail={userEmail} isAdmin={isAdmin} isPro={isPro} onSignOut={onSignOut} />
-
           <button onClick={handleCopy} className="flex items-center gap-1.5 px-3 py-1.5 glass-button rounded-xl text-xs font-medium text-gray-300 hover:text-white cursor-pointer">
             <Copy className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Copy HTML</span>
@@ -326,6 +324,8 @@ export function PreviewPanel({
             <Download className="w-3.5 h-3.5" />
             <span>Download</span>
           </button>
+
+          <ProfileMenu userEmail={userEmail} isAdmin={isAdmin} isPro={isPro} onSignOut={onSignOut} />
         </div>
       </div>
 
