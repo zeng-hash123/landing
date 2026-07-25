@@ -44,7 +44,7 @@ async def _call_kimi(messages: list, temperature: float = 1.0, enable_web_search
                     kwargs = {
                         "model": model,
                         "messages": messages,
-                        "temperature": temperature
+                        "temperature": 1.0
                     }
                     if enable_web_search:
                         kwargs["tools"] = [{
