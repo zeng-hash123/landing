@@ -98,6 +98,7 @@ interface ChatPanelProps {
   isGenerated: boolean;
   onGenerate: (prompt: string) => void;
   onEdit: (instruction: string) => void;
+  onStopGeneration?: () => void;
   brandKitActive: boolean;
   onOpenBrandKit: () => void;
   
@@ -113,7 +114,7 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({
-  chatHistory, isGenerating, isGenerated, onGenerate, onEdit,
+  chatHistory, isGenerating, isGenerated, onGenerate, onEdit, onStopGeneration,
   brandKitActive, onOpenBrandKit,
   campaignGoal, setCampaignGoal, designVibe, setDesignVibe,
   ctaFocus, setCtaFocus, abTest, setAbTest
