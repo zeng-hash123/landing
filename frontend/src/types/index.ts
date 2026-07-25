@@ -62,6 +62,7 @@ export interface VersionEntry {
   page_id: string;
   created_at: string;
   html: string;
+  label?: string;
   state: Record<string, unknown>;
   created_by?: string;
 }

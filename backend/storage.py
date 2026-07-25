@@ -182,13 +182,14 @@ def update_page(page_id: str, state: PageState):
             if _is_table_missing_error(e):
                 _use_memory_fallback = True
 
-def save_version(page_id: str, state: PageState, html: str, created_by: Optional[str] = None):
+def save_version(page_id: str, state: PageState, html: str, created_by: Optional[str] = None, label: Optional[str] = None):
     global _use_memory_fallback
     version_id = str(uuid.uuid4())
     user_id = created_by or state.created_by
     version_data = {
         "id": version_id,
         "page_id": page_id,
+        "label": label,
         "state": {
             "brief": state.brief.model_dump(),
             "brand_kit": state.brand_kit.model_dump() if state.brand_kit else None,
@@ -213,17 +214,22 @@ def save_version(page_id: str, state: PageState, html: str, created_by: Optional
                 "state": version_data["state"],
                 "html": html
             }
+            if label:
+                insert_payload["label"] = label
             if user_id:
                 insert_payload["created_by"] = user_id
 
             try:
                 res = supabase_client.table("page_versions").insert(insert_payload).execute()
             except Exception as insert_err:
-                if "created_by" in insert_payload and ("PGRST204" in str(insert_err) or "created_by" in str(insert_err)):
-                    del insert_payload["created_by"]
-                    res = supabase_client.table("page_versions").insert(insert_payload).execute()
-                else:
-                    raise insert_err
+                # Strip optional columns if database schema lacks them
+                clean_payload = {
+                    "id": version_id,
+                    "page_id": page_id,
+                    "state": version_data["state"],
+                    "html": html
+                }
+                res = supabase_client.table("page_versions").insert(clean_payload).execute()
 
             if res.data and len(res.data) > 0:
                 supa_ver_id = str(res.data[0]["id"])
@@ -239,7 +245,7 @@ def get_versions(page_id: str) -> List[Dict]:
     results = []
     if not _use_memory_fallback and supabase_client:
         try:
-            res = supabase_client.table("page_versions").select("id, created_at, html, state, created_by").eq("page_id", page_id).order("created_at", desc=True).execute()
+            res = supabase_client.table("page_versions").select("id, created_at, html, state, label, created_by").eq("page_id", page_id).order("created_at", desc=True).execute()
             if res.data:
                 results.extend(res.data)
         except Exception as e:

@@ -66,7 +66,20 @@ async def generate_landing_page(user_input: GenerateRequest, library: List[Dict]
     )
     
     page_id = save_page(state, created_by=user_input.created_by)
-    save_version(page_id, state, html, created_by=user_input.created_by)
+
+    if brief.ab_test and html_b:
+        state_b = PageState(
+            brief=brief,
+            brand_kit=user_input.brand_kit,
+            sections=sections_b,
+            meta=meta,
+            flags=compliance.get("flags", []),
+            created_by=user_input.created_by
+        )
+        save_version(page_id, state, html, created_by=user_input.created_by, label="Variant A (Control)")
+        save_version(page_id, state_b, html_b, created_by=user_input.created_by, label="Variant B (Challenger)")
+    else:
+        save_version(page_id, state, html, created_by=user_input.created_by, label="Variant A")
     
     res = {
         "html": html,

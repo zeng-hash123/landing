@@ -116,7 +116,7 @@ export function VersionHistory({
                     </div>
 
                     <p className="text-xs font-semibold text-white mb-2">
-                      {i === list.length - 1 ? 'Initial Generation' : `Version ${list.length - i}`}
+                      {v.label || (i === list.length - 1 ? 'Initial Generation' : `Version ${list.length - i}`)}
                     </p>
 
                     <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/5">
