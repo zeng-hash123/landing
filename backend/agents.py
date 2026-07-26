@@ -22,7 +22,12 @@ def _clean_json_loads(content_str: str) -> dict:
         cleaned = cleaned[:-3]
     return json.loads(cleaned.strip())
 
-async def _call_kimi(messages: list, temperature: float = 1.0, enable_web_search: bool = False) -> dict:
+async def _call_kimi(
+    messages: list, 
+    temperature: float = 1.0, 
+    enable_web_search: bool = False,
+    max_tokens: Optional[int] = None
+) -> dict:
     key = os.getenv("KIMI_API_KEY") or os.getenv("MOONSHOT_API_KEY") or os.getenv("OPENAI_API_KEY")
     if not key or key.strip() == "" or key == "placeholder-key":
         raise AIGenerationError("Kimi / Moonshot API Key missing. Please set MOONSHOT_API_KEY or KIMI_API_KEY in Vercel environment variables.")
@@ -44,8 +49,11 @@ async def _call_kimi(messages: list, temperature: float = 1.0, enable_web_search
                     kwargs = {
                         "model": model,
                         "messages": messages,
-                        "temperature": 1.0
+                        "temperature": temperature
                     }
+                    if max_tokens and max_tokens > 0:
+                        kwargs["max_tokens"] = max_tokens
+
                     if enable_web_search:
                         kwargs["tools"] = [{
                             "type": "builtin_function",
@@ -83,7 +91,7 @@ async def run_copywriter(brief: PageBrief, enable_web_search: bool = False) -> D
         "For 'footer', generate 'headline', 'subheadline', 'copyright_text', 'company_name', and 'cta_text'. "
         "Include both 'headline' style (single complete headline string) and 'headline_line1/line2/highlight' split style for hero, features, and cta. "
         "IMPORTANT FOR SPLIT HEADLINES: Ensure 'headline_line1' contains ONLY the prefix words, 'headline_highlight' contains ONLY the 1-2 words to highlight in color, and 'headline_line2' contains ONLY the trailing suffix words. NEVER duplicate words across headline_line1, headline_highlight, or headline_line2. "
-        "If ab_test is true, generate a variant_b with alternative headline and CTA text."
+        "CRITICAL FOR A/B TESTING: If ab_test is true, generate a 'variant_b' object containing completely distinct, alternative copy (different headlines, subheadlines, feature titles, feature descriptions, pricing text, and CTAs) for ALL sections (hero, features, testimonial, pricing, cta, footer) so that Variant B has completely different text across every section."
     )
     if enable_web_search:
         system_prompt += " If an ad URL is provided and product details are sparse, perform at most 1 web search to get key features and benefits, then output the JSON immediately."
@@ -93,9 +101,16 @@ async def run_copywriter(brief: PageBrief, enable_web_search: bool = False) -> D
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": f"Generate copy for this brief: {user_prompt}"}
     ]
-    return await _call_kimi(messages, temperature=0.7, enable_web_search=enable_web_search)
+    return await _call_kimi(messages, temperature=0.7, enable_web_search=enable_web_search, max_tokens=1500)
 
-async def _design_section(sec_type: str, brief: PageBrief, copy: Dict, brand_kit: Optional[BrandKit], library: List[Dict]) -> SectionSelection:
+async def _design_section(
+    sec_type: str, 
+    brief: PageBrief, 
+    copy: Dict, 
+    brand_kit: Optional[BrandKit], 
+    library: List[Dict],
+    exclude_templates: Optional[List[str]] = None
+) -> SectionSelection:
     from library import filter_candidates
     candidates = filter_candidates(library, sec_type, brief.design_vibe)
     if not candidates:
@@ -105,6 +120,11 @@ async def _design_section(sec_type: str, brief: PageBrief, copy: Dict, brand_kit
             if st == sec_type or st == sec_type + "s" or (sec_type == "testimonial" and st == "testimonials") or (sec_type == "features" and st == "feature") or (sec_type == "footer" and st in ["footer", "footers"]) or (sec_type in ["cta", "form", "forms"] and st in ["cta", "form", "forms"]):
                 candidates_meta.append({"template_file": item.get("template_file"), "metadata": item.get("metadata")})
         candidates = candidates_meta
+
+    if exclude_templates and candidates:
+        filtered = [c for c in candidates if c.get("template_file") not in exclude_templates]
+        if filtered:
+            candidates = filtered
     
     system_prompt = (
         "You are an expert web designer. Pick the best template from the candidates and fill ALL token values from the tokens list. "
@@ -124,17 +144,23 @@ async def _design_section(sec_type: str, brief: PageBrief, copy: Dict, brand_kit
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
     ]
-    res = await _call_kimi(messages, temperature=1.0)
+    res = await _call_kimi(messages, temperature=1.0, max_tokens=600)
     return SectionSelection(**res)
 
-async def run_designer(brief: PageBrief, copy: Dict, brand_kit: Optional[BrandKit], library: List[Dict]) -> List[SectionSelection]:
+async def run_designer(
+    brief: PageBrief, 
+    copy: Dict, 
+    brand_kit: Optional[BrandKit], 
+    library: List[Dict],
+    exclude_templates: Optional[List[str]] = None
+) -> List[SectionSelection]:
     import asyncio
     section_types = ["navbar", "hero", "features", "testimonial", "pricing", "cta", "footer"]
     sections = []
     batch_size = 2
     for i in range(0, len(section_types), batch_size):
         batch = section_types[i:i + batch_size]
-        tasks = [_design_section(st, brief, copy, brand_kit, library) for st in batch]
+        tasks = [_design_section(st, brief, copy, brand_kit, library, exclude_templates=exclude_templates if st == "hero" else None) for st in batch]
         batch_results = await asyncio.gather(*tasks, return_exceptions=True)
         for j, result in enumerate(batch_results):
             if isinstance(result, Exception):
@@ -161,4 +187,4 @@ async def run_compliance_review(sections: List[SectionSelection], brief: PageBri
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
     ]
-    return await _call_kimi(messages, temperature=0.2)
+    return await _call_kimi(messages, temperature=0.2, max_tokens=400)

@@ -16,7 +16,7 @@ async def classify_edit_intent(instruction: str) -> dict:
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": instruction}
     ]
-    return await _call_kimi(messages, temperature=0.2)
+    return await _call_kimi(messages, temperature=0.2, max_tokens=250)
 
 DARK_THEME_TOKENS = {
     "background_color": "#0d0d14",
@@ -83,7 +83,7 @@ async def apply_edit(page_id: str, edit: EditRequest, library: List[Dict]) -> di
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ]
-            updates = await _call_kimi(messages, temperature=0.3)
+            updates = await _call_kimi(messages, temperature=0.3, max_tokens=500)
             target_section.values.update(updates)
         
     if edit.created_by:

@@ -113,7 +113,7 @@ export function Hero() {
             </div>
             <div className="px-4 py-1 rounded-lg bg-[#0d0d14] border border-white/5 text-[11px] font-mono text-gray-400 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              build.landing-xyx.vercel.app
+              pixelpage.site
             </div>
             <div className="text-xs font-semibold text-violet-400">PixelPage AI</div>
           </div>
@@ -140,42 +140,17 @@ export function Hero() {
               </div>
             </div>
 
-            {/* Right Live Preview Column */}
-            <div className="md:col-span-8 bg-white rounded-xl overflow-hidden p-6 text-gray-900 flex flex-col justify-between relative shadow-inner">
-              <div className="space-y-4 text-center max-w-md mx-auto pt-4">
-                <div className="flex items-center justify-between pb-3 border-b border-gray-100 text-xs font-medium text-gray-600">
-                  <span className="font-bold text-violet-600 text-sm">BrandAI</span>
-                  <div className="flex gap-3 text-[11px]">
-                    <span>Features</span>
-                    <span>Pricing</span>
-                    <span>About</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 inline-block mt-2">
-                  AI-Generated Preview
-                </span>
-                <h3 className="text-2xl font-bold text-gray-900 leading-tight">
-                  Write Cold Emails That Actually Get 40%+ Reply Rates
-                </h3>
-                <p className="text-xs text-gray-600">
-                  Powered by custom fine-tuned copywriter AI trained on $50M+ cold outreach campaigns.
-                </p>
-                <div className="flex justify-center gap-2 pt-2">
-                  <span className="px-4 py-2 rounded-lg bg-violet-600 text-white text-xs font-bold shadow-md">
-                    Start 14-Day Free Trial
-                  </span>
-                  <span className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 text-xs font-semibold">
-                    Watch Demo
-                  </span>
-                </div>
-              </div>
-
-              {/* Bottom Feature Badges */}
-              <div className="grid grid-cols-3 gap-2 pt-6 text-center text-[10px] font-semibold text-gray-500 border-t border-gray-100 mt-6">
-                <div className="p-2 bg-gray-50 rounded-lg">✓ Navbar + Hero</div>
-                <div className="p-2 bg-gray-50 rounded-lg">✓ Brand Kit Synced</div>
-                <div className="p-2 bg-gray-50 rounded-lg">✓ 0 Policy Flags</div>
-              </div>
+            {/* Right Demo Video Column */}
+            <div className="md:col-span-8 bg-[#09090e] rounded-xl overflow-hidden relative shadow-inner border border-white/5 flex items-center justify-center">
+              <video
+                src="/demo.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                controls
+                className="w-full h-full object-cover rounded-xl"
+              />
             </div>
           </div>
         </motion.div>

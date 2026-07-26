@@ -1,6 +1,6 @@
 from models import GenerateRequest, PageBrief, PageState
 from scraper import scrape_ad_url
-from agents import run_copywriter, run_designer, run_compliance_review
+from agents import run_copywriter, run_designer, run_compliance_review, _design_section
 from renderer import assemble_page
 from storage import save_page, save_version, get_versions
 from typing import Dict, List
@@ -42,18 +42,27 @@ async def generate_landing_page(user_input: GenerateRequest, library: List[Dict]
     
     html_b = None
     if brief.ab_test:
-        copy_b = dict(copy)
-        if "variant_b" in copy and isinstance(copy["variant_b"], dict):
-            copy_b["hero"] = copy["variant_b"]
-        else:
+        copy_b = copy.get("variant_b", {})
+        if not isinstance(copy_b, dict) or not copy_b:
+            copy_b = dict(copy)
             hero_copy = dict(copy.get("hero", {}))
             if "headline" in hero_copy:
                 hero_copy["headline"] = f"{hero_copy['headline']} — Exclusive Edition"
             if "cta_text" in hero_copy:
                 hero_copy["cta_text"] = "Claim Your Special Offer Now"
             copy_b["hero"] = hero_copy
+        else:
+            # Ensure navbar and footer are preserved if variant_b didn't specify them
+            if "navbar" not in copy_b and "navbar" in copy:
+                copy_b["navbar"] = copy["navbar"]
+            if "footer" not in copy_b and "footer" in copy:
+                copy_b["footer"] = copy["footer"]
 
-        sections_b = await run_designer(brief, copy_b, user_input.brand_kit, library)
+        # Exclude Variant A's hero template file so Variant B is forced to select a DIFFERENT hero section layout
+        hero_a_template = next((s.template_file for s in sections if s.section_type == "hero"), "")
+        exclude_hero = [hero_a_template] if hero_a_template else None
+
+        sections_b = await run_designer(brief, copy_b, user_input.brand_kit, library, exclude_templates=exclude_hero)
         html_b = assemble_page(sections_b, meta, None, library, brand_kit=user_input.brand_kit)
         
     state = PageState(
