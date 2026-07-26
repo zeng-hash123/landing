@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Monitor, Tablet, Smartphone, Copy, Download, History, DollarSign, User, LogOut, ShieldCheck, Lock } from 'lucide-react';
+import { Monitor, Tablet, Smartphone, Copy, Download, History, DollarSign, User, LogOut, ShieldCheck, Lock, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface PreviewPanelProps {
@@ -14,6 +14,7 @@ interface PreviewPanelProps {
   onToggleHistory?: () => void;
   versionCount?: number;
   onOpenPricing?: () => void;
+  onNewProject?: () => void;
   userEmail?: string;
   userPlan?: 'Free' | 'Pro' | 'Admin';
   onSignOut?: () => void;
@@ -118,7 +119,7 @@ function ProfileMenu({ userEmail, isAdmin = false, isPro = false, onSignOut }: {
 export function PreviewPanel({
   html, htmlB, isGenerating,
   activeVariant, setActiveVariant, abTestActive,
-  onToggleHistory, versionCount, onOpenPricing,
+  onToggleHistory, versionCount, onOpenPricing, onNewProject,
   userEmail, onSignOut, isAdmin = false, isPro = false
 }: PreviewPanelProps) {
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
@@ -188,6 +189,17 @@ export function PreviewPanel({
           </div>
 
           <div className="flex items-center gap-2">
+            {onNewProject && (
+              <button
+                onClick={onNewProject}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 border border-violet-500/40 text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                title="Start a New Project"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">New Project</span>
+              </button>
+            )}
+
             {onOpenPricing && (
               <button
                 onClick={onOpenPricing}
@@ -293,6 +305,17 @@ export function PreviewPanel({
         )}
 
         <div className="flex items-center gap-2">
+          {onNewProject && (
+            <button
+              onClick={onNewProject}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 border border-violet-500/40 text-xs font-semibold shadow-xs transition-all cursor-pointer"
+              title="Start a New Project"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">New Project</span>
+            </button>
+          )}
+
           {onOpenPricing && (
             <button
               onClick={onOpenPricing}

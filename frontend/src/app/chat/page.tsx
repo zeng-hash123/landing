@@ -402,6 +402,22 @@ export default function ChatStudioPage() {
     );
   }
 
+  const handleNewProject = () => {
+    setPageId('');
+    setHtml('');
+    setHtmlB('');
+    setIsGenerated(false);
+    setChatHistory([]);
+    setVersions([]);
+    setCurrentVersionId('');
+    setComplianceFlags([]);
+    setCampaignGoal('');
+    setDesignVibe('');
+    setCtaFocus('');
+    setAbTest(true);
+    setShowVersionHistory(false);
+  };
+
   const handleStopGeneration = () => {
     setIsGenerating(false);
     setChatHistory(prev => [...prev, {
@@ -424,6 +440,7 @@ export default function ChatStudioPage() {
         onGenerate={handleGenerate}
         onEdit={handleEdit}
         onStopGeneration={handleStopGeneration}
+        onNewProject={handleNewProject}
         brandKitActive={brandKitActive}
         onOpenBrandKit={() => setShowBrandKitModal(true)}
         campaignGoal={campaignGoal} setCampaignGoal={setCampaignGoal}
@@ -442,6 +459,7 @@ export default function ChatStudioPage() {
         onToggleHistory={() => setShowVersionHistory(prev => !prev)}
         versionCount={versions.length}
         onOpenPricing={() => setShowPricingModal(true)}
+        onNewProject={handleNewProject}
         userEmail={userEmail}
         onSignOut={handleSignOut}
         isAdmin={isAdminUser}
@@ -456,6 +474,7 @@ export default function ChatStudioPage() {
         onClose={() => setShowVersionHistory(false)}
         onRestore={handleRestoreVersion}
         onPreview={handlePreviewVersion}
+        onNewProject={handleNewProject}
       />
 
       {showBrandKitModal && (

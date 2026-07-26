@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Send, Upload, Check, Sparkles, Square } from 'lucide-react';
+import { Send, Upload, Check, Sparkles, Square, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatLogEntry } from '../types';
 import { DropdownControls } from './DropdownControls';
@@ -99,6 +99,7 @@ interface ChatPanelProps {
   onGenerate: (prompt: string) => void;
   onEdit: (instruction: string) => void;
   onStopGeneration?: () => void;
+  onNewProject?: () => void;
   brandKitActive: boolean;
   onOpenBrandKit: () => void;
   
@@ -114,7 +115,7 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({
-  chatHistory, isGenerating, isGenerated, onGenerate, onEdit, onStopGeneration,
+  chatHistory, isGenerating, isGenerated, onGenerate, onEdit, onStopGeneration, onNewProject,
   brandKitActive, onOpenBrandKit,
   campaignGoal, setCampaignGoal, designVibe, setDesignVibe,
   ctaFocus, setCtaFocus, abTest, setAbTest
@@ -165,21 +166,34 @@ export function ChatPanel({
           </div>
         </div>
 
-        <button
-          onClick={onOpenBrandKit}
-          className={`relative group p-[1.5px] rounded-full transition-all cursor-pointer overflow-hidden ${
-            brandKitActive 
-              ? 'bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 shadow-md shadow-violet-500/25' 
-              : 'bg-gradient-to-r from-violet-500/60 via-fuchsia-500/40 to-violet-500/60 hover:from-violet-500 hover:via-fuchsia-400 hover:to-pink-500 shadow-sm shadow-violet-500/10'
-          }`}
-        >
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md transition-all ${
-            brandKitActive ? 'bg-[#161624] text-violet-200' : 'bg-[#13131a] text-gray-200 group-hover:bg-[#161622] group-hover:text-white'
-          }`}>
-            {brandKitActive ? <Check className="w-3.5 h-3.5 text-violet-400" /> : <Upload className="w-3.5 h-3.5 text-violet-400" />}
-            <span>{brandKitActive ? 'Brand Kit Active' : 'Brand Kit'}</span>
-          </div>
-        </button>
+        <div className="flex items-center gap-2">
+          {onNewProject && (
+            <button
+              onClick={onNewProject}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 border border-violet-500/40 transition-all cursor-pointer shadow-xs shrink-0"
+              title="Start a New Project"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>New Project</span>
+            </button>
+          )}
+
+          <button
+            onClick={onOpenBrandKit}
+            className={`relative group p-[1.5px] rounded-full transition-all cursor-pointer overflow-hidden ${
+              brandKitActive 
+                ? 'bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 shadow-md shadow-violet-500/25' 
+                : 'bg-gradient-to-r from-violet-500/60 via-fuchsia-500/40 to-violet-500/60 hover:from-violet-500 hover:via-fuchsia-400 hover:to-pink-500 shadow-sm shadow-violet-500/10'
+            }`}
+          >
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md transition-all ${
+              brandKitActive ? 'bg-[#161624] text-violet-200' : 'bg-[#13131a] text-gray-200 group-hover:bg-[#161622] group-hover:text-white'
+            }`}>
+              {brandKitActive ? <Check className="w-3.5 h-3.5 text-violet-400" /> : <Upload className="w-3.5 h-3.5 text-violet-400" />}
+              <span>{brandKitActive ? 'Active' : 'Brand Kit'}</span>
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Chat History / Empty State */}
@@ -258,17 +272,15 @@ export function ChatPanel({
           )}
         </form>
 
-        {!isGenerated && (
-          <DropdownControls
-            campaignGoal={campaignGoal} setCampaignGoal={setCampaignGoal}
-            designVibe={designVibe} setDesignVibe={setDesignVibe}
-            ctaFocus={ctaFocus} setCtaFocus={setCtaFocus}
-            abTest={abTest} setAbTest={setAbTest}
-            onGenerate={handleSubmit}
-            isGenerating={isGenerating}
-            prompt={input}
-          />
-        )}
+        <DropdownControls
+          campaignGoal={campaignGoal} setCampaignGoal={setCampaignGoal}
+          designVibe={designVibe} setDesignVibe={setDesignVibe}
+          ctaFocus={ctaFocus} setCtaFocus={setCtaFocus}
+          abTest={abTest} setAbTest={setAbTest}
+          onGenerate={handleSubmit}
+          isGenerating={isGenerating}
+          prompt={input}
+        />
       </div>
     </div>
   );

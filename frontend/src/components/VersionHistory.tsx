@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { History, X, Clock, RotateCcw, Eye } from 'lucide-react';
+import { History, X, Clock, RotateCcw, Eye, Plus } from 'lucide-react';
 import { VersionEntry } from '../types';
 
 interface VersionHistoryProps {
@@ -12,6 +12,7 @@ interface VersionHistoryProps {
   onClose: () => void;
   onRestore: (versionId: string) => void;
   onPreview: (versionId: string) => void;
+  onNewProject?: () => void;
 }
 
 export function VersionHistory({
@@ -21,6 +22,7 @@ export function VersionHistory({
   onClose,
   onRestore,
   onPreview,
+  onNewProject,
 }: VersionHistoryProps) {
   const list = Array.isArray(versions) ? versions : [];
 
@@ -53,13 +55,25 @@ export function VersionHistory({
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors cursor-pointer"
-            title="Close panel"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            {onNewProject && (
+              <button
+                onClick={onNewProject}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 border border-violet-500/40 text-xs font-semibold transition-colors cursor-pointer"
+                title="Start a New Project"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>New</span>
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors cursor-pointer"
+              title="Close panel"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* List Body */}

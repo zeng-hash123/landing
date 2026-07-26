@@ -73,11 +73,11 @@ function CustomSelect({ value, onChange, options, placeholder }: CustomSelectPro
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -6, scale: 0.98 }}
-            animate={{ opacity: 1, y: 4, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+            initial={{ opacity: 0, y: 6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-50 left-0 mt-1 bg-[#14141f] border border-white/15 rounded-2xl p-1.5 shadow-2xl backdrop-blur-2xl max-h-64 overflow-y-auto space-y-1 w-full min-w-full md:min-w-[220px]"
+            className="absolute z-50 left-0 bottom-full mb-2 bg-[#14141f] border border-white/15 rounded-2xl p-1.5 shadow-2xl backdrop-blur-2xl max-h-64 overflow-y-auto space-y-1 w-full min-w-full md:min-w-[220px]"
           >
             {options.map((opt) => {
               const isSelected = value === opt;
