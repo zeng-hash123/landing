@@ -55,25 +55,13 @@ export function VersionHistory({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            {onNewProject && (
-              <button
-                onClick={onNewProject}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 border border-violet-500/40 text-xs font-semibold transition-colors cursor-pointer"
-                title="Start a New Project"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>New</span>
-              </button>
-            )}
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors cursor-pointer"
-              title="Close panel"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors cursor-pointer"
+            title="Close panel"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         {/* List Body */}
