@@ -81,7 +81,8 @@ async def run_copywriter(brief: PageBrief, enable_web_search: bool = False) -> D
         "Generate content keys for: navbar, hero, features, testimonial, pricing, cta, footer sections. "
         "For 'navbar', generate 'logo_text' (short product/brand name), 'nav_link_1', 'nav_link_2', 'nav_link_3', 'nav_link_4', and 'cta_text'. "
         "For 'footer', generate 'headline', 'subheadline', 'copyright_text', 'company_name', and 'cta_text'. "
-        "Include both 'headline' style (single headline) and 'headline_line1/line2/highlight' style for hero, features, and cta. "
+        "Include both 'headline' style (single complete headline string) and 'headline_line1/line2/highlight' split style for hero, features, and cta. "
+        "IMPORTANT FOR SPLIT HEADLINES: Ensure 'headline_line1' contains ONLY the prefix words, 'headline_highlight' contains ONLY the 1-2 words to highlight in color, and 'headline_line2' contains ONLY the trailing suffix words. NEVER duplicate words across headline_line1, headline_highlight, or headline_line2. "
         "If ab_test is true, generate a variant_b with alternative headline and CTA text."
     )
     if enable_web_search:
@@ -109,6 +110,7 @@ async def _design_section(sec_type: str, brief: PageBrief, copy: Dict, brand_kit
         "You are an expert web designer. Pick the best template from the candidates and fill ALL token values from the tokens list. "
         "If brand_kit is provided, use those colors. "
         "If brand_kit has reference_images (list of URLs), use those image URLs for image tokens like hero_image, feature_image, background_image, or product_image where appropriate. "
+        "CRITICAL: When filling headline tokens (headline_line1, headline_highlight, headline_line2), NEVER repeat words between them. headline_line1 is ONLY the text before the highlight, headline_highlight is ONLY the highlighted phrase, and headline_line2 is ONLY the text after the highlight. Do NOT put the full headline inside headline_line1. "
         "Return JSON matching SectionSelection model: {'section_type': '...', 'template_file': '...', 'values': {'token_name': 'value'}}."
     )
     user_prompt = json.dumps({
