@@ -20,57 +20,63 @@ export default function AuditResultPage() {
   const [activeTab, setActiveTab] = useState<'audit' | 'regenerate'>('audit');
 
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchAudit() {
       if (!id) return;
 
-      if (!supabase) {
-        setLoading(false);
-        setErrorMessage('Supabase client is not available.');
-        return;
-      }
-
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const token = session?.access_token;
+        const headers: Record<string, string> = {};
 
-        if (!token) {
-          const { data, error } = await supabase
-            .from('audits')
-            .select('*')
-            .eq('id', id)
-            .single();
-
-          if (error || !data) {
-            setErrorMessage(error?.message || 'Audit report not found.');
-          } else {
-            setAuditRecord(data as AuditRecord);
+        if (supabase) {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) {
+            headers['Authorization'] = `Bearer ${session.access_token}`;
           }
-          setLoading(false);
-          return;
         }
 
-        const res = await fetch(`/api/audit/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
+        const res = await fetch(`/api/audit/${id}`, { headers });
         const json = await res.json();
 
-        if (!res.ok || !json.success) {
-          setErrorMessage(json.message || 'Audit report not found.');
-        } else {
-          setAuditRecord(json.auditRecord as AuditRecord);
+        if (isMounted) {
+          if (res.ok && json.success && json.auditRecord) {
+            setAuditRecord(json.auditRecord as AuditRecord);
+            setErrorMessage(null);
+          } else {
+            setErrorMessage(json.message || 'Audit report not found.');
+          }
         }
       } catch (err: any) {
-        console.error('Audit report loading error:', err);
-        setErrorMessage(err.message || 'Failed to load audit report.');
+        if (isMounted) {
+          console.error('Audit report loading error:', err);
+          setErrorMessage(err.message || 'Failed to load audit report.');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-
-      setLoading(false);
     }
 
     fetchAudit();
+
+    // Subscribe to auth state change if session restores asynchronously
+    if (supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.access_token && isMounted && !auditRecord) {
+          fetchAudit();
+        }
+      });
+
+      return () => {
+        isMounted = false;
+        subscription.unsubscribe();
+      };
+    }
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   const handleCopy = (text: string, index: number) => {
@@ -195,7 +201,7 @@ export default function AuditResultPage() {
             }`}
           >
             <span>Page Optimizer & HTML Export</span>
-            <span className="bg-emerald-100 text-emerald-800 text-[10px] uppercase font-bold px-2 py-0.5 rounded">Option B</span>
+            <span className="bg-emerald-100 text-emerald-800 text-[10px] uppercase font-bold px-2 py-0.5 rounded font-sans">Option B</span>
           </button>
         </div>
 
