@@ -1,0 +1,52 @@
+TASK: Build the "regenerate" feature for our landing page optimizer SaaS.
+
+CURRENT STATE:
+- Firecrawl is already integrated and scrapes a target URL, returning clean markdown/HTML + metadata.
+- Kimi API is already integrated and produces a list of conversion-fix suggestions from the scraped content.
+
+WHAT TO BUILD:
+A regeneration step that takes (a) the original Firecrawl output and (b) the existing Kimi suggestions, and produces an actual regenerated version of the page (new copy + HTML/CSS), not just more suggestions.
+
+REQUIREMENTS:
+
+1. New service/module: `regeneratePage(scrapedContent, suggestions, brandConfig)`
+   - Input: Firecrawl's scraped HTML/markdown + structured data, the array of Kimi conversion-fix suggestions we already generate, and an optional brandConfig object (tone, colors, banned words, CTA style).
+   - Output: structured JSON, not raw prose. Schema:
+     {
+       "sections": [
+         { "id": string, "type": "hero" | "cta" | "social_proof" | "form" | "feature" | "footer" | "other",
+           "original_html": string,
+           "regenerated_html": string,
+           "change_summary": string,   // one line, human-readable, ties back to which suggestion(s) this addresses
+           "suggestion_ids": string[]  // links back to the specific Kimi suggestions this change implements
+         }
+       ],
+       "full_regenerated_html": string
+     }
+
+2. Model routing:
+   - Use `kimi-k2.7-code` (not the general K2.6 model we use for suggestions) for this step — it's the coding-focused variant, stays in thinking mode, and is better at emitting clean HTML/CSS than the general model.
+   - Call it via the OpenAI-compatible endpoint (base_url swap), same client we already use for the suggestions call — just point it at the code model.
+   - Force JSON-only output: strict system prompt + response_format json_object (or manual validation) + retry once on malformed JSON before failing.
+
+3. Prompt structure for the Kimi call (put static/reusable parts first so they're cache-friendly):
+   - System prompt (cacheable, same every call): coding conventions, brand rules, instruction to output ONLY the JSON schema above, no prose outside the JSON, and to preserve any tracking scripts/analytics tags found in the original HTML unless a suggestion explicitly targets them.
+   - User message: the original scraped HTML section-by-section (not the whole page in one blob — chunk it by section using Firecrawl's structure if available, or a simple DOM parse otherwise), plus the matching suggestions for that section.
+   - Do NOT regenerate a section that has zero matching suggestions — pass it through unchanged. This keeps cost down and avoids unnecessary diffs.
+
+4. Diff-friendly, not full rewrite:
+   - Regenerate at the section level, not the whole page in one shot. This makes the change reviewable and keeps token usage down (only send/regenerate sections that have suggestions attached).
+   - Store both original_html and regenerated_html per section so the frontend can render a side-by-side or inline diff view.
+
+5. Error handling / guardrails:
+   - Validate the returned HTML is well-formed before accepting it (basic parse check).
+   - If a section regeneration fails, fall back to original_html for that section and flag it in the response rather than failing the whole request.
+   - Strip/reject any <script> tags in regenerated_html that weren't in the original (basic XSS guard), unless explicitly allowlisted.
+
+6. Cost controls:
+   - Batch non-interactive regenerations (e.g. background jobs, not the live "watch it regenerate" UI) through Moonshot's Batch API if our job queue supports async completion (60% of standard cost).
+   - Log token usage (input/output) per regeneration call against the page ID so we can compute cost-per-regeneration for pricing later.
+
+7. API endpoint: expose this as POST /api/pages/:id/regenerate, accepting an optional array of suggestion_ids to apply (so users can pick which fixes to apply rather than always regenerating everything).
+
+Please implement this as a new module alongside our existing firecrawl and kimi service files, reusing the existing Kimi client config (just add a second model constant for the code variant). Ask me before changing the shape of the existing suggestions output.

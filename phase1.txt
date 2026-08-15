@@ -1,0 +1,571 @@
+Build **Phase 1 of PixelPage** — an AI landing-page audit SaaS for https://pixelpage.site.
+
+IMPORTANT:
+This phase is ONLY the audit MVP.
+Do NOT build payments, subscriptions, optimized page generation, visual editor, HTML export, competitor analysis, Tavily, or Exa.
+
+--------------------------------------------------
+PRODUCT
+--------------------------------------------------
+
+PixelPage helps users find conversion problems on their landing page.
+
+Core promise:
+
+"Find out what's hurting your landing page conversions."
+
+User flow:
+
+Landing page
+→ Signup/Login
+→ Enter website URL
+→ Crawl website
+→ Kimi analyzes page
+→ Show CRO audit
+→ User sees actionable recommendations
+
+Every user gets exactly **1 free audit lifetime**.
+
+The user must sign up/login before accessing the audit.
+
+--------------------------------------------------
+TECH STACK
+--------------------------------------------------
+
+Use:
+
+- Next.js
+- TypeScript
+- Tailwind CSS
+- shadcn/ui where useful
+- Supabase Auth
+- Supabase Database
+- Firecrawl API
+- Kimi API
+- Vercel-ready
+
+Use the existing repository if one already exists. Do not unnecessarily replace the existing setup.
+
+--------------------------------------------------
+LANDING PAGE
+--------------------------------------------------
+
+Create a polished SaaS homepage.
+
+Hero headline:
+
+"Find what's hurting your landing page conversions."
+
+Subheadline:
+
+"Paste your URL and PixelPage will analyze your messaging, CTA, trust signals, UX, and page structure."
+
+Primary CTA:
+
+"Analyze My Landing Page"
+
+URL input:
+
+"https://yourwebsite.com"
+
+Below the hero show:
+
+- Example score card
+- Example CRO issues
+- Simple 3-step explanation
+- Pricing teaser showing Free audit
+- Final CTA
+
+Design:
+- Modern premium SaaS
+- Minimal
+- Spacious
+- Strong typography
+- White/neutral background
+- Subtle borders
+- Clean cards
+- Responsive
+- Avoid excessive gradients and animations
+
+--------------------------------------------------
+AUTH
+--------------------------------------------------
+
+Use Supabase Auth.
+
+Pages:
+
+/login
+/signup
+
+Support:
+- Email/password
+- Google OAuth if Supabase is already configured for it
+
+Important:
+The user must authenticate before the audit starts.
+
+Flow:
+
+User enters URL
+→ clicks Analyze
+→ if unauthenticated redirect to signup/login
+→ after authentication return to audit flow
+
+Do not make the user re-enter the URL after signup.
+
+--------------------------------------------------
+FREE AUDIT LIMIT
+--------------------------------------------------
+
+Every user gets exactly ONE lifetime free audit.
+
+Create a reliable server-side usage check.
+
+Suggested profile fields:
+
+user_id
+free_audit_used
+created_at
+
+Before starting an audit:
+
+if free_audit_used === true:
+    block audit
+    show upgrade/paywall placeholder
+
+Do not rely only on client-side state.
+
+Prevent race conditions where possible.
+
+--------------------------------------------------
+URL ANALYSIS
+--------------------------------------------------
+
+Create:
+
+POST /api/analyze
+
+Input:
+
+{
+  "url": "https://example.com"
+}
+
+Validate:
+
+- Must be http/https
+- Must be a valid URL
+- Block localhost
+- Block 127.0.0.1
+- Block private IP ranges
+- Block internal hostnames
+- Protect against SSRF
+- Add reasonable timeout
+- Limit response/crawl size
+
+Use Firecrawl to retrieve the page.
+
+Extract a compact structured representation:
+
+{
+  "url": "",
+  "title": "",
+  "metaDescription": "",
+  "headings": [],
+  "paragraphs": [],
+  "ctas": [],
+  "images": [],
+  "links": [],
+  "sections": [],
+  "visibleText": ""
+}
+
+Do NOT send unnecessary raw HTML to Kimi.
+
+--------------------------------------------------
+KIMI AUDIT ENGINE
+--------------------------------------------------
+
+Create:
+
+POST /api/audit
+
+Use Kimi as:
+
+"An expert conversion-rate optimization consultant, landing-page strategist, UX writer, and product marketer."
+
+Analyze the website using ONLY the extracted page information.
+
+Evaluate:
+
+1. Value proposition
+2. Headline clarity
+3. Subheadline
+4. CTA strength
+5. CTA placement
+6. Above-the-fold clarity
+7. Trust signals
+8. Social proof
+9. Feature/benefit communication
+10. Page structure
+11. Copy clarity
+12. Conversion friction
+13. Differentiation
+14. Overall UX/content hierarchy
+
+Return strict JSON.
+
+Schema:
+
+{
+  "overall_score": 0,
+  "summary": "",
+  "categories": [
+    {
+      "name": "Headline",
+      "score": 0,
+      "severity": "critical|high|medium|low",
+      "problem": "",
+      "why_it_matters": "",
+      "recommendation": "",
+      "current_copy": "",
+      "suggested_copy": ""
+    }
+  ],
+  "top_priorities": [
+    {
+      "title": "",
+      "severity": "critical|high|medium|low",
+      "reason": "",
+      "recommendation": ""
+    }
+  ]
+}
+
+Rules for Kimi:
+
+- Be specific, not generic.
+- Base findings on actual page content.
+- Never invent facts.
+- Never fabricate testimonials.
+- Never fabricate customer logos.
+- Never fabricate statistics.
+- Never claim a conversion improvement percentage without evidence.
+- Give concrete copy replacements where appropriate.
+- Prioritize high-impact changes.
+- Keep recommendations concise and actionable.
+- Do not rewrite sections that are already strong.
+
+Use server-side JSON validation with Zod or equivalent.
+
+If Kimi returns invalid JSON:
+1. Attempt safe parsing/repair.
+2. Retry once if necessary.
+3. Return a graceful error instead of crashing.
+
+--------------------------------------------------
+AUDIT RESULTS PAGE
+--------------------------------------------------
+
+Create:
+
+/audit/[id]
+
+Results should feel like a polished CRO report.
+
+Top:
+
+Website URL
+Overall Score
+
+Example:
+
+63/100
+"Your page communicates the product, but the value proposition and CTA are not strong enough."
+
+Show category scores as cards/progress bars:
+
+Headline
+CTA
+Messaging
+Trust
+Structure
+UX
+
+Then:
+
+### Top 5 Priorities
+
+Each recommendation card should show:
+
+Severity badge
+
+Problem:
+"Your headline is too generic."
+
+Why it matters:
+"The visitor cannot immediately understand the specific outcome."
+
+Recommendation:
+"Make the headline outcome-focused."
+
+Current:
+"AI tools for modern teams"
+
+Suggested:
+"Automate 10+ hours of repetitive work every week"
+
+Add a button where useful:
+
+"Copy Suggested Copy"
+
+--------------------------------------------------
+AUDIT STATES
+--------------------------------------------------
+
+Create polished states for:
+
+- URL validation error
+- Crawl loading
+- AI analysis loading
+- Audit completed
+- Crawl failure
+- AI failure
+- Website inaccessible
+- Free audit already used
+
+Loading UI should show real stages:
+
+"Fetching your page..."
+"Extracting content..."
+"Analyzing messaging..."
+"Evaluating conversion elements..."
+"Preparing your audit..."
+
+Do not artificially delay the experience.
+
+--------------------------------------------------
+FREE AUDIT PAYWALL
+--------------------------------------------------
+
+After the user has consumed their free audit, show:
+
+"You've used your free audit."
+
+CTA:
+
+"Unlock More Audits"
+
+For now, this can lead to:
+
+/pricing
+
+Create a basic pricing page with:
+
+FREE
+- 1 lifetime audit
+- Overall score
+- Category scores
+- Top 5 recommendations
+- 3 copy improvements
+
+PRO — $19/month
+- 20 audits/month
+- Full landing-page optimization
+- Unlimited copy rewrites
+- Optimized page generation
+- HTML export
+
+AGENCY — $49/month
+- 100 audits/month
+- Full optimization
+- Unlimited copy rewrites
+- HTML export
+- White-label reports
+- Client workspace
+
+Do NOT implement payments in Phase 1.
+
+--------------------------------------------------
+DATABASE
+--------------------------------------------------
+
+Use Supabase.
+
+Create tables:
+
+profiles
+- id
+- email
+- free_audit_used
+- created_at
+
+audits
+- id
+- user_id
+- url
+- overall_score
+- summary
+- page_data_json
+- audit_json
+- created_at
+
+Use Row Level Security so users can only access their own audit records.
+
+--------------------------------------------------
+DASHBOARD
+--------------------------------------------------
+
+Create:
+
+/dashboard
+
+Show:
+
+- Welcome message
+- Free audit status
+- "Run Your Free Audit"
+- Previous audit if one exists
+- Score
+- Website URL
+- Date
+
+Since users only have one free audit in Phase 1, keep this dashboard very simple.
+
+--------------------------------------------------
+ENVIRONMENT VARIABLES
+--------------------------------------------------
+
+Create .env.example:
+
+KIMI_API_KEY=
+FIRECRAWL_API_KEY=
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+Do not expose private API keys to the client.
+
+--------------------------------------------------
+ARCHITECTURE
+--------------------------------------------------
+
+Use a clean structure similar to:
+
+app/
+  page.tsx
+  login/
+  signup/
+  dashboard/
+  audit/[id]/
+  pricing/
+  api/
+    analyze/
+    audit/
+
+components/
+  landing/
+  auth/
+  audit/
+  dashboard/
+  ui/
+
+lib/
+  ai/
+    kimi.ts
+    prompts.ts
+  crawl/
+    firecrawl.ts
+  security/
+    url-validation.ts
+  supabase/
+
+types/
+  audit.ts
+  page.ts
+
+Keep Firecrawl and Kimi behind provider/service abstractions.
+
+--------------------------------------------------
+SECURITY
+--------------------------------------------------
+
+Implement:
+
+- SSRF protection
+- URL validation
+- Private IP blocking
+- Request timeout
+- Crawl size limits
+- Sanitization
+- Server-side usage enforcement
+- RLS
+- No secret keys on frontend
+
+--------------------------------------------------
+ANALYTICS
+--------------------------------------------------
+
+Add a lightweight analytics abstraction for:
+
+audit_started
+audit_completed
+audit_failed
+signup_completed
+copy_suggestion_copied
+
+It is fine to use simple logging initially if no analytics provider exists.
+
+--------------------------------------------------
+SEO
+--------------------------------------------------
+
+Homepage metadata:
+
+Title:
+"PixelPage — AI Landing Page Audit"
+
+Description:
+"Analyze your landing page with AI and discover the CRO issues hurting clarity, trust, messaging, and conversions."
+
+Use semantic HTML and good Open Graph metadata.
+
+--------------------------------------------------
+QUALITY REQUIREMENTS
+--------------------------------------------------
+
+The app must:
+
+- Be responsive
+- Be accessible
+- Have polished empty/loading/error states
+- Use TypeScript properly
+- Avoid unnecessary client-side code
+- Handle API failures gracefully
+- Avoid fake/demo audit results in the real user flow
+
+Before finishing:
+
+1. Run lint.
+2. Run typecheck.
+3. Run production build.
+4. Fix all errors.
+5. Verify signup/login.
+6. Verify the one-audit limit server-side.
+7. Verify URL validation and SSRF protection.
+8. Verify Firecrawl → Kimi → Results flow.
+9. Verify Supabase persistence and RLS.
+10. Verify mobile UI.
+
+Create a concise README explaining:
+- setup
+- environment variables
+- Supabase setup
+- Firecrawl setup
+- Kimi setup
+- local development
+- deployment
+
+IMPORTANT:
+Do not implement Phase 2 features.
+The only goal is a polished, launch-ready **URL → Signup → 1 Free Audit → CRO Results** product.
