@@ -2,100 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "astro-landing/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    },
-    {
       "src": "frontend/package.json",
       "use": "@vercel/next"
-    },
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxDuration": 60
-      }
     }
   ],
   "routes": [
-    {
-      "src": "/generate",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/edit",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/page/(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/dodo(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/webhook(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/user/(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/chat",
-      "dest": "frontend/chat"
-    },
-    {
-      "src": "/chat/(.*)",
-      "dest": "frontend/chat/$1"
-    },
-    {
-      "src": "/auth",
-      "dest": "frontend/auth"
-    },
-    {
-      "src": "/auth/callback",
-      "dest": "frontend/auth/callback"
-    },
-    {
-      "src": "/auth/(.*)",
-      "dest": "frontend/auth/$1"
-    },
     {
       "src": "/_next/(.*)",
       "dest": "frontend/_next/$1"
     },
     {
-      "src": "/blog/(.*)",
-      "dest": "astro-landing/blog/$1"
-    },
-    {
-      "src": "/blog",
-      "dest": "astro-landing/blog/index.html"
-    },
-    {
-      "src": "/sitemap.xml",
-      "dest": "astro-landing/sitemap.xml"
-    },
-    {
-      "src": "/sitemap-index.xml",
-      "dest": "astro-landing/sitemap-index.xml"
-    },
-    {
-      "src": "/sitemap-0.xml",
-      "dest": "astro-landing/sitemap-0.xml"
-    },
-    {
-      "src": "/robots.txt",
-      "dest": "astro-landing/robots.txt"
-    },
-    {
       "src": "/(.*)",
-      "dest": "astro-landing/$1"
+      "dest": "frontend/$1"
     }
   ]
 }
