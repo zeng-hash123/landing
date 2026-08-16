@@ -78,7 +78,7 @@ export default function LandingPage() {
         throw new Error(analyzeData.message || 'Failed to crawl website.');
       }
 
-      // Step 2: Audit with Kimi AI
+      // Step 2: Audit with AI CRO Engine
       setLoadingStage('Analyzing messaging & evaluating conversion elements...');
       const auditRes = await fetch('/api/audit', {
         method: 'POST',
@@ -163,8 +163,30 @@ export default function LandingPage() {
           <p className="text-xs text-zinc-500">100% free • No credit card required • Instant results</p>
         </section>
 
+        {/* BEFORE & AFTER COMPARISON DEMO */}
+        <section className="max-w-5xl mx-auto px-4 py-8">
+          <div className="bg-white rounded-xl border border-zinc-200 p-6 sm:p-8 shadow-sm text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold text-zinc-700 mb-3">
+              <span>Visual Transformation</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight mb-3">
+              Before & After CRO Optimization
+            </h2>
+            <p className="text-sm text-zinc-600 max-w-xl mx-auto mb-8">
+              See how PixelPage analyzes conversion friction and automatically regenerates high-converting messaging and landing page sections.
+            </p>
+            <div className="rounded-xl overflow-hidden border border-zinc-200 shadow-sm bg-zinc-50">
+              <img
+                src="/images/before-after-optimization.jpg"
+                alt="Before and After Landing Page Optimization Comparison"
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          </div>
+        </section>
+
         {/* EXAMPLE SCORE CARD & ISSUES */}
-        <section className="max-w-5xl mx-auto px-4 py-12">
+        <section className="max-w-5xl mx-auto px-4 py-8">
           <div className="bg-white rounded-xl border border-zinc-200 p-6 sm:p-8 shadow-sm mb-16">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-zinc-100">
               <div>
@@ -240,7 +262,7 @@ export default function LandingPage() {
               </div>
               <h3 className="font-bold text-zinc-900 text-lg mb-2">Paste Your URL</h3>
               <p className="text-zinc-600 text-sm leading-relaxed">
-                Enter any public landing page URL. Firecrawl fetches the page content safely.
+                Enter any public landing page URL. PixelPage securely extracts the page structure and copy.
               </p>
             </div>
 
@@ -248,9 +270,9 @@ export default function LandingPage() {
               <div className="w-10 h-10 rounded-full bg-zinc-900 text-white font-bold flex items-center justify-center mx-auto mb-4">
                 2
               </div>
-              <h3 className="font-bold text-zinc-900 text-lg mb-2">Kimi AI Analysis</h3>
+              <h3 className="font-bold text-zinc-900 text-lg mb-2">AI CRO Analysis</h3>
               <p className="text-zinc-600 text-sm leading-relaxed">
-                Kimi acts as your expert CRO consultant, evaluating messaging, CTAs, structure, and UX.
+                PixelPage AI acts as your expert CRO consultant, evaluating messaging, CTAs, structure, and UX.
               </p>
             </div>
 

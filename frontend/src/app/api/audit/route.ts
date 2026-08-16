@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Perform CRO audit via Kimi AI Engine
+    // Perform CRO audit via AI Engine
     const auditResult = await auditLandingPage(pageData);
 
     // Atomically upsert profile record to guarantee profile existence and mark free_audit_used = true
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error: 'AUDIT_FAILED',
-        message: err.message || 'Failed to complete Kimi AI landing page audit.',
+        message: err.message || 'Failed to complete landing page audit.',
       },
       { status: 500 }
     );

@@ -108,7 +108,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
       <div className="bg-white border border-zinc-200 rounded-xl p-6 sm:p-8 shadow-sm">
         <h2 className="text-xl font-bold text-zinc-900 mb-2">Landing Page Regeneration Engine</h2>
         <p className="text-sm text-zinc-500 mb-6">
-          Select which Kimi CRO suggestions to apply and customize brand rules to generate an optimized landing page version.
+          Select which CRO suggestions to apply and customize brand rules to generate an optimized landing page version.
         </p>
 
         {/* 1. SUGGESTION SELECTOR */}
