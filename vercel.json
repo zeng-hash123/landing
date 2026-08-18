@@ -1,17 +1,3 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    {
-      "source": "/generate",
-      "destination": "/py-api/index.py"
-    },
-    {
-      "source": "/edit",
-      "destination": "/py-api/index.py"
-    },
-    {
-      "source": "/page/:path*",
-      "destination": "/py-api/index.py"
-    }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json"
 }
