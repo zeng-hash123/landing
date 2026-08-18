@@ -1,19 +1,17 @@
 {
-  "version": 2,
-  "builds": [
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/_next/(.*)",
-      "dest": "frontend/_next/$1"
+      "source": "/generate",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/(.*)",
-      "dest": "frontend/$1"
+      "source": "/edit",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/page/:path*",
+      "destination": "/api/index.py"
     }
   ]
 }
