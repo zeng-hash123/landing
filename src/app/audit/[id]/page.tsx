@@ -43,7 +43,7 @@ export default function AuditResultPage() {
             setAuditRecord(json.auditRecord as AuditRecord);
             setErrorMessage(null);
           } else {
-            setErrorMessage(json.message || 'Audit report not found.');
+            setErrorMessage(json.message || json.detail || 'Audit report not found.');
           }
         }
       } catch (err: any) {
