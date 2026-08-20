@@ -177,7 +177,7 @@ export default function LandingPage() {
             </p>
             <div className="rounded-xl overflow-hidden border border-zinc-200 shadow-sm bg-zinc-50">
               <img
-                src="/images/landing-img.png"
+                src="/landing-img.png"
                 alt="Before and After Landing Page Optimization Comparison"
                 className="w-full h-auto object-cover"
               />
