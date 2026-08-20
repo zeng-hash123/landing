@@ -1,8 +1,12 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Bricolage_Grotesque } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const bricolageGrotesque = Bricolage_Grotesque({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-bricolage',
+});
 
 export const metadata: Metadata = {
   title: 'PixelPage — AI Landing Page Audit',
@@ -23,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" className={`${bricolageGrotesque.variable} ${bricolageGrotesque.className}`}>
       <head>
         {/* Google Tag Manager */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-NQ8YLXQVLB" />
