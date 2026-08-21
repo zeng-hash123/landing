@@ -14,7 +14,8 @@ import { Sparkles, Check, ShieldCheck, Zap, X, ArrowRight, Lock, TrendingUp } fr
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ADMIN_EMAIL = 'zeng07292@gmail.com';
-const DODO_PAYMENT_URL = 'https://checkout.dodopayments.com/buy/pdt_0Njtj6vpds8u2k9BreAhC?quantity=1';
+const DODO_ONE_TIME_5_URL = 'https://checkout.dodopayments.com/buy/pdt_0NlsfRGt1hxhBfPNLsoFZ?quantity=1';
+const DODO_AGENCY_49_URL = 'https://checkout.dodopayments.com/buy/pdt_0Njtj6vpds8u2k9BreAhC?quantity=1';
 
 export default function ChatStudioPage() {
   const router = useRouter();
@@ -58,15 +59,15 @@ export default function ChatStudioPage() {
 
   const isAdminUser = userEmail?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase();
 
-  const getCheckoutUrl = () => {
+  const getCheckoutUrl = (baseUrl: string = DODO_AGENCY_49_URL) => {
     if (userEmail) {
-      return `${DODO_PAYMENT_URL}&email=${encodeURIComponent(userEmail)}&disableEmail=true`;
+      return `${baseUrl}&email=${encodeURIComponent(userEmail)}&disableEmail=true`;
     }
-    return DODO_PAYMENT_URL;
+    return baseUrl;
   };
 
-  const handleOpenCheckout = () => {
-    window.open(getCheckoutUrl(), '_blank');
+  const handleOpenCheckout = (baseUrl: string = DODO_AGENCY_49_URL) => {
+    window.open(getCheckoutUrl(baseUrl), '_blank');
   };
 
   // Sync user plan (Free, Pro, Admin)
@@ -510,50 +511,49 @@ export default function ChatStudioPage() {
                 <p className="text-xs text-gray-400 mt-1">Subscription required to start generating and editing pages.</p>
               </div>
 
-              <div className="bg-[#161622] border border-violet-500/40 p-6 rounded-2xl mb-6 relative overflow-hidden">
-                <div className="flex items-center justify-between gap-2 mb-4">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black text-white font-mono">$49</span>
-                    <span className="text-lg font-bold text-gray-400 line-through font-mono decoration-violet-400/80">$99</span>
-                    <span className="text-xs text-gray-400">/ month</span>
+              <div className="space-y-3 mb-6">
+                {/* $5 One-Time Option */}
+                <div className="bg-[#161622] border border-white/10 hover:border-violet-500/50 p-4 rounded-2xl transition-all">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-2xl font-black text-white font-mono">$5</span>
+                      <span className="text-xs text-gray-400 font-medium uppercase">one-time</span>
+                    </div>
+                    <span className="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                      Popular
+                    </span>
                   </div>
-                  <span className="text-[10px] uppercase font-extrabold tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shadow-sm">
-                    Early Bird Offer
-                  </span>
+                  <p className="text-[11px] text-gray-300 mb-3">1 optimized landing page generation + 20 audits</p>
+                  <button
+                    onClick={() => handleOpenCheckout(DODO_ONE_TIME_5_URL)}
+                    className="w-full py-2.5 px-3 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/15 text-white border border-white/10 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span>Get 1 Page ($5 One-Time)</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
 
-                <div className="space-y-2.5 text-xs text-gray-300">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span><strong>Unlimited</strong> AI Landing Page Generations</span>
+                {/* $49 Agency Plan */}
+                <div className="bg-[#161622] border border-violet-500/50 p-4 rounded-2xl relative overflow-hidden">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-2xl font-black text-white font-mono">$49</span>
+                      <span className="text-xs text-gray-400 font-medium">/ month</span>
+                    </div>
+                    <span className="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-violet-500/20 border border-violet-500/40 text-violet-300">
+                      Agency • 100 Pages
+                    </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Full Multi-Agent AI (Copywriter, Designer, Compliance)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Real-World Web URL Scraper & Ad Brief Sync</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Unlimited Brand Kits & Google Fonts Sync</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>A/B Variant Generator & Version History</span>
-                  </div>
+                  <p className="text-[11px] text-gray-300 mb-3">100 optimized generations + 100 audits/mo + White label</p>
+                  <button
+                    onClick={() => handleOpenCheckout(DODO_AGENCY_49_URL)}
+                    className="w-full py-2.5 px-3 rounded-xl font-bold text-xs bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:opacity-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span>Upgrade to Agency ($49/mo)</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
-
-              {/* Continue Unlimited Generation Button (Dodo Payments Checkout with locked email) */}
-              <button
-                onClick={handleOpenCheckout}
-                className="w-full py-3.5 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer mb-4"
-              >
-                <span>Continue unlimited generation</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
 
               <div className="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-white/5">
                 <span>Account: <strong className="text-violet-300">{userEmail || 'Authenticated'}</strong></span>
