@@ -72,6 +72,17 @@ export default function LandingPage() {
     });
   }, []);
 
+  const handlePaidCheckout = (checkoutUrl: string) => {
+    if (user && user.email) {
+      window.location.href = `${checkoutUrl}&email=${encodeURIComponent(user.email)}`;
+    } else {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('pixelpage_pending_payment', checkoutUrl);
+      }
+      router.push(`/login?redirect_url=${encodeURIComponent(checkoutUrl)}`);
+    }
+  };
+
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -528,13 +539,13 @@ export default function LandingPage() {
                   </li>
                 </ul>
               </div>
-              <a
-                href={DODO_ONE_TIME_5_URL}
-                className="flex items-center justify-center gap-1.5 w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-all shadow-md hover:scale-[1.01] active:scale-[0.99]"
+              <button
+                onClick={() => handlePaidCheckout(DODO_ONE_TIME_5_URL)}
+                className="flex items-center justify-center gap-1.5 w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-all shadow-md hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
               >
                 <span>Get $5 One-Time Access</span>
                 <ArrowRight className="w-3.5 h-3.5" />
-              </a>
+              </button>
             </div>
 
             {/* $49 AGENCY PLAN */}
@@ -570,13 +581,13 @@ export default function LandingPage() {
                   </li>
                 </ul>
               </div>
-              <a
-                href={DODO_AGENCY_49_URL}
-                className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-sm"
+              <button
+                onClick={() => handlePaidCheckout(DODO_AGENCY_49_URL)}
+                className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-sm cursor-pointer"
               >
                 <span>Upgrade to Agency ($49)</span>
                 <ArrowRight className="w-3.5 h-3.5" />
-              </a>
+              </button>
             </div>
           </div>
         </section>

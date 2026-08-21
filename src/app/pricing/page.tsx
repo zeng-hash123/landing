@@ -1,11 +1,12 @@
 "use client";
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { PaymentSuccessModal } from '@/components/PaymentSuccessModal';
+import { supabase } from '@/lib/supabase';
 import { Check, Zap, Sparkles, Shield, ArrowRight } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -14,8 +15,28 @@ const DODO_ONE_TIME_5_URL = 'https://checkout.dodopayments.com/buy/pdt_0NlsfRGt1
 const DODO_AGENCY_49_URL = 'https://checkout.dodopayments.com/buy/pdt_0Njtj6vpds8u2k9BreAhC?quantity=1';
 
 function PricingContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const reason = searchParams.get('reason');
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+    });
+  }, []);
+
+  const handlePaidCheckout = (checkoutUrl: string) => {
+    if (user && user.email) {
+      window.location.href = `${checkoutUrl}&email=${encodeURIComponent(user.email)}`;
+    } else {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('pixelpage_pending_payment', checkoutUrl);
+      }
+      router.push(`/login?redirect_url=${encodeURIComponent(checkoutUrl)}`);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto w-full px-4 py-16">
@@ -137,13 +158,13 @@ function PricingContent() {
             </ul>
           </div>
 
-          <a
-            href={DODO_ONE_TIME_5_URL}
-            className="flex items-center justify-center gap-1.5 w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-all shadow-md hover:scale-[1.01] active:scale-[0.99]"
+          <button
+            onClick={() => handlePaidCheckout(DODO_ONE_TIME_5_URL)}
+            className="flex items-center justify-center gap-1.5 w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-all shadow-md hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
           >
             <span>Get $5 One-Time Access</span>
             <ArrowRight className="w-3.5 h-3.5" />
-          </a>
+          </button>
         </div>
 
         {/* $49 AGENCY PLAN */}
@@ -184,13 +205,13 @@ function PricingContent() {
             </ul>
           </div>
 
-          <a
-            href={DODO_AGENCY_49_URL}
-            className="flex items-center justify-center gap-1.5 w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-sm"
+          <button
+            onClick={() => handlePaidCheckout(DODO_AGENCY_49_URL)}
+            className="flex items-center justify-center gap-1.5 w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-sm cursor-pointer"
           >
             <span>Upgrade to Agency ($49)</span>
             <ArrowRight className="w-3.5 h-3.5" />
-          </a>
+          </button>
         </div>
       </div>
 

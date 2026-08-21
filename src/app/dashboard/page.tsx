@@ -64,6 +64,13 @@ function DashboardContent() {
       setLoading(false);
 
       if (typeof window !== 'undefined') {
+        const pendingPayment = sessionStorage.getItem('pixelpage_pending_payment');
+        if (pendingPayment && currentUser?.email) {
+          sessionStorage.removeItem('pixelpage_pending_payment');
+          window.location.href = `${pendingPayment}&email=${encodeURIComponent(currentUser.email)}`;
+          return;
+        }
+
         const pendingUrl = sessionStorage.getItem('pixelpage_pending_url');
         if (pendingUrl && (!profileData || !profileData.free_audit_used)) {
           setUrl(pendingUrl);

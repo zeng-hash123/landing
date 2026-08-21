@@ -40,6 +40,21 @@ function LoginForm() {
         throw signInError;
       }
 
+      const pendingPayment = typeof window !== 'undefined'
+        ? sessionStorage.getItem('pixelpage_pending_payment') || (redirectUrl?.startsWith('http') ? redirectUrl : null)
+        : null;
+
+      if (pendingPayment) {
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('pixelpage_pending_payment');
+        }
+        const targetUrl = email
+          ? `${pendingPayment}&email=${encodeURIComponent(email)}`
+          : pendingPayment;
+        window.location.href = targetUrl;
+        return;
+      }
+
       const pendingUrl = typeof window !== 'undefined' ? sessionStorage.getItem('pixelpage_pending_url') : null;
 
       if (pendingUrl || redirectUrl === 'audit') {
