@@ -114,11 +114,7 @@ function PricingContent() {
         </div>
 
         {/* $5 ONE-TIME STARTER PLAN */}
-        <div className="bg-white border-2 border-zinc-900 rounded-2xl p-7 flex flex-col justify-between shadow-xl relative scale-[1.02]">
-          <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold uppercase tracking-wider text-white bg-zinc-900 px-3 py-1 rounded-full shadow-sm">
-            Most Popular • One-Time
-          </span>
-
+        <div className="bg-white border border-zinc-200 rounded-2xl p-7 flex flex-col justify-between shadow-sm hover:border-zinc-300 transition-colors">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-zinc-900 bg-zinc-100 px-3 py-1 rounded-full">
@@ -160,7 +156,7 @@ function PricingContent() {
 
           <button
             onClick={() => handlePaidCheckout(DODO_ONE_TIME_5_URL)}
-            className="flex items-center justify-center gap-1.5 w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-all shadow-md hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+            className="flex items-center justify-center gap-1.5 w-full py-3.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 rounded-xl text-xs font-semibold transition-all shadow-sm hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
           >
             <span>Get $5 One-Time Access</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -168,7 +164,11 @@ function PricingContent() {
         </div>
 
         {/* $49 AGENCY PLAN */}
-        <div className="bg-white border border-zinc-200 rounded-2xl p-7 flex flex-col justify-between shadow-sm hover:border-zinc-300 transition-colors">
+        <div className="bg-white border-2 border-zinc-900 rounded-2xl p-7 flex flex-col justify-between shadow-xl relative scale-[1.02]">
+          <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold uppercase tracking-wider text-white bg-zinc-900 px-3 py-1 rounded-full shadow-sm">
+            Most Popular
+          </span>
+
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 bg-zinc-100 px-3 py-1 rounded-full">
@@ -207,7 +207,7 @@ function PricingContent() {
 
           <button
             onClick={() => handlePaidCheckout(DODO_AGENCY_49_URL)}
-            className="flex items-center justify-center gap-1.5 w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-sm cursor-pointer"
+            className="flex items-center justify-center gap-1.5 w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-all shadow-md hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
           >
             <span>Upgrade to Agency ($49)</span>
             <ArrowRight className="w-3.5 h-3.5" />
