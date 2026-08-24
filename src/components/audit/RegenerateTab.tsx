@@ -18,6 +18,7 @@ import {
   Sparkles,
   RefreshCw,
   Layers,
+  FileCode,
 } from 'lucide-react';
 
 interface RegenerateTabProps {
@@ -37,12 +38,14 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
   const [primaryColor, setPrimaryColor] = useState('#09090b');
   const [ctaStyle, setCtaStyle] = useState('rounded');
   const [bannedWords, setBannedWords] = useState('');
+  const [framework, setFramework] = useState<'react_nextjs' | 'html' | 'vue'>('react_nextjs');
 
   // Generation state
   const [isGenerating, setIsGenerating] = useState(false);
   const [regeneration, setRegeneration] = useState<RegenerationRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'preview' | 'diff' | 'code'>('preview');
+  const [codeTab, setCodeTab] = useState<'react' | 'html' | 'vue'>('react');
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [copied, setCopied] = useState(false);
 
@@ -83,6 +86,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
         primaryColor,
         ctaStyle,
         bannedWords: bannedWords.split(',').map((w) => w.trim()).filter(Boolean),
+        framework,
       };
 
       const res = await fetch(`/api/pages/${auditRecord.id}/regenerate`, {
@@ -112,10 +116,22 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
     setIsGenerating(false);
   };
 
-  const handleCopyHtml = async () => {
-    if (!regeneration?.full_regenerated_html) return;
+  const getActiveCode = () => {
+    if (!regeneration) return '';
+    if (codeTab === 'react') {
+      return regeneration.react_tsx || regeneration.full_regenerated_html;
+    }
+    if (codeTab === 'vue') {
+      return regeneration.vue_code || regeneration.full_regenerated_html;
+    }
+    return regeneration.full_regenerated_html;
+  };
+
+  const handleCopyCode = async () => {
+    const code = getActiveCode();
+    if (!code) return;
     try {
-      await navigator.clipboard.writeText(regeneration.full_regenerated_html);
+      await navigator.clipboard.writeText(code);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -126,12 +142,28 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
   const handleExportHtml = () => {
     if (!regeneration?.full_regenerated_html) return;
 
+    const pageUrl = auditRecord.url || auditRecord.page_data_json?.url || 'website.com';
     const blob = new Blob([regeneration.full_regenerated_html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    const pageUrl = auditRecord.url || auditRecord.page_data_json?.url || 'website.com';
     link.download = `optimized_${pageUrl.replace(/https?:\/\//, '').replace(/[^a-zA-Z0-9]/g, '_')}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportReactTsx = () => {
+    const code = regeneration?.react_tsx || regeneration?.full_regenerated_html;
+    if (!code) return;
+
+    const pageUrl = auditRecord.url || auditRecord.page_data_json?.url || 'website.com';
+    const blob = new Blob([code], { type: 'text/typescript;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `OptimizedLandingPage_${pageUrl.replace(/https?:\/\//, '').replace(/[^a-zA-Z0-9]/g, '_')}.tsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -151,18 +183,20 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
     <div className="space-y-8">
       {/* OPTIMIZER CONTROLS CARD */}
       <div className="bg-white border border-zinc-200 rounded-2xl p-6 sm:p-8 shadow-sm">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-7 h-7 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs">
+        <div className="flex items-center gap-2.5 mb-2">
+          <div className="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-xs shadow-sm">
             <Sparkles className="w-4 h-4 text-amber-400" />
           </div>
-          <h2 className="text-xl font-bold text-zinc-900">Landing Page Regeneration Engine</h2>
+          <div>
+            <h2 className="text-xl font-bold text-zinc-900">Modern Landing Page Generation Engine</h2>
+            <p className="text-xs text-zinc-500">
+              Powered by Tailwind CSS, Lucide Icons, Alpine.js, and React / Next.js code generation
+            </p>
+          </div>
         </div>
-        <p className="text-xs text-zinc-500 mb-6">
-          PixelPage combines your original page structure, branding, images, and CRO audit recommendations to generate a complete, high-converting landing page version.
-        </p>
 
         {/* 1. SUGGESTION SELECTOR */}
-        <div className="mb-6">
+        <div className="mt-6 mb-6">
           <div className="flex justify-between items-center mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Select CRO Fixes to Apply ({selectedSuggestions.length}/{categories.length})
@@ -204,13 +238,26 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
           </div>
         </div>
 
-        {/* 2. BRAND CONFIGURATION CONTROLS */}
+        {/* 2. BRAND & FRAMEWORK CONTROLS */}
         <div className="pt-6 border-t border-zinc-100 mb-6">
           <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-3">
-            Brand Rules & Customizations
+            Framework & Style Customizations
           </span>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-zinc-700 mb-1">Target Framework</label>
+              <select
+                value={framework}
+                onChange={(e: any) => setFramework(e.target.value)}
+                className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-xs bg-white text-zinc-900 focus:ring-zinc-900 font-medium"
+              >
+                <option value="react_nextjs">React / Next.js (TSX)</option>
+                <option value="html">HTML + Tailwind CSS</option>
+                <option value="vue">Vue 3 / Svelte</option>
+              </select>
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-zinc-700 mb-1">Tone of Voice</label>
               <select
@@ -226,7 +273,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700 mb-1">Primary Color</label>
+              <label className="block text-xs font-semibold text-zinc-700 mb-1">Brand Primary Color</label>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -250,21 +297,10 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
                 onChange={(e) => setCtaStyle(e.target.value)}
                 className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-xs bg-white text-zinc-900 focus:ring-zinc-900"
               >
-                <option value="rounded">Rounded Corners</option>
-                <option value="pill">Pill Shape</option>
-                <option value="sharp">Sharp Edges</option>
+                <option value="rounded">Rounded Corners (12px)</option>
+                <option value="pill">Pill Shape (Full)</option>
+                <option value="sharp">Sharp Minimal (4px)</option>
               </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-zinc-700 mb-1">Banned Words</label>
-              <input
-                type="text"
-                placeholder="synergy, cheap, revolutionary"
-                value={bannedWords}
-                onChange={(e) => setBannedWords(e.target.value)}
-                className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-xs bg-white text-zinc-900 placeholder-zinc-400"
-              />
             </div>
           </div>
         </div>
@@ -284,7 +320,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
             {isGenerating ? (
               <>
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                <span>Generating Complete Landing Page...</span>
+                <span>Generating Framework Page & Visuals...</span>
               </>
             ) : (
               <>
@@ -295,17 +331,24 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
           </button>
 
           {regeneration && (
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
               <button
-                onClick={handleCopyHtml}
+                onClick={handleCopyCode}
                 className="flex-1 sm:flex-initial px-4 py-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Copy className="w-3.5 h-3.5" />
-                <span>{copied ? 'Copied HTML!' : 'Copy HTML'}</span>
+                <span>{copied ? 'Copied Code!' : 'Copy Code'}</span>
+              </button>
+              <button
+                onClick={handleExportReactTsx}
+                className="flex-1 sm:flex-initial px-4 py-3 bg-violet-50 text-violet-700 hover:bg-violet-100 border border-violet-200 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <FileCode className="w-3.5 h-3.5" />
+                <span>Download React (.tsx)</span>
               </button>
               <button
                 onClick={handleExportHtml}
-                className="flex-1 sm:flex-initial px-5 py-3 border border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                className="flex-1 sm:flex-initial px-4 py-3 border border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download .HTML</span>
@@ -332,7 +375,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
                   </span>
                 </h3>
                 <p className="text-xs text-zinc-400">
-                  {regeneration.sections_json.length} sections redesigned with {selectedSuggestions.length} conversion fixes.
+                  {regeneration.sections_json.length} sections redesigned with Tailwind CSS & interactive components.
                 </p>
               </div>
             </div>
@@ -344,7 +387,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
                 <div className="flex items-center bg-zinc-800 p-1 rounded-xl border border-zinc-700 text-xs">
                   <button
                     onClick={() => setViewport('desktop')}
-                    title="Desktop View"
+                    title="Desktop View (100%)"
                     className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                       viewport === 'desktop' ? 'bg-zinc-700 text-white shadow-xs' : 'text-zinc-400 hover:text-white'
                     }`}
@@ -399,7 +442,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
                   }`}
                 >
                   <Code2 className="w-3.5 h-3.5" />
-                  <span>HTML Code</span>
+                  <span>Framework Code</span>
                 </button>
               </div>
 
@@ -448,7 +491,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
                 <iframe
                   srcDoc={regeneration.full_regenerated_html}
                   title="Landing Page Live Preview"
-                  className="w-full h-[750px] border-0 bg-white"
+                  className="w-full h-[780px] border-0 bg-white"
                   sandbox="allow-scripts allow-same-origin"
                 />
               </div>
@@ -496,7 +539,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
                     {/* RIGHT: REGENERATED */}
                     <div className="border border-emerald-200 rounded-xl p-4 bg-emerald-50/30">
                       <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider block mb-2">
-                        Regenerated Optimized HTML
+                        Regenerated Optimized HTML (Tailwind CSS)
                       </span>
                       <pre className="text-xs text-zinc-800 font-mono overflow-x-auto whitespace-pre-wrap bg-white p-3 rounded-lg border border-emerald-100 max-h-64">
                         {section.regenerated_html}
@@ -508,23 +551,49 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
             </div>
           )}
 
-          {/* VIEW MODE 3: FULL HTML CODE */}
+          {/* VIEW MODE 3: FRAMEWORK CODE EXPORTER */}
           {viewMode === 'code' && (
             <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4 border-b border-zinc-100 pb-3">
-                <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                  Full Standalone HTML Source Code
-                </span>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4 border-b border-zinc-100 pb-3">
+                {/* Framework Selector Tabs */}
+                <div className="flex items-center gap-2 bg-zinc-100 p-1 rounded-xl text-xs font-semibold">
+                  <button
+                    onClick={() => setCodeTab('react')}
+                    className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      codeTab === 'react' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                    }`}
+                  >
+                    ⚛️ React / Next.js (TSX)
+                  </button>
+                  <button
+                    onClick={() => setCodeTab('html')}
+                    className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      codeTab === 'html' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                    }`}
+                  >
+                    🌐 HTML + Tailwind
+                  </button>
+                  <button
+                    onClick={() => setCodeTab('vue')}
+                    className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      codeTab === 'vue' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                    }`}
+                  >
+                    🟢 Vue 3 / Svelte
+                  </button>
+                </div>
+
                 <button
-                  onClick={handleCopyHtml}
-                  className="px-3 py-1.5 bg-zinc-900 text-white rounded-lg text-xs font-semibold hover:bg-zinc-800 transition-colors flex items-center gap-1.5"
+                  onClick={handleCopyCode}
+                  className="px-3.5 py-2 bg-zinc-900 text-white rounded-lg text-xs font-semibold hover:bg-zinc-800 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
-                  <Copy className="w-3 h-3" />
-                  <span>{copied ? 'Copied!' : 'Copy Code'}</span>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>{copied ? 'Copied Code!' : 'Copy Code'}</span>
                 </button>
               </div>
+
               <pre className="text-xs font-mono text-zinc-900 bg-zinc-50 p-4 rounded-xl overflow-x-auto whitespace-pre-wrap max-h-[600px] border border-zinc-200">
-                {regeneration.full_regenerated_html}
+                {getActiveCode()}
               </pre>
             </div>
           )}

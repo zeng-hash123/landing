@@ -12,6 +12,7 @@ export interface BrandConfig {
   primaryColor?: string;
   ctaStyle?: string;
   bannedWords?: string[];
+  framework?: 'html' | 'react_nextjs' | 'vue' | 'svelte';
 }
 
 export interface RegeneratedSection {
@@ -26,6 +27,8 @@ export interface RegeneratedSection {
 export interface RegenerationOutput {
   sections: RegeneratedSection[];
   full_regenerated_html: string;
+  react_tsx?: string;
+  vue_code?: string;
   token_usage?: {
     input_tokens: number;
     output_tokens: number;
@@ -40,6 +43,8 @@ export interface RegenerationRecord {
   brand_config_json: BrandConfig;
   sections_json: RegeneratedSection[];
   full_regenerated_html: string;
+  react_tsx?: string;
+  vue_code?: string;
   token_usage_json: {
     input_tokens: number;
     output_tokens: number;

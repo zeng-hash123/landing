@@ -20,12 +20,30 @@ const RegenerationResponseSchema = z.object({
   full_regenerated_html: z.string().optional(),
 });
 
-const REGENERATE_SYSTEM_PROMPT = `You are an elite frontend designer and direct-response Conversion Rate Optimization (CRO) expert.
+const REGENERATE_SYSTEM_PROMPT = `You are a world-class principal frontend architect and direct-response Conversion Rate Optimization (CRO) expert.
 
-Your task is to take original landing page data, visual layout cues, and user-selected CRO suggestions, and regenerate an improved, high-converting landing page that closely preserves the original branding, structure, and visual theme of the target URL.
+Your task is to take original landing page data, extracted content, brand configuration, and user-selected CRO audit suggestions, and regenerate a stunning, modern, agency-grade landing page that matches the original branding and visual identity while eliminating all conversion friction points.
 
-RULES & CONSTRAINTS:
-1. Output MUST strictly be a valid JSON object matching this schema:
+DESIGN & FRAMEWORK SPECIFICATIONS:
+1. Frameworks & Libraries:
+   - Tailwind CSS for modern, responsive, high-fidelity UI design.
+   - Lucide Icons for clean, modern iconography.
+   - Smooth CSS transitions, glassmorphism (backdrop-blur), gradient mesh accents, and clean shadow depths.
+   - Interactive components (such as FAQ accordions, billing toggles, and responsive navigation).
+
+2. Sections to build:
+   - Navigation: Sticky glassmorphic navbar with brand logo, links, and primary CTA.
+   - Hero: Live badge, high-converting outcome headline, subheadline, dual action buttons, trust stars, and interactive product showcase card.
+   - Social Proof: Top tech company logos (Stripe, Vercel, Supabase, Linear, Notion) and trust metrics.
+   - Features Grid: Modern 3-6 card grid with icons, tags, and benefit-driven copy.
+   - Transformation / Comparison: Before vs After CRO value comparison.
+   - Pricing / Offer: Clear pricing cards with monthly/annual switch.
+   - FAQ Accordion: Interactive question and answer list addressing main buyer objections.
+   - Testimonial: Authentic customer quote card with 5-star rating and avatar.
+   - Final CTA: High-impact gradient banner with risk reversal guarantee.
+   - Footer: Multi-column footer with brand, links, and copyright.
+
+3. Output MUST strictly be valid JSON matching this schema:
 {
   "sections": [
     {
@@ -40,13 +58,7 @@ RULES & CONSTRAINTS:
   "full_regenerated_html": "complete standalone HTML document"
 }
 
-2. Styling & Design Requirements:
-   - Use Tailwind CSS classes for all styling.
-   - Match the original site's branding (primary colors, font styles, layout density, and images).
-   - Ensure the page is modern, fully responsive (mobile, tablet, desktop), and visually polished.
-   - For full_regenerated_html: Provide the entire standalone HTML page (including <!DOCTYPE html>, <head> with Tailwind CDN script <script src="https://cdn.tailwindcss.com"></script>, and all regenerated sections).
-
-3. Strictly NO prose or conversational text outside the JSON object.`;
+Strictly NO text or markdown blocks outside the JSON object.`;
 
 export async function regeneratePage(
   scrapedContent: ExtractedPageData,
@@ -169,9 +181,14 @@ ${JSON.stringify(
             ? validated.full_regenerated_html
             : buildFullHtmlDocument(scrapedContent, sectionsHtml, brandConfig);
 
+          const reactTsx = convertToReactTsx(fullHtml, scrapedContent.title);
+          const vueCode = convertToVue(fullHtml);
+
           return {
             sections: sanitizedSections,
             full_regenerated_html: fullHtml,
+            react_tsx: reactTsx,
+            vue_code: vueCode,
             token_usage: {
               input_tokens: json?.usage?.prompt_tokens || estimatedInputTokens,
               output_tokens: json?.usage?.completion_tokens || estimatedOutputTokens,
@@ -184,7 +201,7 @@ ${JSON.stringify(
     }
   }
 
-  // Fallback section builder with high-fidelity design
+  // Fallback section builder with agency-grade interactive design
   return generateFallbackRegeneration(mappedSections, activeSuggestions, brandConfig, scrapedContent);
 }
 
@@ -192,30 +209,38 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
   const sections: Array<{ id: string; type: SectionType; original_html: string }> = [];
 
   const brandName = pageData.title.split(/[-|:]/)[0]?.trim() || 'Product';
-  const heroHeading = pageData.headings[0] || pageData.title || 'Turn Visitors Into Customers';
-  const heroSub = pageData.paragraphs[0] || pageData.metaDescription || 'The all-in-one platform built to streamline your workflow and accelerate growth.';
+  const heroHeading = pageData.headings[0] || pageData.title || 'Turn Visitors Into Paying Customers';
+  const heroSub = pageData.paragraphs[0] || pageData.metaDescription || 'The modern growth platform designed to optimize your conversion funnel and eliminate drop-off.';
   const heroCta = pageData.ctas[0] || 'Start Free Trial';
 
   // 1. Navigation Section
   sections.push({
     id: 'sec_nav_0',
     type: 'other',
-    original_html: `<nav class="bg-white/90 backdrop-blur-md border-b border-zinc-200 sticky top-0 z-50">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    original_html: `<nav class="bg-white/80 backdrop-blur-md border-b border-zinc-200 sticky top-0 z-50 transition-all">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center text-white font-bold text-sm">
+      <div class="w-9 h-9 rounded-xl bg-zinc-900 text-white font-bold text-base flex items-center justify-center shadow-sm">
         ${brandName.charAt(0)}
       </div>
-      <span class="font-bold text-zinc-900 text-base tracking-tight">${brandName}</span>
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-zinc-900 text-lg tracking-tight">${brandName}</span>
+        <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 hidden sm:inline-block">Verified CRO</span>
+      </div>
     </div>
-    <div class="hidden md:flex items-center gap-6 text-xs font-semibold text-zinc-600">
+
+    <div class="hidden md:flex items-center gap-8 text-xs font-semibold text-zinc-600">
       <a href="#features" class="hover:text-zinc-900 transition-colors">Features</a>
+      <a href="#comparison" class="hover:text-zinc-900 transition-colors">Why ${brandName}</a>
       <a href="#testimonials" class="hover:text-zinc-900 transition-colors">Testimonials</a>
       <a href="#pricing" class="hover:text-zinc-900 transition-colors">Pricing</a>
+      <a href="#faq" class="hover:text-zinc-900 transition-colors">FAQ</a>
     </div>
+
     <div class="flex items-center gap-3">
-      <a href="#cta" class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg text-xs font-semibold transition-all shadow-sm">
-        ${heroCta}
+      <a href="#cta" class="px-4 py-2 text-xs font-semibold text-zinc-700 hover:text-zinc-900 transition-colors hidden sm:block">Log in</a>
+      <a href="#cta" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]">
+        ${heroCta} →
       </a>
     </div>
   </div>
@@ -227,55 +252,81 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
   sections.push({
     id: 'sec_hero_1',
     type: 'hero',
-    original_html: `<section class="relative bg-gradient-to-b from-zinc-50 to-white py-16 sm:py-24 px-4 border-b border-zinc-100 text-center">
-  <div class="max-w-4xl mx-auto">
-    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold text-zinc-700 mb-6">
-      <span>⚡ Built for high growth</span>
+    original_html: `<section class="relative bg-gradient-to-b from-zinc-50/80 via-white to-white py-16 sm:py-24 px-4 border-b border-zinc-100 overflow-hidden text-center">
+  <div class="max-w-4xl mx-auto relative z-10">
+    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100/90 border border-zinc-200 text-xs font-semibold text-zinc-700 mb-6 shadow-xs">
+      <span class="flex h-2 w-2 relative">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+      </span>
+      <span>⚡ High-Converting Landing Page Architecture</span>
     </div>
-    <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-zinc-900 tracking-tight leading-[1.15] mb-6">
+
+    <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-zinc-900 tracking-tight leading-[1.12] mb-6">
       ${heroHeading}
     </h1>
-    <p class="text-base sm:text-lg text-zinc-600 max-w-2xl mx-auto mb-8 leading-relaxed">
+
+    <p class="text-base sm:text-lg text-zinc-600 max-w-2xl mx-auto mb-8 leading-relaxed font-normal">
       ${heroSub}
     </p>
+
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-      <a href="#cta" class="w-full sm:w-auto px-7 py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-sm font-semibold transition-all shadow-md">
-        ${heroCta} →
+      <a href="#cta" class="w-full sm:w-auto px-8 py-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-sm font-semibold transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]">
+        ${heroCta} (Instant Access) →
       </a>
-      <a href="#features" class="w-full sm:w-auto px-6 py-3.5 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 rounded-xl text-sm font-semibold transition-all">
-        See How It Works
+      <a href="#features" class="w-full sm:w-auto px-7 py-4 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-xl text-sm font-semibold transition-all shadow-xs">
+        Explore Core Features
       </a>
     </div>
-    <p class="text-xs text-zinc-400">✓ No credit card required • Instant setup • 14-day free trial</p>
 
-    ${
-      heroImage
-        ? `<div class="mt-12 rounded-2xl overflow-hidden border border-zinc-200 shadow-xl max-w-3xl mx-auto bg-zinc-100">
-             <img src="${heroImage}" alt="${brandName} Showcase" class="w-full h-auto object-cover" />
-           </div>`
-        : `<div class="mt-12 rounded-2xl border border-zinc-200 shadow-xl max-w-3xl mx-auto bg-white p-8 text-left">
-             <div class="flex items-center gap-2 mb-4 border-b border-zinc-100 pb-3">
-               <div class="w-3 h-3 rounded-full bg-red-400"></div>
-               <div class="w-3 h-3 rounded-full bg-amber-400"></div>
-               <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
-               <span class="text-xs text-zinc-400 ml-2">${pageData.url}</span>
-             </div>
-             <div class="grid grid-cols-3 gap-4">
-               <div class="h-20 bg-zinc-50 rounded-xl border border-zinc-100 p-3">
-                 <div class="text-lg font-bold text-zinc-900">+42%</div>
-                 <div class="text-[10px] text-zinc-500">Conversion Rate</div>
+    <div class="flex items-center justify-center gap-4 text-xs text-zinc-500 flex-wrap">
+      <span class="flex items-center gap-1.5 font-medium text-zinc-700">
+        <span class="text-emerald-600 font-bold">✓</span> No credit card required
+      </span>
+      <span>•</span>
+      <span class="flex items-center gap-1.5 font-medium text-zinc-700">
+        <span class="text-emerald-600 font-bold">✓</span> 14-day free trial
+      </span>
+      <span>•</span>
+      <span class="flex items-center gap-1.5 font-medium text-zinc-700">
+        <span class="text-emerald-600 font-bold">✓</span> 2-minute setup
+      </span>
+    </div>
+
+    <!-- Product Showcase Mockup Card -->
+    <div class="mt-14 rounded-2xl border border-zinc-200/90 shadow-2xl max-w-4xl mx-auto bg-white p-3 sm:p-5 text-left transition-all">
+      <div class="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4 px-2">
+        <div class="flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full bg-red-400"></div>
+          <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+          <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+          <span class="text-xs font-mono text-zinc-400 ml-2 hidden sm:inline-block">${pageData.url}</span>
+        </div>
+        <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">● Live Conversion Engine</span>
+      </div>
+
+      ${
+        heroImage
+          ? `<img src="${heroImage}" alt="${brandName} Showcase" class="w-full h-auto rounded-xl object-cover border border-zinc-100" />`
+          : `<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-2">
+               <div class="bg-zinc-50 p-5 rounded-xl border border-zinc-200/70">
+                 <span class="text-xs font-semibold text-zinc-500 uppercase">Conversion Lift</span>
+                 <div class="text-3xl font-extrabold text-zinc-900 mt-1">+38.4%</div>
+                 <p class="text-[11px] text-emerald-700 mt-1">▲ In first 30 days</p>
                </div>
-               <div class="h-20 bg-zinc-50 rounded-xl border border-zinc-100 p-3">
-                 <div class="text-lg font-bold text-zinc-900">2.4x</div>
-                 <div class="text-[10px] text-zinc-500">Pipeline Velocity</div>
+               <div class="bg-zinc-50 p-5 rounded-xl border border-zinc-200/70">
+                 <span class="text-xs font-semibold text-zinc-500 uppercase">Analysis Speed</span>
+                 <div class="text-3xl font-extrabold text-zinc-900 mt-1">2.4s</div>
+                 <p class="text-[11px] text-zinc-500 mt-1">Instant friction scan</p>
                </div>
-               <div class="h-20 bg-zinc-50 rounded-xl border border-zinc-100 p-3">
-                 <div class="text-lg font-bold text-zinc-900">99.9%</div>
-                 <div class="text-[10px] text-zinc-500">Satisfaction</div>
+               <div class="bg-zinc-50 p-5 rounded-xl border border-zinc-200/70">
+                 <span class="text-xs font-semibold text-zinc-500 uppercase">Visitor Trust Rating</span>
+                 <div class="text-3xl font-extrabold text-zinc-900 mt-1">4.9/5</div>
+                 <p class="text-[11px] text-emerald-700 mt-1">★★★★★ Verified by 1,200+ teams</p>
                </div>
-             </div>
-           </div>`
-    }
+             </div>`
+      }
+    </div>
   </div>
 </section>`,
   });
@@ -285,16 +336,17 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
     id: 'sec_proof_2',
     type: 'social_proof',
     original_html: `<section class="py-12 bg-white border-b border-zinc-100 text-center px-4">
-  <div class="max-w-5xl mx-auto">
-    <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-6">
-      Trusted by fast-growing startups and agencies worldwide
+  <div class="max-w-6xl mx-auto">
+    <p class="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-8">
+      Trusted by fast-growing startups, creators & agencies worldwide
     </p>
-    <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-12 opacity-60 grayscale hover:grayscale-0 transition-all">
+    <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-70 grayscale hover:grayscale-0 transition-all duration-300">
       <span class="font-extrabold text-sm sm:text-base tracking-wider text-zinc-800">STRIPE</span>
       <span class="font-extrabold text-sm sm:text-base tracking-wider text-zinc-800">VERCEL</span>
       <span class="font-extrabold text-sm sm:text-base tracking-wider text-zinc-800">SUPABASE</span>
       <span class="font-extrabold text-sm sm:text-base tracking-wider text-zinc-800">LINEAR</span>
       <span class="font-extrabold text-sm sm:text-base tracking-wider text-zinc-800">NOTION</span>
+      <span class="font-extrabold text-sm sm:text-base tracking-wider text-zinc-800">OPENAI</span>
     </div>
   </div>
 </section>`,
@@ -304,22 +356,25 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
   const featureHeadings = pageData.headings.slice(1, 4);
   const featureParas = pageData.paragraphs.slice(1, 4);
   const fallbackFeatures = [
-    { title: 'Streamlined Workflow', desc: 'Eliminate manual bottlenecks with automated intelligent workflows that save hours every week.' },
-    { title: 'Data-Driven Insights', desc: 'Identify high-converting visitor paths and pinpoint drop-off friction with actionable clarity.' },
-    { title: 'Seamless Integration', desc: 'Connects directly with your existing website stack, analytics tools, and marketing systems.' },
+    { title: 'Outcome-Driven Copywriting', desc: 'Transform passive, vague messaging into crystal-clear value propositions that immediately hook target visitors.' },
+    { title: 'Low-Friction CTA Architecture', desc: 'Strategically position low-anxiety, high-intent call-to-actions that drive immediate decision-making.' },
+    { title: 'Zero Framework Lock-in', desc: 'Seamlessly export clean, responsive Tailwind HTML or React/Next.js components ready to deploy.' },
   ];
 
   sections.push({
     id: 'sec_features_3',
     type: 'feature',
-    original_html: `<section id="features" class="py-20 px-4 bg-zinc-50/50 border-b border-zinc-100">
-  <div class="max-w-5xl mx-auto">
+    original_html: `<section id="features" class="py-20 px-4 bg-zinc-50/60 border-b border-zinc-100">
+  <div class="max-w-6xl mx-auto">
     <div class="text-center max-w-2xl mx-auto mb-14">
-      <h2 class="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight mb-3">
-        Everything you need to grow faster
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold text-zinc-700 mb-3">
+        <span>Core Capabilities</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight mb-3">
+        Engineered for Maximum Conversions
       </h2>
       <p class="text-sm text-zinc-600">
-        Designed from the ground up to eliminate conversion friction and drive measurable results.
+        Every element is designed from the ground up using proven direct-response heuristics.
       </p>
     </div>
 
@@ -328,8 +383,8 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
         .slice(0, 3)
         .map(
           (h, i) => `
-      <div class="bg-white p-7 rounded-2xl border border-zinc-200 shadow-sm hover:border-zinc-300 transition-all">
-        <div class="w-10 h-10 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-900 font-bold mb-4">
+      <div class="bg-white p-8 rounded-2xl border border-zinc-200/80 shadow-sm hover:border-zinc-300 hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-bold text-base mb-5 shadow-sm">
           0${i + 1}
         </div>
         <h3 class="font-bold text-zinc-900 text-lg mb-2">${h}</h3>
@@ -342,71 +397,231 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
 </section>`,
   });
 
-  // 5. Testimonial / Social Proof Card
+  // 5. Transformation / Comparison Matrix Section
   sections.push({
-    id: 'sec_testimonial_4',
-    type: 'social_proof',
-    original_html: `<section id="testimonials" class="py-20 px-4 bg-white border-b border-zinc-100 text-center">
+    id: 'sec_comparison_4',
+    type: 'other',
+    original_html: `<section id="comparison" class="py-20 px-4 bg-white border-b border-zinc-100">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <h2 class="text-3xl font-extrabold text-zinc-900 tracking-tight mb-2">
+        The ${brandName} Advantage
+      </h2>
+      <p class="text-xs text-zinc-500">How our optimized architecture compares to traditional static templates</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="p-6 rounded-2xl border border-red-200 bg-red-50/30">
+        <div class="flex items-center gap-2 mb-4 font-bold text-red-900 text-sm">
+          <span class="w-5 h-5 rounded-full bg-red-200 text-red-800 flex items-center justify-center text-xs">✕</span>
+          <span>Generic Websites & Templates</span>
+        </div>
+        <ul class="space-y-3 text-xs text-zinc-600">
+          <li class="flex items-center gap-2">✕ Passive, feature-heavy headline that confuses visitors</li>
+          <li class="flex items-center gap-2">✕ High-friction, vague CTA button copy ("Submit", "Click Here")</li>
+          <li class="flex items-center gap-2">✕ Hidden trust proof buried below the scroll depth</li>
+          <li class="flex items-center gap-2">✕ Cluttered layout causing high mobile bounce rates</li>
+        </ul>
+      </div>
+
+      <div class="p-6 rounded-2xl border-2 border-zinc-900 bg-zinc-50 shadow-md">
+        <div class="flex items-center gap-2 mb-4 font-bold text-zinc-900 text-sm">
+          <span class="w-5 h-5 rounded-full bg-zinc-900 text-white flex items-center justify-center text-xs">✓</span>
+          <span>Optimized ${brandName} System</span>
+        </div>
+        <ul class="space-y-3 text-xs text-zinc-800 font-medium">
+          <li class="flex items-center gap-2 text-emerald-800"><span class="text-emerald-600 font-bold">✓</span> Outcome-driven transformation hooks (5-second clarity)</li>
+          <li class="flex items-center gap-2 text-emerald-800"><span class="text-emerald-600 font-bold">✓</span> Value-focused, low-anxiety primary action triggers</li>
+          <li class="flex items-center gap-2 text-emerald-800"><span class="text-emerald-600 font-bold">✓</span> Prominent social proof badges placed at decision points</li>
+          <li class="flex items-center gap-2 text-emerald-800"><span class="text-emerald-600 font-bold">✓</span> Mobile-first responsive hierarchy with zero framework bloat</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>`,
+  });
+
+  // 6. Interactive Pricing Section
+  sections.push({
+    id: 'sec_pricing_5',
+    type: 'other',
+    original_html: `<section id="pricing" class="py-20 px-4 bg-zinc-50/60 border-b border-zinc-100 text-center" x-data="{ annual: true }">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold text-zinc-700 mb-3">
+        <span>Simple Pricing</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight mb-2">
+        Choose Your Growth Plan
+      </h2>
+      <p class="text-sm text-zinc-600">Start with full access. Upgrade as your team scales.</p>
+      
+      <!-- Interactive Billing Toggle -->
+      <div class="mt-6 inline-flex items-center gap-3 p-1 rounded-xl bg-zinc-200/80 border border-zinc-300 text-xs font-semibold">
+        <button type="button" @click="annual = false" :class="!annual ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600'" class="px-3.5 py-1.5 rounded-lg transition-all">Monthly</button>
+        <button type="button" @click="annual = true" :class="annual ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600'" class="px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1">
+          <span>Annual</span>
+          <span class="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md font-bold">SAVE 20%</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto text-left">
+      <!-- Starter Plan -->
+      <div class="bg-white p-8 rounded-2xl border border-zinc-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-zinc-500 bg-zinc-100 px-3 py-1 rounded-full">Starter</span>
+          <div class="text-4xl font-extrabold text-zinc-900 mt-4" x-text="annual ? '$29' : '$39'">$29</div>
+          <p class="text-xs text-zinc-500 mb-6 mt-1">For growing teams & single landing pages</p>
+          <ul class="text-xs text-zinc-700 space-y-2.5 mb-8">
+            <li class="flex items-center gap-2">✓ Full CRO optimization engine</li>
+            <li class="flex items-center gap-2">✓ Unlimited copy variations</li>
+            <li class="flex items-center gap-2">✓ Standalone HTML/CSS Export</li>
+          </ul>
+        </div>
+        <a href="#cta" class="block text-center w-full py-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 rounded-xl text-xs font-semibold transition-colors">
+          Get Started
+        </a>
+      </div>
+
+      <!-- Pro Plan -->
+      <div class="bg-white p-8 rounded-2xl border-2 border-zinc-900 shadow-xl flex flex-col justify-between relative">
+        <span class="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-wider text-white bg-zinc-900 px-3 py-0.5 rounded-full shadow-sm">Most Popular</span>
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-zinc-900 bg-zinc-100 px-3 py-1 rounded-full">Pro Agency</span>
+          <div class="text-4xl font-extrabold text-zinc-900 mt-4" x-text="annual ? '$79' : '$99'">$79</div>
+          <p class="text-xs text-zinc-500 mb-6 mt-1">For scaling agencies & high-volume funnels</p>
+          <ul class="text-xs text-zinc-700 space-y-2.5 mb-8">
+            <li class="flex items-center gap-2">✓ Unlimited page generations</li>
+            <li class="flex items-center gap-2">✓ Multi-brand kit presets</li>
+            <li class="flex items-center gap-2">✓ React/Next.js & HTML exports</li>
+            <li class="flex items-center gap-2">✓ Priority CRO agent processing</li>
+          </ul>
+        </div>
+        <a href="#cta" class="block text-center w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-md">
+          Start Pro Free Trial
+        </a>
+      </div>
+    </div>
+  </div>
+</section>`,
+  });
+
+  // 7. Interactive Frequently Asked Questions (FAQ) Section
+  sections.push({
+    id: 'sec_faq_6',
+    type: 'other',
+    original_html: `<section id="faq" class="py-20 px-4 bg-white border-b border-zinc-100" x-data="{ openFaq: 0 }">
   <div class="max-w-3xl mx-auto">
-    <div class="inline-flex items-center gap-1 text-amber-500 mb-4">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-extrabold text-zinc-900 tracking-tight mb-2">
+        Frequently Asked Questions
+      </h2>
+      <p class="text-xs text-zinc-500">Everything you need to know about implementation and results</p>
+    </div>
+
+    <div class="space-y-3 text-left">
+      <div class="border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
+        <button type="button" @click="openFaq = openFaq === 0 ? null : 0" class="w-full py-4 px-5 flex items-center justify-between font-bold text-sm text-zinc-900 hover:bg-zinc-50 transition-colors">
+          <span>How quickly will I see conversion improvements?</span>
+          <span class="text-xs font-mono" x-text="openFaq === 0 ? '▲' : '▼'">▲</span>
+        </button>
+        <div x-show="openFaq === 0" x-collapse class="px-5 pb-4 text-xs text-zinc-600 border-t border-zinc-100 pt-3 leading-relaxed">
+          Most clients observe measurable conversion lift within 24–48 hours of deploying the optimized messaging and CTA structure.
+        </div>
+      </div>
+
+      <div class="border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
+        <button type="button" @click="openFaq = openFaq === 1 ? null : 1" class="w-full py-4 px-5 flex items-center justify-between font-bold text-sm text-zinc-900 hover:bg-zinc-50 transition-colors">
+          <span>Can I integrate this with Next.js, WordPress, or Webflow?</span>
+          <span class="text-xs font-mono" x-text="openFaq === 1 ? '▲' : '▼'">▼</span>
+        </button>
+        <div x-show="openFaq === 1" x-collapse class="px-5 pb-4 text-xs text-zinc-600 border-t border-zinc-100 pt-3 leading-relaxed">
+          Yes! The code is 100% clean Tailwind CSS with pure semantic HTML or React TSX export, ready to paste directly into any stack.
+        </div>
+      </div>
+
+      <div class="border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
+        <button type="button" @click="openFaq = openFaq === 2 ? null : 2" class="w-full py-4 px-5 flex items-center justify-between font-bold text-sm text-zinc-900 hover:bg-zinc-50 transition-colors">
+          <span>Does it preserve my existing analytics and brand tracking?</span>
+          <span class="text-xs font-mono" x-text="openFaq === 2 ? '▲' : '▼'">▼</span>
+        </button>
+        <div x-show="openFaq === 2" x-collapse class="px-5 pb-4 text-xs text-zinc-600 border-t border-zinc-100 pt-3 leading-relaxed">
+          Yes. All tracking scripts, pixels, and meta tags are preserved without modification.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>`,
+  });
+
+  // 8. Testimonial Section
+  sections.push({
+    id: 'sec_testimonial_7',
+    type: 'social_proof',
+    original_html: `<section id="testimonials" class="py-20 px-4 bg-zinc-50/50 border-b border-zinc-100 text-center">
+  <div class="max-w-3xl mx-auto">
+    <div class="inline-flex items-center gap-1 text-amber-500 mb-4 text-sm">
       <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
     </div>
-    <blockquote class="text-xl sm:text-2xl font-medium text-zinc-900 leading-relaxed mb-6">
-      &ldquo;This completely transformed our conversion funnel. We saw a 38% increase in signups within the first 48 hours.&rdquo;
+    <blockquote class="text-xl sm:text-2xl font-semibold text-zinc-900 leading-relaxed mb-6">
+      &ldquo;Implementing the ${brandName} optimized page drove an immediate 38% conversion surge across all our paid traffic campaigns.&rdquo;
     </blockquote>
     <div class="flex items-center justify-center gap-3">
-      <div class="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center font-bold text-zinc-700 text-xs">
-        AK
+      <div class="w-11 h-11 rounded-full bg-zinc-900 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+        SM
       </div>
       <div class="text-left">
-        <div class="text-xs font-bold text-zinc-900">Alex Keller</div>
-        <div class="text-[10px] text-zinc-500">Head of Growth, Momentum AI</div>
+        <div class="text-xs font-bold text-zinc-900">Sarah Mitchell</div>
+        <div class="text-[10px] text-zinc-500">VP of Marketing, Horizon Scale</div>
       </div>
     </div>
   </div>
 </section>`,
   });
 
-  // 6. CTA Section
+  // 9. CTA Section
   const ctaText = pageData.ctas[1] || pageData.ctas[0] || 'Get Started Free';
   sections.push({
-    id: 'sec_cta_5',
+    id: 'sec_cta_8',
     type: 'cta',
-    original_html: `<section id="cta" class="py-16 sm:py-20 px-4 bg-zinc-900 text-white text-center">
-  <div class="max-w-4xl mx-auto rounded-3xl p-8 sm:p-14 relative overflow-hidden bg-gradient-to-tr from-zinc-900 to-zinc-800 border border-zinc-700 shadow-2xl">
-    <h2 class="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
-      Ready to increase your conversions?
+    original_html: `<section id="cta" class="py-20 px-4 bg-zinc-900 text-white text-center">
+  <div class="max-w-4xl mx-auto rounded-3xl p-8 sm:p-16 relative overflow-hidden bg-gradient-to-tr from-zinc-950 via-zinc-900 to-zinc-800 border border-zinc-700 shadow-2xl">
+    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
+      Ready to transform your landing page conversions?
     </h2>
-    <p class="text-zinc-400 text-sm max-w-md mx-auto mb-8 leading-relaxed">
-      Join thousands of forward-thinking founders and teams accelerating their growth today.
+    <p class="text-zinc-400 text-sm sm:text-base max-w-md mx-auto mb-8 leading-relaxed">
+      Join high-growth founders and performance marketing teams achieving industry-leading conversion rates.
     </p>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-      <a href="#" class="px-8 py-3.5 bg-white text-zinc-900 rounded-xl font-semibold text-sm hover:bg-zinc-100 transition-all shadow-md">
-        ${ctaText} →
+      <a href="#" class="px-8 py-4 bg-white text-zinc-900 rounded-xl font-bold text-sm hover:bg-zinc-100 transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98]">
+        ${ctaText} (No Credit Card Required) →
       </a>
     </div>
-    <p class="text-xs text-zinc-500 mt-4">14-day free trial • Cancel anytime • 2-minute setup</p>
+    <p class="text-xs text-zinc-500 mt-4">✓ 14-day free trial • Cancel anytime • 2-minute setup</p>
   </div>
 </section>`,
   });
 
-  // 7. Footer Section
+  // 10. Footer Section
   sections.push({
-    id: 'sec_footer_6',
+    id: 'sec_footer_9',
     type: 'footer',
-    original_html: `<footer class="py-10 px-4 bg-white border-t border-zinc-200 text-center text-xs text-zinc-500">
-  <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-    <div class="flex items-center gap-2">
-      <div class="w-6 h-6 rounded bg-zinc-900 text-white font-bold text-xs flex items-center justify-center">
+    original_html: `<footer class="py-12 px-4 bg-white border-t border-zinc-200 text-xs text-zinc-500">
+  <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+    <div class="flex items-center gap-2.5">
+      <div class="w-7 h-7 rounded-lg bg-zinc-900 text-white font-bold text-xs flex items-center justify-center shadow-xs">
         ${brandName.charAt(0)}
       </div>
-      <span class="font-bold text-zinc-900">${brandName}</span>
+      <span class="font-bold text-zinc-900 text-sm">${brandName}</span>
     </div>
     <p>© ${new Date().getFullYear()} ${brandName}. All rights reserved.</p>
-    <div class="flex gap-4 text-xs text-zinc-500">
-      <a href="#" class="hover:text-zinc-900">Privacy</a>
-      <a href="#" class="hover:text-zinc-900">Terms</a>
-      <a href="#" class="hover:text-zinc-900">Contact</a>
+    <div class="flex gap-6 text-xs text-zinc-500 font-medium">
+      <a href="#features" class="hover:text-zinc-900 transition-colors">Features</a>
+      <a href="#pricing" class="hover:text-zinc-900 transition-colors">Pricing</a>
+      <a href="#faq" class="hover:text-zinc-900 transition-colors">FAQ</a>
+      <a href="#" class="hover:text-zinc-900 transition-colors">Privacy</a>
+      <a href="#" class="hover:text-zinc-900 transition-colors">Terms</a>
     </div>
   </div>
 </footer>`,
@@ -436,7 +651,6 @@ function isSuggestionMatchingSection(suggestion: CategoryResult, sectionType: Se
 
 function sanitizeHtml(newHtml: string, originalHtml: string): string {
   if (!newHtml) return originalHtml;
-  // Basic XSS guard: remove unvetted scripts
   if (newHtml.includes('<script') && !originalHtml.includes('<script')) {
     return newHtml.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
   }
@@ -459,7 +673,6 @@ export function buildFullHtmlDocument(
   brandConfig?: BrandConfig
 ): string {
   const primaryColor = brandConfig?.primaryColor || '#09090b';
-  const brandName = pageData.title?.split(/[-|:]/)[0]?.trim() || 'Optimized Landing Page';
 
   return `<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -468,8 +681,12 @@ export function buildFullHtmlDocument(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${pageData.title} | Optimized by PixelPage</title>
   <meta name="description" content="${pageData.metaDescription || 'High converting landing page'}">
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Alpine.js Interactivity -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -485,10 +702,74 @@ export function buildFullHtmlDocument(
     }
   </style>
 </head>
-<body class="min-h-screen antialiased flex flex-col justify-between">
+<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-zinc-900 selection:text-white">
 ${bodyHtml}
+<script>
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+</script>
 </body>
 </html>`;
+}
+
+export function convertToReactTsx(htmlString: string, title?: string): string {
+  const cleanTitle = (title || 'OptimizedLandingPage').replace(/[^a-zA-Z0-9]/g, '');
+
+  let jsx = htmlString
+    .replace(/<!DOCTYPE html>[\s\S]*?<body[^>]*>/i, '')
+    .replace(/<\/body>[\s\S]*?<\/html>/i, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/\bclass=/g, 'className=')
+    .replace(/\bfor=/g, 'htmlFor=')
+    .replace(/\bx-data="[^"]*"/g, '')
+    .replace(/\bx-text="[^"]*"/g, '')
+    .replace(/\bx-show="[^"]*"/g, '')
+    .replace(/\bx-collapse/g, '')
+    .replace(/@click="[^"]*"/g, '')
+    .replace(/:class="[^"]*"/g, '')
+    .replace(/<img([^>]*?)>/gi, '<img$1 />')
+    .replace(/<input([^>]*?)>/gi, '<input$1 />')
+    .replace(/<br>/gi, '<br />')
+    .replace(/<hr>/gi, '<hr />');
+
+  return `"use client";
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+
+export default function ${cleanTitle || 'LandingPage'}() {
+  const [annualBilling, setAnnualBilling] = useState(true);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  return (
+    <div className="min-h-screen bg-white text-zinc-900 antialiased font-sans flex flex-col justify-between">
+      ${jsx.trim()}
+    </div>
+  );
+}
+`;
+}
+
+export function convertToVue(htmlString: string): string {
+  let template = htmlString
+    .replace(/<!DOCTYPE html>[\s\S]*?<body[^>]*>/i, '')
+    .replace(/<\/body>[\s\S]*?<\/html>/i, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '');
+
+  return `<template>
+  <div class="min-h-screen bg-white text-zinc-900 antialiased font-sans flex flex-col justify-between">
+    ${template.trim()}
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const annualBilling = ref(true);
+const openFaq = ref(0);
+</script>
+`;
 }
 
 function generateFallbackRegeneration(
@@ -526,13 +807,13 @@ function generateFallbackRegeneration(
           // Upgrade H1
           updatedHtml = updatedHtml.replace(
             /<h1[^>]*>[\s\S]*?<\/h1>/i,
-            `<h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-zinc-900 tracking-tight leading-[1.15] mb-6">${m.suggested_copy}</h1>`
+            `<h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-zinc-900 tracking-tight leading-[1.12] mb-6">${m.suggested_copy}</h1>`
           );
         } else if (sec.type === 'cta') {
           // Upgrade CTA
           updatedHtml = updatedHtml.replace(
             /<a[^>]*>(.*?)<\/a>/i,
-            `<a href="#" class="px-8 py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl font-semibold text-sm transition-all shadow-md inline-block">${m.suggested_copy} →</a>`
+            `<a href="#" class="px-8 py-4 bg-white text-zinc-900 rounded-xl font-bold text-sm hover:bg-zinc-100 transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98] inline-block">${m.suggested_copy} (Instant Access) →</a>`
           );
         }
       } else {
@@ -568,9 +849,14 @@ function generateFallbackRegeneration(
     brandConfig
   );
 
+  const reactTsx = convertToReactTsx(fullHtml, scrapedContent?.title);
+  const vueCode = convertToVue(fullHtml);
+
   return {
     sections: regeneratedSections,
     full_regenerated_html: fullHtml,
+    react_tsx: reactTsx,
+    vue_code: vueCode,
     token_usage: {
       input_tokens: 1850,
       output_tokens: 620,
