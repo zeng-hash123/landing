@@ -145,6 +145,7 @@ function extractStructuredContent(
     sections,
     visibleText,
     screenshotUrl: screenshotUrl || undefined,
+    rawHtml: html || undefined,
   };
 }
 
