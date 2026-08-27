@@ -13,7 +13,8 @@ import { supabase } from '../../lib/supabase';
 import { Sparkles, Check, ShieldCheck, Zap, X, ArrowRight, Lock, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const ADMIN_EMAIL = 'zeng07292@gmail.com';
+import { isAdminEmail } from '../../lib/admin';
+
 const DODO_ONE_TIME_5_URL = 'https://checkout.dodopayments.com/buy/pdt_0NlsfRGt1hxhBfPNLsoFZ?quantity=1';
 const DODO_AGENCY_49_URL = 'https://checkout.dodopayments.com/buy/pdt_0Njtj6vpds8u2k9BreAhC?quantity=1';
 
@@ -57,7 +58,7 @@ export default function ChatStudioPage() {
   const [isProUser, setIsProUser] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
 
-  const isAdminUser = userEmail?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase();
+  const isAdminUser = isAdminEmail(userEmail);
 
   const getCheckoutUrl = (baseUrl: string = DODO_AGENCY_49_URL) => {
     if (userEmail) {
@@ -74,7 +75,7 @@ export default function ChatStudioPage() {
   useEffect(() => {
     if (!userEmail) return;
     const cleanEmail = userEmail.toLowerCase().trim();
-    if (cleanEmail === ADMIN_EMAIL.toLowerCase()) {
+    if (isAdminEmail(cleanEmail)) {
       setIsProUser(true);
       return;
     }

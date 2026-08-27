@@ -2,7 +2,79 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminSupabase } from '@/lib/supabase';
 import { regeneratePage } from '@/lib/ai/regenerate';
 import { BrandConfig } from '@/types/regenerate';
+import { isAdminEmail } from '@/lib/admin';
 
+// GET: Fetch all past generated versions for this audit
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const auditId = params.id;
+
+    if (!auditId) {
+      return NextResponse.json(
+        { error: 'INVALID_ID', message: 'Audit ID is required.' },
+        { status: 400 }
+      );
+    }
+
+    const authHeader = req.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+
+    if (!token) {
+      return NextResponse.json(
+        { error: 'UNAUTHORIZED', message: 'Authentication is required.' },
+        { status: 401 }
+      );
+    }
+
+    const supabaseAdmin = getAdminSupabase();
+
+    // Authenticate user
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'UNAUTHORIZED', message: 'Invalid or expired session token.' },
+        { status: 401 }
+      );
+    }
+
+    const isUserAdmin = isAdminEmail(user.email);
+
+    // Fetch all regenerations for this audit
+    let query = supabaseAdmin
+      .from('regenerations')
+      .select('*')
+      .eq('audit_id', auditId)
+      .order('created_at', { ascending: false });
+
+    if (!isUserAdmin) {
+      query = query.eq('user_id', user.id);
+    }
+
+    const { data: regenerations, error: fetchError } = await query;
+
+    if (fetchError) {
+      console.warn('Failed to fetch regenerations history:', fetchError);
+      return NextResponse.json({ success: true, history: [] });
+    }
+
+    return NextResponse.json({
+      success: true,
+      history: regenerations || [],
+    });
+  } catch (err: any) {
+    console.error('API GET /api/pages/[id]/regenerate error:', err);
+    return NextResponse.json(
+      { error: 'FETCH_FAILED', message: err.message || 'Failed to fetch history.' },
+      { status: 500 }
+    );
+  }
+}
+
+// POST: Trigger a new generation with Kimi K3 and save to history
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -39,13 +111,19 @@ export async function POST(
       );
     }
 
+    const isUserAdmin = isAdminEmail(user.email);
+
     // Fetch original audit record from database
-    const { data: auditRecord, error: auditError } = await supabaseAdmin
+    let auditQuery = supabaseAdmin
       .from('audits')
       .select('*')
-      .eq('id', auditId)
-      .eq('user_id', user.id)
-      .single();
+      .eq('id', auditId);
+
+    if (!isUserAdmin) {
+      auditQuery = auditQuery.eq('user_id', user.id);
+    }
+
+    const { data: auditRecord, error: auditError } = await auditQuery.single();
 
     if (auditError || !auditRecord) {
       return NextResponse.json(
@@ -61,7 +139,7 @@ export async function POST(
     const scrapedContent = auditRecord.page_data_json;
     const suggestions = auditRecord.audit_json?.categories || [];
 
-    // Trigger section-by-section regeneration
+    // Trigger Kimi K3 page generation
     const regenResult = await regeneratePage(
       scrapedContent,
       suggestions,
@@ -69,7 +147,7 @@ export async function POST(
       suggestion_ids
     );
 
-    // Save regeneration to Supabase public.regenerations table
+    // Save generation to Supabase public.regenerations table
     const { data: insertedRegen, error: insertError } = await supabaseAdmin
       .from('regenerations')
       .insert({
@@ -89,7 +167,7 @@ export async function POST(
     }
 
     const record = insertedRegen || {
-      id: 'demo-regen-id',
+      id: `regen-${Date.now()}`,
       audit_id: auditId,
       user_id: user.id,
       suggestion_ids,
@@ -100,9 +178,17 @@ export async function POST(
       created_at: new Date().toISOString(),
     };
 
+    // Fetch updated history list
+    const { data: allHistory } = await supabaseAdmin
+      .from('regenerations')
+      .select('*')
+      .eq('audit_id', auditId)
+      .order('created_at', { ascending: false });
+
     return NextResponse.json({
       success: true,
       regenerationRecord: record,
+      history: allHistory && allHistory.length > 0 ? allHistory : [record],
     });
   } catch (err: any) {
     console.error('API /api/pages/[id]/regenerate error:', err);

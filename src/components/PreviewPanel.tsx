@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Monitor, Tablet, Smartphone, Copy, Download, History, DollarSign, User, LogOut, ShieldCheck, Lock, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { isAdminEmail } from '@/lib/admin';
 
 interface PreviewPanelProps {
   html: string;
@@ -38,6 +39,7 @@ function ProfileMenu({ userEmail, isAdmin = false, isPro = false, onSignOut }: {
 
   const displayEmail = userEmail || 'user@pixelpage.com';
   const initial = displayEmail.charAt(0).toUpperCase();
+  const effectiveIsAdmin = isAdmin || isAdminEmail(userEmail);
 
   return (
     <div className="relative inline-block" ref={menuRef}>
@@ -69,13 +71,13 @@ function ProfileMenu({ userEmail, isAdmin = false, isPro = false, onSignOut }: {
                 </p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md ${
-                    isAdmin 
+                    effectiveIsAdmin 
                       ? 'bg-violet-500/20 text-violet-300 border border-violet-500/40'
                       : isPro
                       ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
                       : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                   }`}>
-                    {isAdmin ? 'Admin Plan' : isPro ? 'Unlimited Plan Active' : 'Subscription Required'}
+                    {effectiveIsAdmin ? 'Pro Admin Plan' : isPro ? 'Unlimited Plan Active' : 'Subscription Required'}
                   </span>
                 </div>
               </div>
@@ -83,7 +85,7 @@ function ProfileMenu({ userEmail, isAdmin = false, isPro = false, onSignOut }: {
 
             {/* Plan Details Info */}
             <div className="bg-[#161622] p-2.5 rounded-xl border border-white/5 text-[11px] text-gray-400 leading-tight">
-              {isAdmin ? (
+              {effectiveIsAdmin ? (
                 <span className="text-emerald-400 font-medium flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> Full Admin & Unlimited Access Active
                 </span>

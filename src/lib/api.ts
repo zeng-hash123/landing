@@ -8,8 +8,13 @@ import {
 } from '../types';
 import { supabase } from './supabase';
 
+import { isAdminEmail } from './admin';
+
 export async function getUserPlan(email: string): Promise<{ email: string; plan: string }> {
   try {
+    if (isAdminEmail(email)) {
+      return { email, plan: 'admin' };
+    }
     if (!supabase) return { email, plan: 'free' };
     const { data } = await supabase
       .from('profiles')
@@ -22,6 +27,7 @@ export async function getUserPlan(email: string): Promise<{ email: string; plan:
     }
     return { email, plan: 'free' };
   } catch (e) {
+    if (isAdminEmail(email)) return { email, plan: 'admin' };
     return { email, plan: 'free' };
   }
 }

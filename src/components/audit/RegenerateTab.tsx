@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuditRecord, CategoryResult } from '@/types/audit';
 import { BrandConfig, RegeneratedSection, RegenerationRecord } from '@/types/regenerate';
 import { supabase } from '@/lib/supabase';
+import { isAdminEmail } from '@/lib/admin';
 import {
   Monitor,
   Tablet,
@@ -21,6 +22,11 @@ import {
   Globe,
   Split,
   Image as ImageIcon,
+  History,
+  Clock,
+  ChevronDown,
+  Layers,
+  Zap,
 } from 'lucide-react';
 
 interface RegenerateTabProps {
@@ -44,20 +50,57 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
   const [bannedWords, setBannedWords] = useState('');
   const [framework, setFramework] = useState<'react_nextjs' | 'html' | 'vue'>('react_nextjs');
 
-  // Generation state
+  // Generation state & History
   const [isGenerating, setIsGenerating] = useState(false);
   const [regeneration, setRegeneration] = useState<RegenerationRecord | null>(null);
+  const [versionHistory, setVersionHistory] = useState<RegenerationRecord[]>([]);
+  const [activeVersionId, setActiveVersionId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'preview' | 'compare' | 'diff' | 'code'>('preview');
   const [codeTab, setCodeTab] = useState<'react' | 'html' | 'vue'>('react');
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [copied, setCopied] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>('');
 
   const viewportWidths = {
     desktop: '100%',
     tablet: '768px',
     mobile: '375px',
   };
+
+  // Fetch past generated versions on load
+  useEffect(() => {
+    async function loadPastGenerations() {
+      try {
+        const sessionRes = await supabase?.auth.getSession();
+        const token = sessionRes?.data.session?.access_token;
+        const email = sessionRes?.data.session?.user?.email || '';
+        setUserEmail(email);
+
+        if (!token) return;
+
+        const res = await fetch(`/api/pages/${auditRecord.id}/regenerate`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json.history && Array.isArray(json.history) && json.history.length > 0) {
+            setVersionHistory(json.history);
+            setRegeneration(json.history[0]);
+            setActiveVersionId(json.history[0].id);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load past regenerations:', err);
+      }
+    }
+
+    loadPastGenerations();
+  }, [auditRecord.id]);
 
   const getLanguageName = (code: string) => {
     const map: Record<string, string> = {
@@ -129,13 +172,27 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
         throw new Error(json.message || 'Failed to generate optimized page.');
       }
 
-      setRegeneration(json.regenerationRecord as RegenerationRecord);
+      const newRecord = json.regenerationRecord as RegenerationRecord;
+      setRegeneration(newRecord);
+      setActiveVersionId(newRecord.id);
+
+      if (json.history && Array.isArray(json.history)) {
+        setVersionHistory(json.history);
+      } else {
+        setVersionHistory((prev) => [newRecord, ...prev.filter((p) => p.id !== newRecord.id)]);
+      }
+
       setViewMode('preview');
     } catch (err: any) {
       setError(err.message || 'Regeneration failed. Please try again.');
     }
 
     setIsGenerating(false);
+  };
+
+  const handleSelectVersion = (version: RegenerationRecord) => {
+    setRegeneration(version);
+    setActiveVersionId(version.id);
   };
 
   const getActiveCode = () => {
@@ -201,6 +258,8 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
     }
   };
 
+  const isProAdmin = isAdminEmail(userEmail);
+
   return (
     <div className="space-y-8">
       {/* OPTIMIZER CONTROLS CARD */}
@@ -211,9 +270,16 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
               <Sparkles className="w-4 h-4 text-amber-400" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-zinc-900">Multilingual Landing Page Generator</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-bold text-zinc-900">Kimi K3 Landing Page Generation Engine</h2>
+                {isProAdmin && (
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-violet-100 text-violet-800 border border-violet-200">
+                    Pro Admin (Unlimited)
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-zinc-500">
-                Preserves original website design, language, colors, and layout with optimized CRO copy
+                Generates fresh, high-converting variants matching original design & language on every run
               </p>
             </div>
           </div>
@@ -349,12 +415,12 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
             {isGenerating ? (
               <>
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                <span>Generating Optimized Page in {getLanguageName(detectedLanguage)}...</span>
+                <span>Generating New Page with Kimi K3 ({getLanguageName(detectedLanguage)})...</span>
               </>
             ) : (
               <>
-                <RefreshCw className="w-4 h-4" />
-                <span>Generate Optimized Landing Page</span>
+                <Zap className="w-4 h-4 text-amber-400" />
+                <span>Generate Optimized Landing Page (Kimi K3)</span>
               </>
             )}
           </button>
@@ -387,6 +453,53 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
         </div>
       </div>
 
+      {/* VERSION HISTORY BAR */}
+      {versionHistory.length > 0 && (
+        <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 pb-3 border-b border-zinc-100">
+            <div className="flex items-center gap-2">
+              <History className="w-4 h-4 text-zinc-600" />
+              <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider">
+                Generated Page Variations History ({versionHistory.length})
+              </span>
+            </div>
+            <span className="text-[11px] text-zinc-400">
+              Click any version below to switch preview or restore previous variants
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+            {versionHistory.map((ver, idx) => {
+              const isSelected = (regeneration?.id === ver.id) || (activeVersionId === ver.id);
+              const versionNum = versionHistory.length - idx;
+              const formattedTime = ver.created_at
+                ? new Date(ver.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                : 'Recent';
+
+              return (
+                <button
+                  key={ver.id || idx}
+                  onClick={() => handleSelectVersion(ver)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer border ${
+                    isSelected
+                      ? 'bg-zinc-900 text-white border-zinc-900 shadow-sm'
+                      : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200 hover:border-zinc-300'
+                  }`}
+                >
+                  <Clock className={`w-3 h-3 ${isSelected ? 'text-amber-400' : 'text-zinc-400'}`} />
+                  <span>Version {versionNum}</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-normal ${
+                    isSelected ? 'bg-zinc-800 text-zinc-300' : 'bg-zinc-200/70 text-zinc-500'
+                  }`}>
+                    {idx === 0 ? 'Latest' : formattedTime}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* REGENERATED OUTPUT & LIVE PREVIEW CONTROLS */}
       {regeneration && (
         <div className="space-y-4">
@@ -398,7 +511,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
               </div>
               <div>
                 <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                  <span>Optimized Landing Page Generated</span>
+                  <span>Optimized Landing Page (Kimi K3)</span>
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
                     {getLanguageName(detectedLanguage)}
                   </span>

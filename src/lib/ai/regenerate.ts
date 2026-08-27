@@ -3,7 +3,8 @@ import { ExtractedPageData } from '@/types/page';
 import { CategoryResult } from '@/types/audit';
 import { BrandConfig, RegeneratedSection, RegenerationOutput, SectionType } from '@/types/regenerate';
 
-// Model constant for coding variant
+// Primary Model for regeneration
+export const KIMI_K3_MODEL = 'kimi-k3';
 export const KIMI_CODE_MODEL = 'kimi-k2.7-code';
 
 const RegeneratedSectionSchema = z.object({
@@ -20,13 +21,13 @@ const RegenerationResponseSchema = z.object({
   full_regenerated_html: z.string().optional(),
 });
 
-const REGENERATE_SYSTEM_PROMPT = `You are a world-class principal frontend architect and direct-response Conversion Rate Optimization (CRO) expert.
+const REGENERATE_SYSTEM_PROMPT = `You are a world-class principal frontend architect and direct-response Conversion Rate Optimization (CRO) expert powered by Kimi K3.
 
 Your task is to take original landing page data, extracted content, brand configuration, and user-selected CRO audit suggestions, and regenerate an improved, high-converting variant of the original landing page that matches the original design, structure, and visual theme of the target URL while applying the generated copy improvements.
 
 CRITICAL MULTILINGUAL & LOCALIZATION RULES:
 1. LANGUAGE PRESERVATION: You MUST detect and preserve the primary natural language of the original landing page (e.g. English, Spanish, French, German, Japanese, Chinese, Portuguese, Italian, Russian, Hindi, etc.).
-2. ALL regenerated copy, headings, subheadings, feature points, CTA button text, trust microcopy, and badges MUST be in the EXACT SAME LANGUAGE as the original landing page.
+2. ALL regenerated copy, headlines, subheadings, feature points, CTA button text, trust microcopy, and badges MUST be in the EXACT SAME LANGUAGE as the original landing page.
 3. If the original page is in Spanish, every single piece of copy in the regenerated sections and full HTML must be in natural, persuasive Spanish. If German, in German. If Japanese, in Japanese, etc.
 4. NEVER translate or switch the page to English if the original site is in another language.
 
@@ -69,19 +70,7 @@ export async function regeneratePage(
     ? suggestions.filter((s) => targetSuggestionNames.includes(s.name) || targetSuggestionNames.includes(s.problem))
     : suggestions;
 
-  // 1. If raw HTML from the original website is available and substantial, generate exact variant by replacing copy in the original DOM
-  if (scrapedContent.rawHtml && scrapedContent.rawHtml.trim().length > 200) {
-    try {
-      const exactVariant = generateExactOriginalVariant(scrapedContent, activeSuggestions, brandConfig);
-      if (exactVariant.full_regenerated_html && exactVariant.full_regenerated_html.length > 200) {
-        return exactVariant;
-      }
-    } catch (err) {
-      console.warn('[Regenerate] Exact original variant generation fallback triggered:', err);
-    }
-  }
-
-  // 2. Build section models from scraped content
+  // Build section models from scraped content
   const originalSections = buildSectionsFromPageData(scrapedContent);
 
   // Match suggestions to sections
@@ -98,9 +87,10 @@ export async function regeneratePage(
     'https://api.moonshot.cn/v1/chat/completions',
   ];
 
-  const models = [KIMI_CODE_MODEL, 'kimi-k3'];
+  // Prioritize Kimi K3 as primary generation model
+  const models = [KIMI_K3_MODEL, KIMI_CODE_MODEL, 'moonshot-v1-8k'];
 
-  // If API key is available, attempt AI regeneration
+  // If API key is available, actively generate fresh page via Kimi K3
   if (apiKey) {
     const userPromptText = `ORIGINAL LANDING PAGE DATA:
 URL: ${scrapedContent.url}
@@ -132,7 +122,9 @@ ${JSON.stringify(
   null,
   2
 )}
-`;
+
+INSTRUCTION FOR THIS GENERATION RUN:
+Produce a fresh, compelling, high-converting variation. Apply direct-response copywriting best practices tailored to the brand's tone and primary language.`;
 
     const userMessageContent = scrapedContent.screenshotUrl
       ? [
@@ -155,7 +147,7 @@ ${JSON.stringify(
             },
             body: JSON.stringify({
               model,
-              temperature: 0.7,
+              temperature: 0.8,
               max_tokens: 2000,
               max_output_tokens: 2000,
               response_format: { type: 'json_object' },
@@ -186,9 +178,17 @@ ${JSON.stringify(
           }));
 
           const sectionsHtml = sanitizedSections.map((s) => s.regenerated_html).join('\n\n');
-          const fullHtml = validated.full_regenerated_html?.includes('<!DOCTYPE html>')
+          let fullHtml = validated.full_regenerated_html?.includes('<!DOCTYPE html>')
             ? validated.full_regenerated_html
             : buildFullHtmlDocument(scrapedContent, sectionsHtml, brandConfig);
+
+          // If rawHtml exists, also apply newly generated copy into the original DOM as an option
+          if (scrapedContent.rawHtml && scrapedContent.rawHtml.length > 200) {
+            const domReplaced = applyGeneratedCopyIntoOriginalDom(scrapedContent, sanitizedSections);
+            if (domReplaced && domReplaced.length > 200) {
+              fullHtml = domReplaced;
+            }
+          }
 
           const reactTsx = convertToReactTsx(fullHtml, scrapedContent.title);
           const vueCode = convertToVue(fullHtml);
@@ -212,6 +212,38 @@ ${JSON.stringify(
 
   // Fallback section builder with language-aware interactive design
   return generateFallbackRegeneration(mappedSections, activeSuggestions, brandConfig, scrapedContent);
+}
+
+function applyGeneratedCopyIntoOriginalDom(
+  scrapedContent: ExtractedPageData,
+  sections: RegeneratedSection[]
+): string {
+  try {
+    let html = sanitizeRawHtmlForIframe(scrapedContent.rawHtml || '');
+    html = injectBaseTag(html, scrapedContent.url);
+
+    sections.forEach((sec) => {
+      // Extract text content from regenerated_html
+      const plainText = sec.regenerated_html
+        .replace(/<[^>]*>/g, '')
+        .trim();
+
+      const originalPlainText = sec.original_html
+        .replace(/<[^>]*>/g, '')
+        .trim();
+
+      if (plainText && originalPlainText && plainText !== originalPlainText) {
+        const result = replaceCopyInHtml(html, originalPlainText, plainText);
+        if (result.replaced) {
+          html = result.updatedHtml;
+        }
+      }
+    });
+
+    return html;
+  } catch {
+    return '';
+  }
 }
 
 /**

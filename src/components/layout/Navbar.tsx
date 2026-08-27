@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { User, LogOut, LayoutDashboard, Sparkles, ChevronDown } from 'lucide-react';
 
+import { isAdminEmail } from '@/lib/admin';
+
 export function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -98,7 +100,14 @@ export function Navbar() {
                 {profileOpen && (
                   <div className="absolute right-0 mt-2 w-60 bg-white border border-zinc-200 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
                     <div className="px-4 py-2.5 border-b border-zinc-100">
-                      <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Signed in as</p>
+                      <div className="flex items-center justify-between gap-1">
+                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Signed in as</p>
+                        {isAdminEmail(user?.email) && (
+                          <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-violet-100 text-violet-800 border border-violet-200">
+                            PRO ADMIN
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs font-semibold text-zinc-900 truncate mt-0.5" title={user.email}>
                         {user.email}
                       </p>
