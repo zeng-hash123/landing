@@ -59,6 +59,7 @@ export async function auditLandingPage(pageData: ExtractedPageData): Promise<Aud
   const userPromptText = `Please perform a comprehensive CRO audit for the following landing page:
 
 URL: ${pageData.url}
+Detected Language: ${pageData.language || 'auto-detect'}
 Page Title: ${pageData.title}
 Meta Description: ${pageData.metaDescription}
 

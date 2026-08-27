@@ -17,8 +17,10 @@ import {
   CheckCircle2,
   Sparkles,
   RefreshCw,
-  Layers,
   FileCode,
+  Globe,
+  Split,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 interface RegenerateTabProps {
@@ -27,6 +29,8 @@ interface RegenerateTabProps {
 
 export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
   const categories: CategoryResult[] = auditRecord.audit_json.categories || [];
+  const detectedLanguage = auditRecord.page_data_json?.language || 'en';
+  const screenshotUrl = auditRecord.page_data_json?.screenshotUrl;
 
   // Suggestion selection state (default: all checked)
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>(
@@ -44,7 +48,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [regeneration, setRegeneration] = useState<RegenerationRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'preview' | 'diff' | 'code'>('preview');
+  const [viewMode, setViewMode] = useState<'preview' | 'compare' | 'diff' | 'code'>('preview');
   const [codeTab, setCodeTab] = useState<'react' | 'html' | 'vue'>('react');
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [copied, setCopied] = useState(false);
@@ -53,6 +57,24 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
     desktop: '100%',
     tablet: '768px',
     mobile: '375px',
+  };
+
+  const getLanguageName = (code: string) => {
+    const map: Record<string, string> = {
+      en: 'English (US/UK)',
+      es: 'Spanish (Español)',
+      de: 'German (Deutsch)',
+      fr: 'French (Français)',
+      pt: 'Portuguese (Português)',
+      it: 'Italian (Italiano)',
+      ja: 'Japanese (日本語)',
+      zh: 'Chinese (中文)',
+      ko: 'Korean (한국어)',
+      ru: 'Russian (Русский)',
+      hi: 'Hindi (हिन्दी)',
+      ar: 'Arabic (العربية)',
+    };
+    return map[code.toLowerCase()] || code.toUpperCase();
   };
 
   const toggleSuggestion = (name: string) => {
@@ -183,15 +205,22 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
     <div className="space-y-8">
       {/* OPTIMIZER CONTROLS CARD */}
       <div className="bg-white border border-zinc-200 rounded-2xl p-6 sm:p-8 shadow-sm">
-        <div className="flex items-center gap-2.5 mb-2">
-          <div className="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-xs shadow-sm">
-            <Sparkles className="w-4 h-4 text-amber-400" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3 pb-4 border-b border-zinc-100">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-xs shadow-sm">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-zinc-900">Multilingual Landing Page Generator</h2>
+              <p className="text-xs text-zinc-500">
+                Preserves original website design, language, colors, and layout with optimized CRO copy
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-bold text-zinc-900">Modern Landing Page Generation Engine</h2>
-            <p className="text-xs text-zinc-500">
-              Powered by Tailwind CSS, Lucide Icons, Alpine.js, and React / Next.js code generation
-            </p>
+
+          <div className="flex items-center gap-2 bg-zinc-100 px-3 py-1.5 rounded-full border border-zinc-200 text-xs font-semibold text-zinc-700 self-start sm:self-auto">
+            <Globe className="w-3.5 h-3.5 text-zinc-500" />
+            <span>Site Language: <strong className="text-zinc-900">{getLanguageName(detectedLanguage)}</strong></span>
           </div>
         </div>
 
@@ -320,7 +349,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
             {isGenerating ? (
               <>
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                <span>Generating Framework Page & Visuals...</span>
+                <span>Generating Optimized Page in {getLanguageName(detectedLanguage)}...</span>
               </>
             ) : (
               <>
@@ -371,19 +400,19 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
                 <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                   <span>Optimized Landing Page Generated</span>
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                    Live Preview Ready
+                    {getLanguageName(detectedLanguage)}
                   </span>
                 </h3>
                 <p className="text-xs text-zinc-400">
-                  {regeneration.sections_json.length} sections redesigned with Tailwind CSS & interactive components.
+                  {regeneration.sections_json.length} sections redesigned matching original design & copy structure.
                 </p>
               </div>
             </div>
 
             {/* View Mode & Viewport Controls */}
             <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-              {/* Viewport switcher (Active in Preview mode) */}
-              {viewMode === 'preview' && (
+              {/* Viewport switcher (Active in Preview & Compare mode) */}
+              {(viewMode === 'preview' || viewMode === 'compare') && (
                 <div className="flex items-center bg-zinc-800 p-1 rounded-xl border border-zinc-700 text-xs">
                   <button
                     onClick={() => setViewport('desktop')}
@@ -426,6 +455,17 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
                   <Eye className="w-3.5 h-3.5" />
                   <span>Live Preview</span>
                 </button>
+                {screenshotUrl && (
+                  <button
+                    onClick={() => setViewMode('compare')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      viewMode === 'compare' ? 'bg-white text-zinc-900' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <Split className="w-3.5 h-3.5" />
+                    <span>Compare Original</span>
+                  </button>
+                )}
                 <button
                   onClick={() => setViewMode('diff')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
@@ -498,7 +538,55 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
             </div>
           )}
 
-          {/* VIEW MODE 2: SIDE-BY-SIDE SECTION DIFF */}
+          {/* VIEW MODE 2: VISUAL SIDE-BY-SIDE COMPARISON WITH ORIGINAL SCREENSHOT */}
+          {viewMode === 'compare' && screenshotUrl && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* LEFT: ORIGINAL SITE SCREENSHOT */}
+              <div className="bg-white border border-zinc-200 rounded-2xl p-5 shadow-sm space-y-3 flex flex-col">
+                <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-zinc-500" />
+                    <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider">
+                      Original URL Screenshot (Visual Reference)
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-mono text-zinc-400">{auditRecord.url}</span>
+                </div>
+                <div className="rounded-xl overflow-hidden border border-zinc-200 flex-1 bg-zinc-50 max-h-[750px] overflow-y-auto">
+                  <img
+                    src={screenshotUrl}
+                    alt={`Screenshot of ${auditRecord.url}`}
+                    className="w-full object-cover object-top"
+                  />
+                </div>
+              </div>
+
+              {/* RIGHT: REGENERATED PAGE LIVE IFRAME */}
+              <div className="bg-white border-2 border-zinc-900 rounded-2xl p-5 shadow-md space-y-3 flex flex-col">
+                <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider">
+                      Optimized Regenerated Landing Page
+                    </span>
+                  </div>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                    Design Matched + CRO Improved
+                  </span>
+                </div>
+                <div className="rounded-xl overflow-hidden border border-zinc-200 flex-1 bg-white h-[750px]">
+                  <iframe
+                    srcDoc={regeneration.full_regenerated_html}
+                    title="Optimized Landing Page Live"
+                    className="w-full h-full border-0 bg-white"
+                    sandbox="allow-scripts allow-same-origin"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW MODE 3: SIDE-BY-SIDE SECTION DIFF */}
           {viewMode === 'diff' && (
             <div className="space-y-6">
               {regeneration.sections_json.map((section: RegeneratedSection, idx: number) => (
@@ -551,7 +639,7 @@ export function RegenerateTab({ auditRecord }: RegenerateTabProps) {
             </div>
           )}
 
-          {/* VIEW MODE 3: FRAMEWORK CODE EXPORTER */}
+          {/* VIEW MODE 4: FRAMEWORK CODE EXPORTER */}
           {viewMode === 'code' && (
             <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4 border-b border-zinc-100 pb-3">

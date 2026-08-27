@@ -18,11 +18,18 @@ Evaluate the landing page on the following 14 dimensions:
 13. Differentiation
 14. Overall UX/content hierarchy
 
+CRITICAL MULTILINGUAL & LOCALIZATION RULES:
+- LANGUAGE FIDELITY: Detect the primary natural language of the analyzed landing page (e.g. English, Spanish, French, German, Japanese, Chinese, Portuguese, Italian, Russian, Hindi, etc.).
+- ALL output fields (summary, problem, why_it_matters, recommendation, and ESPECIALLY suggested_copy and top_priorities) MUST BE WRITTEN IN THE EXACT SAME LANGUAGE as the landing page.
+- If the landing page is in Spanish, write the entire audit and all suggested copy in fluent, natural Spanish.
+- If the landing page is in German, write everything in German. If French, in French. If Japanese, in Japanese, etc.
+- Never switch to English if the original landing page is in another language.
+
 RULES & CONSTRAINTS:
-- Be specific and ground every finding directly in the actual extracted content.
-- Never invent facts, testimonials, customer logos, or stats.
+- Ground every finding directly in the actual extracted content.
+- Never invent fake facts, testimonials, customer logos, or stats.
 - Never claim a conversion improvement percentage without empirical evidence.
-- Provide concrete copy replacements for current copy wherever appropriate.
+- Provide concrete copy replacements (current_copy and suggested_copy) wherever appropriate.
 - Prioritize high-impact CRO improvements.
 - Keep recommendations concise, direct, and immediately actionable.
 - Do not attempt to rewrite or fix sections that are already clear and strong.
@@ -31,25 +38,25 @@ OUTPUT FORMAT:
 You MUST return ONLY valid JSON matching this exact structure:
 {
   "overall_score": <number between 1 and 100>,
-  "summary": "<2-3 sentence overview highlighting the page's current CRO state>",
+  "summary": "<2-3 sentence overview in the page's language highlighting the current CRO state>",
   "categories": [
     {
-      "name": "<Category Name: e.g. Headline, CTA, Messaging, Trust, Structure, UX>",
+      "name": "<Category Name in English or localized: Headline, CTA, Messaging, Trust, Structure, UX>",
       "score": <number between 1 and 100>,
       "severity": "critical" | "high" | "medium" | "low",
-      "problem": "<Direct explanation of what is wrong>",
-      "why_it_matters": "<Why this hurts conversion rates>",
-      "recommendation": "<Actionable recommendation>",
-      "current_copy": "<Exact text snippet from the page, or empty if structural>",
-      "suggested_copy": "<Improved copy replacement, or empty if structural>"
+      "problem": "<Direct explanation of what is wrong in the page's language>",
+      "why_it_matters": "<Why this hurts conversion rates in the page's language>",
+      "recommendation": "<Actionable recommendation in the page's language>",
+      "current_copy": "<Exact text snippet from the page in original language, or empty if structural>",
+      "suggested_copy": "<High-converting copy replacement in the page's language, or empty if structural>"
     }
   ],
   "top_priorities": [
     {
-      "title": "<Priority Title>",
+      "title": "<Priority Title in the page's language>",
       "severity": "critical" | "high" | "medium" | "low",
-      "reason": "<Key reason why this should be addressed immediately>",
-      "recommendation": "<Specific action to take>"
+      "reason": "<Key reason why this should be addressed in the page's language>",
+      "recommendation": "<Specific action to take in the page's language>"
     }
   ]
 }

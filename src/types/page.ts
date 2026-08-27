@@ -11,4 +11,5 @@ export interface ExtractedPageData {
   visibleText: string;
   screenshotUrl?: string;
   rawHtml?: string;
+  language?: string;
 }

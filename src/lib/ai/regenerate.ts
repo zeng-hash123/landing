@@ -22,22 +22,36 @@ const RegenerationResponseSchema = z.object({
 
 const REGENERATE_SYSTEM_PROMPT = `You are a world-class principal frontend architect and direct-response Conversion Rate Optimization (CRO) expert.
 
-Your task is to take original landing page data, extracted content, brand configuration, and user-selected CRO audit suggestions, and regenerate an improved, high-converting variant of the original landing page that matches the original design, structure, and branding of the target URL while applying the generated copy improvements.
+Your task is to take original landing page data, extracted content, brand configuration, and user-selected CRO audit suggestions, and regenerate an improved, high-converting variant of the original landing page that matches the original design, structure, and visual theme of the target URL while applying the generated copy improvements.
 
-RULES & CONSTRAINTS:
-1. Output MUST strictly be valid JSON matching this schema:
+CRITICAL MULTILINGUAL & LOCALIZATION RULES:
+1. LANGUAGE PRESERVATION: You MUST detect and preserve the primary natural language of the original landing page (e.g. English, Spanish, French, German, Japanese, Chinese, Portuguese, Italian, Russian, Hindi, etc.).
+2. ALL regenerated copy, headings, subheadings, feature points, CTA button text, trust microcopy, and badges MUST be in the EXACT SAME LANGUAGE as the original landing page.
+3. If the original page is in Spanish, every single piece of copy in the regenerated sections and full HTML must be in natural, persuasive Spanish. If German, in German. If Japanese, in Japanese, etc.
+4. NEVER translate or switch the page to English if the original site is in another language.
+
+DESIGN & STYLING SPECIFICATIONS:
+1. Preserve the original brand's visual identity:
+   - Primary colors, layout density, typography style, and logo/images.
+   - Use Tailwind CSS classes for responsive layouts, clean spacing, glassmorphic headers, and modern cards.
+   - Use Lucide Icons or crisp SVGs for icons.
+2. In full_regenerated_html:
+   - Provide a complete standalone HTML document with <!DOCTYPE html>, <head> (including Tailwind CDN <script src="https://cdn.tailwindcss.com"></script>, Google Fonts, and viewport meta), and <body>.
+
+OUTPUT FORMAT:
+Output MUST strictly be valid JSON matching this schema:
 {
   "sections": [
     {
       "id": "sec_hero_1",
       "type": "hero" | "cta" | "social_proof" | "form" | "feature" | "footer" | "other",
       "original_html": "original section html string",
-      "regenerated_html": "regenerated section html with updated copy",
-      "change_summary": "one line summary explaining the CRO fix",
+      "regenerated_html": "regenerated section html in the page's language",
+      "change_summary": "one line summary explaining the CRO fix in the page's language",
       "suggestion_ids": ["matching_suggestion_name"]
     }
   ],
-  "full_regenerated_html": "complete standalone HTML document"
+  "full_regenerated_html": "complete standalone HTML document in the page's language"
 }
 
 Strictly NO text or markdown blocks outside the JSON object.`;
@@ -55,9 +69,16 @@ export async function regeneratePage(
     ? suggestions.filter((s) => targetSuggestionNames.includes(s.name) || targetSuggestionNames.includes(s.problem))
     : suggestions;
 
-  // 1. If raw HTML from the original website is available, generate the exact variant by replacing copy in the original DOM
-  if (scrapedContent.rawHtml && scrapedContent.rawHtml.trim().length > 100) {
-    return generateExactOriginalVariant(scrapedContent, activeSuggestions, brandConfig);
+  // 1. If raw HTML from the original website is available and substantial, generate exact variant by replacing copy in the original DOM
+  if (scrapedContent.rawHtml && scrapedContent.rawHtml.trim().length > 200) {
+    try {
+      const exactVariant = generateExactOriginalVariant(scrapedContent, activeSuggestions, brandConfig);
+      if (exactVariant.full_regenerated_html && exactVariant.full_regenerated_html.length > 200) {
+        return exactVariant;
+      }
+    } catch (err) {
+      console.warn('[Regenerate] Exact original variant generation fallback triggered:', err);
+    }
   }
 
   // 2. Build section models from scraped content
@@ -83,6 +104,7 @@ export async function regeneratePage(
   if (apiKey) {
     const userPromptText = `ORIGINAL LANDING PAGE DATA:
 URL: ${scrapedContent.url}
+Page Language: ${scrapedContent.language || 'auto-detect'}
 Title: ${scrapedContent.title}
 Meta Description: ${scrapedContent.metaDescription}
 Screenshot URL: ${scrapedContent.screenshotUrl || 'N/A'}
@@ -188,7 +210,7 @@ ${JSON.stringify(
     }
   }
 
-  // Fallback section builder with agency-grade interactive design
+  // Fallback section builder with language-aware interactive design
   return generateFallbackRegeneration(mappedSections, activeSuggestions, brandConfig, scrapedContent);
 }
 
@@ -201,6 +223,9 @@ export function generateExactOriginalVariant(
   brandConfig?: BrandConfig
 ): RegenerationOutput {
   let originalHtml = scrapedContent.rawHtml || '';
+
+  // Clean scripts that could break inside iframe srcDoc (e.g. trackers, hydration bundles)
+  originalHtml = sanitizeRawHtmlForIframe(originalHtml);
 
   // Inject <base href="..."> so original images, CSS, fonts, and assets load seamlessly
   let updatedHtml = injectBaseTag(originalHtml, scrapedContent.url);
@@ -216,14 +241,14 @@ export function generateExactOriginalVariant(
 
     let targetToReplace = currentCopy;
 
-    // If current_copy is missing, infer target from headings / CTAs
+    // If current_copy is missing, infer target from headings / CTAs in original language
     if (!targetToReplace) {
       const sName = s.name.toLowerCase();
-      if (sName.includes('headline') || sName.includes('hero')) {
+      if (sName.includes('headline') || sName.includes('hero') || sName.includes('titular')) {
         targetToReplace = scrapedContent.headings[0] || scrapedContent.title;
-      } else if (sName.includes('cta') || sName.includes('button')) {
+      } else if (sName.includes('cta') || sName.includes('button') || sName.includes('botón')) {
         targetToReplace = scrapedContent.ctas[0];
-      } else if (sName.includes('value') || sName.includes('subhead')) {
+      } else if (sName.includes('value') || sName.includes('subhead') || sName.includes('propuesta')) {
         targetToReplace = scrapedContent.paragraphs[0];
       }
     }
@@ -272,6 +297,16 @@ export function generateExactOriginalVariant(
   };
 }
 
+function sanitizeRawHtmlForIframe(html: string): string {
+  // Remove scripts that cause iframe errors / blank pages while keeping CSS and styling intact
+  let cleaned = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*(?:google-analytics|googletagmanager|hotjar|facebook\.net|clarity\.ms|sentry|datadog)[^<]*<\/script>/gi, '')
+    .replace(/<script[^>]*id="__NEXT_DATA__"[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<noscript>[\s\S]*?<\/noscript>/gi, '');
+
+  return cleaned;
+}
+
 function replaceCopyInHtml(
   html: string,
   targetText: string,
@@ -295,7 +330,7 @@ function replaceCopyInHtml(
     return { updatedHtml: before + cleanReplacement + after, replaced: true };
   }
 
-  // 3. Flexible whitespace regex match
+  // 3. Flexible whitespace regex match (supports Unicode across any language)
   try {
     const escaped = cleanTarget.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
     const regex = new RegExp(escaped, 'i');
@@ -350,10 +385,10 @@ function injectBaseTag(html: string, url: string): string {
 
 function inferSectionType(name: string): SectionType {
   const lower = (name || '').toLowerCase();
-  if (lower.includes('headline') || lower.includes('hero') || lower.includes('title')) return 'hero';
-  if (lower.includes('cta') || lower.includes('button') || lower.includes('action')) return 'cta';
-  if (lower.includes('proof') || lower.includes('trust') || lower.includes('social')) return 'social_proof';
-  if (lower.includes('feature') || lower.includes('benefit')) return 'feature';
+  if (lower.includes('headline') || lower.includes('hero') || lower.includes('title') || lower.includes('titular')) return 'hero';
+  if (lower.includes('cta') || lower.includes('button') || lower.includes('action') || lower.includes('botón') || lower.includes('appel')) return 'cta';
+  if (lower.includes('proof') || lower.includes('trust') || lower.includes('social') || lower.includes('confianza')) return 'social_proof';
+  if (lower.includes('feature') || lower.includes('benefit') || lower.includes('característica') || lower.includes('fonction')) return 'feature';
   return 'other';
 }
 
@@ -366,13 +401,160 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#039;');
 }
 
+function getLocalizedLabels(lang: string = 'en') {
+  const l = lang.toLowerCase();
+  if (l.startsWith('es')) {
+    return {
+      features: 'Características',
+      testimonials: 'Testimonios',
+      pricing: 'Precios',
+      faq: 'Preguntas Frecuentes',
+      whyChoose: 'Por qué elegir',
+      verifiedCro: 'CRO Verificado',
+      getStarted: 'Comenzar Gratis',
+      exploreFeatures: 'Explorar Funciones',
+      coreCapabilities: 'Capacidades Principales',
+      noCreditCard: 'Sin tarjeta de crédito',
+      freeTrial: 'Prueba de 14 días',
+      quickSetup: 'Configuración en 2 min',
+      monthly: 'Mensual',
+      annual: 'Anual',
+      save20: 'AHORRA 20%',
+      rightsReserved: 'Todos los derechos reservados.',
+    };
+  }
+  if (l.startsWith('de')) {
+    return {
+      features: 'Funktionen',
+      testimonials: 'Kundenstimmen',
+      pricing: 'Preise',
+      faq: 'Häufige Fragen',
+      whyChoose: 'Warum',
+      verifiedCro: 'Verifiziertes CRO',
+      getStarted: 'Kostenlos Starten',
+      exploreFeatures: 'Funktionen Entdecken',
+      coreCapabilities: 'Hauptfunktionen',
+      noCreditCard: 'Keine Kreditkarte erforderlich',
+      freeTrial: '14 Tage kostenlos testen',
+      quickSetup: 'In 2 Minuten einsatzbereit',
+      monthly: 'Monatlich',
+      annual: 'Jährlich',
+      save20: '20% SPAREN',
+      rightsReserved: 'Alle Rechte vorbehalten.',
+    };
+  }
+  if (l.startsWith('fr')) {
+    return {
+      features: 'Fonctionnalités',
+      testimonials: 'Témoignages',
+      pricing: 'Tarifs',
+      faq: 'Questions Fréquentes',
+      whyChoose: 'Pourquoi choisir',
+      verifiedCro: 'CRO Vérifié',
+      getStarted: 'Démarrer Gratuitement',
+      exploreFeatures: 'Découvrir les Fonctionnalités',
+      coreCapabilities: 'Capacités Clés',
+      noCreditCard: 'Aucune carte de crédit requise',
+      freeTrial: 'Essai gratuit de 14 jours',
+      quickSetup: 'Configuration en 2 min',
+      monthly: 'Mensuel',
+      annual: 'Annuel',
+      save20: 'ÉCONOMISEZ 20%',
+      rightsReserved: 'Tous droits réservés.',
+    };
+  }
+  if (l.startsWith('pt')) {
+    return {
+      features: 'Recursos',
+      testimonials: 'Depoimentos',
+      pricing: 'Preços',
+      faq: 'Perguntas Frequentes',
+      whyChoose: 'Por que escolher',
+      verifiedCro: 'CRO Verificado',
+      getStarted: 'Começar Grátis',
+      exploreFeatures: 'Explorar Recursos',
+      coreCapabilities: 'Principais Recursos',
+      noCreditCard: 'Sem cartão de crédito',
+      freeTrial: 'Teste grátis de 14 dias',
+      quickSetup: 'Configuração em 2 min',
+      monthly: 'Mensal',
+      annual: 'Anual',
+      save20: 'ECONOMIZE 20%',
+      rightsReserved: 'Todos os direitos reservados.',
+    };
+  }
+  if (l.startsWith('ja')) {
+    return {
+      features: '機能',
+      testimonials: '導入事例',
+      pricing: '料金プラン',
+      faq: 'よくある質問',
+      whyChoose: '選ばれる理由',
+      verifiedCro: '検証済みCRO',
+      getStarted: '無料で始める',
+      exploreFeatures: '機能を見る',
+      coreCapabilities: '主な機能',
+      noCreditCard: 'クレジットカード不要',
+      freeTrial: '14日間の無料トライアル',
+      quickSetup: '2分でセットアップ',
+      monthly: '月額',
+      annual: '年額',
+      save20: '20%割引',
+      rightsReserved: 'All rights reserved.',
+    };
+  }
+  if (l.startsWith('zh')) {
+    return {
+      features: '产品功能',
+      testimonials: '客户评价',
+      pricing: '价格方案',
+      faq: '常见问题',
+      whyChoose: '为什么选择',
+      verifiedCro: '专业转化率优化',
+      getStarted: '免费开始使用',
+      exploreFeatures: '探索核心功能',
+      coreCapabilities: '核心能力',
+      noCreditCard: '无需信用卡',
+      freeTrial: '14天免费试用',
+      quickSetup: '2分钟快速配置',
+      monthly: '按月付费',
+      annual: '按年付费',
+      save20: '立省20%',
+      rightsReserved: '保留所有权利。',
+    };
+  }
+
+  // Default: English
+  return {
+    features: 'Features',
+    testimonials: 'Testimonials',
+    pricing: 'Pricing',
+    faq: 'FAQ',
+    whyChoose: 'Why',
+    verifiedCro: 'Verified CRO',
+    getStarted: 'Start Free Trial',
+    exploreFeatures: 'Explore Core Features',
+    coreCapabilities: 'Core Capabilities',
+    noCreditCard: 'No credit card required',
+    freeTrial: '14-day free trial',
+    quickSetup: '2-minute setup',
+    monthly: 'Monthly',
+    annual: 'Annual',
+    save20: 'SAVE 20%',
+    rightsReserved: 'All rights reserved.',
+  };
+}
+
 function buildSectionsFromPageData(pageData: ExtractedPageData) {
   const sections: Array<{ id: string; type: SectionType; original_html: string }> = [];
 
+  const lang = pageData.language || 'en';
+  const L = getLocalizedLabels(lang);
+
   const brandName = pageData.title.split(/[-|:]/)[0]?.trim() || 'Product';
-  const heroHeading = pageData.headings[0] || pageData.title || 'Turn Visitors Into Paying Customers';
-  const heroSub = pageData.paragraphs[0] || pageData.metaDescription || 'The modern growth platform designed to optimize your conversion funnel and eliminate drop-off.';
-  const heroCta = pageData.ctas[0] || 'Start Free Trial';
+  const heroHeading = pageData.headings[0] || pageData.title || `${brandName}`;
+  const heroSub = pageData.paragraphs[0] || pageData.metaDescription || '';
+  const heroCta = pageData.ctas[0] || L.getStarted;
 
   // 1. Navigation Section
   sections.push({
@@ -386,20 +568,18 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
       </div>
       <div class="flex items-center gap-2">
         <span class="font-bold text-zinc-900 text-lg tracking-tight">${brandName}</span>
-        <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 hidden sm:inline-block">Verified CRO</span>
+        <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 hidden sm:inline-block">${L.verifiedCro}</span>
       </div>
     </div>
 
     <div class="hidden md:flex items-center gap-8 text-xs font-semibold text-zinc-600">
-      <a href="#features" class="hover:text-zinc-900 transition-colors">Features</a>
-      <a href="#comparison" class="hover:text-zinc-900 transition-colors">Why ${brandName}</a>
-      <a href="#testimonials" class="hover:text-zinc-900 transition-colors">Testimonials</a>
-      <a href="#pricing" class="hover:text-zinc-900 transition-colors">Pricing</a>
-      <a href="#faq" class="hover:text-zinc-900 transition-colors">FAQ</a>
+      <a href="#features" class="hover:text-zinc-900 transition-colors">${L.features}</a>
+      <a href="#testimonials" class="hover:text-zinc-900 transition-colors">${L.testimonials}</a>
+      <a href="#pricing" class="hover:text-zinc-900 transition-colors">${L.pricing}</a>
+      <a href="#faq" class="hover:text-zinc-900 transition-colors">${L.faq}</a>
     </div>
 
     <div class="flex items-center gap-3">
-      <a href="#cta" class="px-4 py-2 text-xs font-semibold text-zinc-700 hover:text-zinc-900 transition-colors hidden sm:block">Log in</a>
       <a href="#cta" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]">
         ${heroCta} →
       </a>
@@ -408,8 +588,8 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
 </nav>`,
   });
 
-  // 2. Hero Section
-  const heroImage = pageData.images?.[0]?.src;
+  // 2. Hero Section with Original Image / Screenshot
+  const heroImage = pageData.screenshotUrl || pageData.images?.[0]?.src;
   sections.push({
     id: 'sec_hero_1',
     type: 'hero',
@@ -420,37 +600,39 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
       </span>
-      <span>⚡ High-Converting Landing Page Architecture</span>
+      <span>⚡ ${L.verifiedCro}</span>
     </div>
 
     <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-zinc-900 tracking-tight leading-[1.12] mb-6">
       ${heroHeading}
     </h1>
 
-    <p class="text-base sm:text-lg text-zinc-600 max-w-2xl mx-auto mb-8 leading-relaxed font-normal">
-      ${heroSub}
-    </p>
+    ${
+      heroSub
+        ? `<p class="text-base sm:text-lg text-zinc-600 max-w-2xl mx-auto mb-8 leading-relaxed font-normal">${heroSub}</p>`
+        : ''
+    }
 
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
       <a href="#cta" class="w-full sm:w-auto px-8 py-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-sm font-semibold transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]">
-        ${heroCta} (Instant Access) →
+        ${heroCta} →
       </a>
       <a href="#features" class="w-full sm:w-auto px-7 py-4 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-xl text-sm font-semibold transition-all shadow-xs">
-        Explore Core Features
+        ${L.exploreFeatures}
       </a>
     </div>
 
     <div class="flex items-center justify-center gap-4 text-xs text-zinc-500 flex-wrap">
       <span class="flex items-center gap-1.5 font-medium text-zinc-700">
-        <span class="text-emerald-600 font-bold">✓</span> No credit card required
+        <span class="text-emerald-600 font-bold">✓</span> ${L.noCreditCard}
       </span>
       <span>•</span>
       <span class="flex items-center gap-1.5 font-medium text-zinc-700">
-        <span class="text-emerald-600 font-bold">✓</span> 14-day free trial
+        <span class="text-emerald-600 font-bold">✓</span> ${L.freeTrial}
       </span>
       <span>•</span>
       <span class="flex items-center gap-1.5 font-medium text-zinc-700">
-        <span class="text-emerald-600 font-bold">✓</span> 2-minute setup
+        <span class="text-emerald-600 font-bold">✓</span> ${L.quickSetup}
       </span>
     </div>
 
@@ -463,27 +645,24 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
           <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
           <span class="text-xs font-mono text-zinc-400 ml-2 hidden sm:inline-block">${pageData.url}</span>
         </div>
-        <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">● Live Conversion Engine</span>
+        <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">● ${L.verifiedCro}</span>
       </div>
 
       ${
         heroImage
-          ? `<img src="${heroImage}" alt="${brandName} Showcase" class="w-full h-auto rounded-xl object-cover border border-zinc-100" />`
+          ? `<img src="${heroImage}" alt="${brandName} Showcase" class="w-full h-auto rounded-xl object-cover border border-zinc-100 max-h-[480px]" />`
           : `<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-2">
                <div class="bg-zinc-50 p-5 rounded-xl border border-zinc-200/70">
                  <span class="text-xs font-semibold text-zinc-500 uppercase">Conversion Lift</span>
                  <div class="text-3xl font-extrabold text-zinc-900 mt-1">+38.4%</div>
-                 <p class="text-[11px] text-emerald-700 mt-1">▲ In first 30 days</p>
                </div>
                <div class="bg-zinc-50 p-5 rounded-xl border border-zinc-200/70">
-                 <span class="text-xs font-semibold text-zinc-500 uppercase">Analysis Speed</span>
+                 <span class="text-xs font-semibold text-zinc-500 uppercase">Page Speed</span>
                  <div class="text-3xl font-extrabold text-zinc-900 mt-1">2.4s</div>
-                 <p class="text-[11px] text-zinc-500 mt-1">Instant friction scan</p>
                </div>
                <div class="bg-zinc-50 p-5 rounded-xl border border-zinc-200/70">
-                 <span class="text-xs font-semibold text-zinc-500 uppercase">Visitor Trust Rating</span>
+                 <span class="text-xs font-semibold text-zinc-500 uppercase">Trust Rating</span>
                  <div class="text-3xl font-extrabold text-zinc-900 mt-1">4.9/5</div>
-                 <p class="text-[11px] text-emerald-700 mt-1">★★★★★ Verified by 1,200+ teams</p>
                </div>
              </div>`
       }
@@ -492,35 +671,9 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
 </section>`,
   });
 
-  // 3. Social Proof Section
-  sections.push({
-    id: 'sec_proof_2',
-    type: 'social_proof',
-    original_html: `<section class="py-12 bg-white border-b border-zinc-100 text-center px-4">
-  <div class="max-w-6xl mx-auto">
-    <p class="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-8">
-      Trusted by fast-growing startups, creators & agencies worldwide
-    </p>
-    <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-70 grayscale hover:grayscale-0 transition-all duration-300">
-      <span class="font-extrabold text-sm sm:text-base tracking-wider text-zinc-800">STRIPE</span>
-      <span class="font-extrabold text-sm sm:text-base tracking-wider text-zinc-800">VERCEL</span>
-      <span class="font-extrabold text-sm sm:text-base tracking-wider text-zinc-800">SUPABASE</span>
-      <span class="font-extrabold text-sm sm:text-base tracking-wider text-zinc-800">LINEAR</span>
-      <span class="font-extrabold text-sm sm:text-base tracking-wider text-zinc-800">NOTION</span>
-      <span class="font-extrabold text-sm sm:text-base tracking-wider text-zinc-800">OPENAI</span>
-    </div>
-  </div>
-</section>`,
-  });
-
-  // 4. Feature Section
+  // 3. Feature Section in Original Language
   const featureHeadings = pageData.headings.slice(1, 4);
   const featureParas = pageData.paragraphs.slice(1, 4);
-  const fallbackFeatures = [
-    { title: 'Outcome-Driven Copywriting', desc: 'Transform passive, vague messaging into crystal-clear value propositions that immediately hook target visitors.' },
-    { title: 'Low-Friction CTA Architecture', desc: 'Strategically position low-anxiety, high-intent call-to-actions that drive immediate decision-making.' },
-    { title: 'Zero Framework Lock-in', desc: 'Seamlessly export clean, responsive Tailwind HTML or React/Next.js components ready to deploy.' },
-  ];
 
   sections.push({
     id: 'sec_features_3',
@@ -529,18 +682,15 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
   <div class="max-w-6xl mx-auto">
     <div class="text-center max-w-2xl mx-auto mb-14">
       <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold text-zinc-700 mb-3">
-        <span>Core Capabilities</span>
+        <span>${L.coreCapabilities}</span>
       </div>
       <h2 class="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight mb-3">
-        Engineered for Maximum Conversions
+        ${L.features}
       </h2>
-      <p class="text-sm text-zinc-600">
-        Every element is designed from the ground up using proven direct-response heuristics.
-      </p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      ${(featureHeadings.length >= 3 ? featureHeadings : fallbackFeatures.map(f => f.title))
+      ${(featureHeadings.length >= 1 ? featureHeadings : ['Feature 1', 'Feature 2', 'Feature 3'])
         .slice(0, 3)
         .map(
           (h, i) => `
@@ -549,7 +699,7 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
           0${i + 1}
         </div>
         <h3 class="font-bold text-zinc-900 text-lg mb-2">${h}</h3>
-        <p class="text-xs text-zinc-600 leading-relaxed">${featureParas[i] || fallbackFeatures[i]?.desc || 'Purpose-built to maximize impact and user engagement.'}</p>
+        <p class="text-xs text-zinc-600 leading-relaxed">${featureParas[i] || ''}</p>
       </div>`
         )
         .join('')}
@@ -558,215 +708,29 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
 </section>`,
   });
 
-  // 5. Transformation / Comparison Matrix Section
+  // 4. CTA Section in Original Language
+  const ctaText = pageData.ctas[1] || pageData.ctas[0] || L.getStarted;
   sections.push({
-    id: 'sec_comparison_4',
-    type: 'other',
-    original_html: `<section id="comparison" class="py-20 px-4 bg-white border-b border-zinc-100">
-  <div class="max-w-5xl mx-auto">
-    <div class="text-center max-w-2xl mx-auto mb-12">
-      <h2 class="text-3xl font-extrabold text-zinc-900 tracking-tight mb-2">
-        The ${brandName} Advantage
-      </h2>
-      <p class="text-xs text-zinc-500">How our optimized architecture compares to traditional static templates</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="p-6 rounded-2xl border border-red-200 bg-red-50/30">
-        <div class="flex items-center gap-2 mb-4 font-bold text-red-900 text-sm">
-          <span class="w-5 h-5 rounded-full bg-red-200 text-red-800 flex items-center justify-center text-xs">✕</span>
-          <span>Generic Websites & Templates</span>
-        </div>
-        <ul class="space-y-3 text-xs text-zinc-600">
-          <li class="flex items-center gap-2">✕ Passive, feature-heavy headline that confuses visitors</li>
-          <li class="flex items-center gap-2">✕ High-friction, vague CTA button copy ("Submit", "Click Here")</li>
-          <li class="flex items-center gap-2">✕ Hidden trust proof buried below the scroll depth</li>
-          <li class="flex items-center gap-2">✕ Cluttered layout causing high mobile bounce rates</li>
-        </ul>
-      </div>
-
-      <div class="p-6 rounded-2xl border-2 border-zinc-900 bg-zinc-50 shadow-md">
-        <div class="flex items-center gap-2 mb-4 font-bold text-zinc-900 text-sm">
-          <span class="w-5 h-5 rounded-full bg-zinc-900 text-white flex items-center justify-center text-xs">✓</span>
-          <span>Optimized ${brandName} System</span>
-        </div>
-        <ul class="space-y-3 text-xs text-zinc-800 font-medium">
-          <li class="flex items-center gap-2 text-emerald-800"><span class="text-emerald-600 font-bold">✓</span> Outcome-driven transformation hooks (5-second clarity)</li>
-          <li class="flex items-center gap-2 text-emerald-800"><span class="text-emerald-600 font-bold">✓</span> Value-focused, low-anxiety primary action triggers</li>
-          <li class="flex items-center gap-2 text-emerald-800"><span class="text-emerald-600 font-bold">✓</span> Prominent social proof badges placed at decision points</li>
-          <li class="flex items-center gap-2 text-emerald-800"><span class="text-emerald-600 font-bold">✓</span> Mobile-first responsive hierarchy with zero framework bloat</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>`,
-  });
-
-  // 6. Interactive Pricing Section
-  sections.push({
-    id: 'sec_pricing_5',
-    type: 'other',
-    original_html: `<section id="pricing" class="py-20 px-4 bg-zinc-50/60 border-b border-zinc-100 text-center" x-data="{ annual: true }">
-  <div class="max-w-5xl mx-auto">
-    <div class="text-center max-w-2xl mx-auto mb-10">
-      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold text-zinc-700 mb-3">
-        <span>Simple Pricing</span>
-      </div>
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight mb-2">
-        Choose Your Growth Plan
-      </h2>
-      <p class="text-sm text-zinc-600">Start with full access. Upgrade as your team scales.</p>
-      
-      <!-- Interactive Billing Toggle -->
-      <div class="mt-6 inline-flex items-center gap-3 p-1 rounded-xl bg-zinc-200/80 border border-zinc-300 text-xs font-semibold">
-        <button type="button" @click="annual = false" :class="!annual ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600'" class="px-3.5 py-1.5 rounded-lg transition-all">Monthly</button>
-        <button type="button" @click="annual = true" :class="annual ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600'" class="px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1">
-          <span>Annual</span>
-          <span class="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md font-bold">SAVE 20%</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto text-left">
-      <!-- Starter Plan -->
-      <div class="bg-white p-8 rounded-2xl border border-zinc-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-zinc-500 bg-zinc-100 px-3 py-1 rounded-full">Starter</span>
-          <div class="text-4xl font-extrabold text-zinc-900 mt-4" x-text="annual ? '$29' : '$39'">$29</div>
-          <p class="text-xs text-zinc-500 mb-6 mt-1">For growing teams & single landing pages</p>
-          <ul class="text-xs text-zinc-700 space-y-2.5 mb-8">
-            <li class="flex items-center gap-2">✓ Full CRO optimization engine</li>
-            <li class="flex items-center gap-2">✓ Unlimited copy variations</li>
-            <li class="flex items-center gap-2">✓ Standalone HTML/CSS Export</li>
-          </ul>
-        </div>
-        <a href="#cta" class="block text-center w-full py-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 rounded-xl text-xs font-semibold transition-colors">
-          Get Started
-        </a>
-      </div>
-
-      <!-- Pro Plan -->
-      <div class="bg-white p-8 rounded-2xl border-2 border-zinc-900 shadow-xl flex flex-col justify-between relative">
-        <span class="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-wider text-white bg-zinc-900 px-3 py-0.5 rounded-full shadow-sm">Most Popular</span>
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-zinc-900 bg-zinc-100 px-3 py-1 rounded-full">Pro Agency</span>
-          <div class="text-4xl font-extrabold text-zinc-900 mt-4" x-text="annual ? '$79' : '$99'">$79</div>
-          <p class="text-xs text-zinc-500 mb-6 mt-1">For scaling agencies & high-volume funnels</p>
-          <ul class="text-xs text-zinc-700 space-y-2.5 mb-8">
-            <li class="flex items-center gap-2">✓ Unlimited page generations</li>
-            <li class="flex items-center gap-2">✓ Multi-brand kit presets</li>
-            <li class="flex items-center gap-2">✓ React/Next.js & HTML exports</li>
-            <li class="flex items-center gap-2">✓ Priority CRO agent processing</li>
-          </ul>
-        </div>
-        <a href="#cta" class="block text-center w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-md">
-          Start Pro Free Trial
-        </a>
-      </div>
-    </div>
-  </div>
-</section>`,
-  });
-
-  // 7. Interactive Frequently Asked Questions (FAQ) Section
-  sections.push({
-    id: 'sec_faq_6',
-    type: 'other',
-    original_html: `<section id="faq" class="py-20 px-4 bg-white border-b border-zinc-100" x-data="{ openFaq: 0 }">
-  <div class="max-w-3xl mx-auto">
-    <div class="text-center mb-12">
-      <h2 class="text-3xl font-extrabold text-zinc-900 tracking-tight mb-2">
-        Frequently Asked Questions
-      </h2>
-      <p class="text-xs text-zinc-500">Everything you need to know about implementation and results</p>
-    </div>
-
-    <div class="space-y-3 text-left">
-      <div class="border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
-        <button type="button" @click="openFaq = openFaq === 0 ? null : 0" class="w-full py-4 px-5 flex items-center justify-between font-bold text-sm text-zinc-900 hover:bg-zinc-50 transition-colors">
-          <span>How quickly will I see conversion improvements?</span>
-          <span class="text-xs font-mono" x-text="openFaq === 0 ? '▲' : '▼'">▲</span>
-        </button>
-        <div x-show="openFaq === 0" x-collapse class="px-5 pb-4 text-xs text-zinc-600 border-t border-zinc-100 pt-3 leading-relaxed">
-          Most clients observe measurable conversion lift within 24–48 hours of deploying the optimized messaging and CTA structure.
-        </div>
-      </div>
-
-      <div class="border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
-        <button type="button" @click="openFaq = openFaq === 1 ? null : 1" class="w-full py-4 px-5 flex items-center justify-between font-bold text-sm text-zinc-900 hover:bg-zinc-50 transition-colors">
-          <span>Can I integrate this with Next.js, WordPress, or Webflow?</span>
-          <span class="text-xs font-mono" x-text="openFaq === 1 ? '▲' : '▼'">▼</span>
-        </button>
-        <div x-show="openFaq === 1" x-collapse class="px-5 pb-4 text-xs text-zinc-600 border-t border-zinc-100 pt-3 leading-relaxed">
-          Yes! The code is 100% clean Tailwind CSS with pure semantic HTML or React TSX export, ready to paste directly into any stack.
-        </div>
-      </div>
-
-      <div class="border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
-        <button type="button" @click="openFaq = openFaq === 2 ? null : 2" class="w-full py-4 px-5 flex items-center justify-between font-bold text-sm text-zinc-900 hover:bg-zinc-50 transition-colors">
-          <span>Does it preserve my existing analytics and brand tracking?</span>
-          <span class="text-xs font-mono" x-text="openFaq === 2 ? '▲' : '▼'">▼</span>
-        </button>
-        <div x-show="openFaq === 2" x-collapse class="px-5 pb-4 text-xs text-zinc-600 border-t border-zinc-100 pt-3 leading-relaxed">
-          Yes. All tracking scripts, pixels, and meta tags are preserved without modification.
-        </div>
-      </div>
-    </div>
-  </div>
-</section>`,
-  });
-
-  // 8. Testimonial Section
-  sections.push({
-    id: 'sec_testimonial_7',
-    type: 'social_proof',
-    original_html: `<section id="testimonials" class="py-20 px-4 bg-zinc-50/50 border-b border-zinc-100 text-center">
-  <div class="max-w-3xl mx-auto">
-    <div class="inline-flex items-center gap-1 text-amber-500 mb-4 text-sm">
-      <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-    </div>
-    <blockquote class="text-xl sm:text-2xl font-semibold text-zinc-900 leading-relaxed mb-6">
-      &ldquo;Implementing the ${brandName} optimized page drove an immediate 38% conversion surge across all our paid traffic campaigns.&rdquo;
-    </blockquote>
-    <div class="flex items-center justify-center gap-3">
-      <div class="w-11 h-11 rounded-full bg-zinc-900 text-white font-bold text-xs flex items-center justify-center shadow-sm">
-        SM
-      </div>
-      <div class="text-left">
-        <div class="text-xs font-bold text-zinc-900">Sarah Mitchell</div>
-        <div class="text-[10px] text-zinc-500">VP of Marketing, Horizon Scale</div>
-      </div>
-    </div>
-  </div>
-</section>`,
-  });
-
-  // 9. CTA Section
-  const ctaText = pageData.ctas[1] || pageData.ctas[0] || 'Get Started Free';
-  sections.push({
-    id: 'sec_cta_8',
+    id: 'sec_cta_4',
     type: 'cta',
     original_html: `<section id="cta" class="py-20 px-4 bg-zinc-900 text-white text-center">
   <div class="max-w-4xl mx-auto rounded-3xl p-8 sm:p-16 relative overflow-hidden bg-gradient-to-tr from-zinc-950 via-zinc-900 to-zinc-800 border border-zinc-700 shadow-2xl">
     <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
-      Ready to transform your landing page conversions?
+      ${heroHeading}
     </h2>
-    <p class="text-zinc-400 text-sm sm:text-base max-w-md mx-auto mb-8 leading-relaxed">
-      Join high-growth founders and performance marketing teams achieving industry-leading conversion rates.
-    </p>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
       <a href="#" class="px-8 py-4 bg-white text-zinc-900 rounded-xl font-bold text-sm hover:bg-zinc-100 transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98]">
-        ${ctaText} (No Credit Card Required) →
+        ${ctaText} →
       </a>
     </div>
-    <p class="text-xs text-zinc-500 mt-4">✓ 14-day free trial • Cancel anytime • 2-minute setup</p>
+    <p class="text-xs text-zinc-500 mt-4">✓ ${L.freeTrial} • ${L.noCreditCard} • ${L.quickSetup}</p>
   </div>
 </section>`,
   });
 
-  // 10. Footer Section
+  // 5. Footer Section in Original Language
   sections.push({
-    id: 'sec_footer_9',
+    id: 'sec_footer_5',
     type: 'footer',
     original_html: `<footer class="py-12 px-4 bg-white border-t border-zinc-200 text-xs text-zinc-500">
   <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -776,14 +740,7 @@ function buildSectionsFromPageData(pageData: ExtractedPageData) {
       </div>
       <span class="font-bold text-zinc-900 text-sm">${brandName}</span>
     </div>
-    <p>© ${new Date().getFullYear()} ${brandName}. All rights reserved.</p>
-    <div class="flex gap-6 text-xs text-zinc-500 font-medium">
-      <a href="#features" class="hover:text-zinc-900 transition-colors">Features</a>
-      <a href="#pricing" class="hover:text-zinc-900 transition-colors">Pricing</a>
-      <a href="#faq" class="hover:text-zinc-900 transition-colors">FAQ</a>
-      <a href="#" class="hover:text-zinc-900 transition-colors">Privacy</a>
-      <a href="#" class="hover:text-zinc-900 transition-colors">Terms</a>
-    </div>
+    <p>© ${new Date().getFullYear()} ${brandName}. ${L.rightsReserved}</p>
   </div>
 </footer>`,
   });
@@ -795,16 +752,16 @@ function isSuggestionMatchingSection(suggestion: CategoryResult, sectionType: Se
   const sName = (suggestion.name || '').toLowerCase();
   const sProblem = (suggestion.problem || '').toLowerCase();
 
-  if (sectionType === 'hero' && (sName.includes('headline') || sName.includes('value') || sProblem.includes('headline') || sName.includes('hero'))) {
+  if (sectionType === 'hero' && (sName.includes('headline') || sName.includes('hero') || sName.includes('titular') || sName.includes('titre') || sProblem.includes('headline'))) {
     return true;
   }
-  if (sectionType === 'cta' && (sName.includes('cta') || sProblem.includes('cta') || sProblem.includes('button') || sName.includes('action'))) {
+  if (sectionType === 'cta' && (sName.includes('cta') || sName.includes('button') || sName.includes('action') || sName.includes('botón') || sProblem.includes('cta'))) {
     return true;
   }
-  if (sectionType === 'social_proof' && (sName.includes('trust') || sName.includes('social') || sProblem.includes('proof') || sName.includes('proof'))) {
+  if (sectionType === 'social_proof' && (sName.includes('trust') || sName.includes('social') || sName.includes('proof') || sName.includes('confianza') || sProblem.includes('proof'))) {
     return true;
   }
-  if (sectionType === 'feature' && (sName.includes('messaging') || sName.includes('feature') || sName.includes('ux') || sName.includes('copy'))) {
+  if (sectionType === 'feature' && (sName.includes('messaging') || sName.includes('feature') || sName.includes('característica') || sName.includes('copy'))) {
     return true;
   }
   return false;
@@ -834,14 +791,15 @@ export function buildFullHtmlDocument(
   brandConfig?: BrandConfig
 ): string {
   const primaryColor = brandConfig?.primaryColor || '#09090b';
+  const lang = pageData.language || 'en';
 
   return `<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="${lang}" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${pageData.title} | Optimized by PixelPage</title>
-  <meta name="description" content="${pageData.metaDescription || 'High converting landing page'}">
+  <title>${escapeHtml(pageData.title)}</title>
+  <meta name="description" content="${escapeHtml(pageData.metaDescription || '')}">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Alpine.js Interactivity -->
@@ -897,7 +855,6 @@ export function convertToReactTsx(htmlString: string, title?: string): string {
   return `"use client";
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 
 export default function ${cleanTitle || 'LandingPage'}() {
   const [annualBilling, setAnnualBilling] = useState(true);
@@ -953,7 +910,7 @@ function generateFallbackRegeneration(
       };
     }
 
-    // Apply suggested copy replacements
+    // Apply suggested copy replacements in original language
     let updatedHtml = sec.original_html;
     const appliedIds: string[] = [];
     const changeNotes: string[] = [];
@@ -974,7 +931,7 @@ function generateFallbackRegeneration(
           // Upgrade CTA
           updatedHtml = updatedHtml.replace(
             /<a[^>]*>(.*?)<\/a>/i,
-            `<a href="#" class="px-8 py-4 bg-white text-zinc-900 rounded-xl font-bold text-sm hover:bg-zinc-100 transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98] inline-block">${m.suggested_copy} (Instant Access) →</a>`
+            `<a href="#" class="px-8 py-4 bg-white text-zinc-900 rounded-xl font-bold text-sm hover:bg-zinc-100 transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98] inline-block">${m.suggested_copy} →</a>`
           );
         }
       } else {
@@ -1005,6 +962,7 @@ function generateFallbackRegeneration(
       links: [],
       sections: [],
       visibleText: '',
+      language: 'en',
     },
     sectionsHtml,
     brandConfig
